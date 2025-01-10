@@ -44,14 +44,15 @@ import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-//import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS;
 
 
 
 
 import com.pathplanner.lib.auto.AutoBuilder;
-//import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -94,8 +95,8 @@ public class DrivetrainSubsystem implements Subsystem {
         Rotation2d.struct
     ).publish();
 
-    private final StringPublisher alliancePublisher = drivetrainNT.getStringTopic(
-        "alliance").publish();
+    // private final StringPublisher alliancePublisher = drivetrainNT.getStringTopic(
+    //     "alliance").publish();
 
     // SysID
     private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
@@ -135,7 +136,9 @@ public class DrivetrainSubsystem implements Subsystem {
         new PIDController(1, 0, 0),
         rotationController);
     
-    //private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
+    private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
+
+    
 
 
     private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
@@ -146,7 +149,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public DrivetrainSubsystem() {
 
-        // AutoBuilder.configureHolonomic(
+        // AutoBuilder.configure(
         //     this::getPose,
         //     this::resetPose,
         //     this::getChassisSpeeds,
@@ -155,6 +158,26 @@ public class DrivetrainSubsystem implements Subsystem {
         //     ON_RED_ALLIANCE,
         //     this
         // );
+
+
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            null,//Gonna fix this if needed its probably important
+            ON_RED_ALLIANCE,
+            this
+        );
+
+        
+
+
+        
+
+
+        
 
         
 
@@ -294,6 +317,10 @@ public class DrivetrainSubsystem implements Subsystem {
         lastCommandedChassisSpeeds = chassisSpeeds;
     }
 
+
+
+
+
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, boolean limitAcceleration) {
         drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative, limitAcceleration);
     }
@@ -370,9 +397,9 @@ public class DrivetrainSubsystem implements Subsystem {
         return kinematics;
     }
 
-    // public AHRS getNavx() {
-    //     return navX;
-    // }
+    public AHRS getNavx() {
+        return navX;
+    }
 
     public HolonomicDriveController getDriveController() {
         return driveController;
@@ -389,8 +416,8 @@ public class DrivetrainSubsystem implements Subsystem {
      * @return a rotation2d object representing the robot's current heading, with 0 degrees being the direction the robot was facing at startup
      */
     public Rotation2d getRotation() {
-       // return navX.getRotation2d().plus(Rotation2d.fromRadians(Math.PI));
-       return null;
+       return navX.getRotation2d().plus(Rotation2d.fromRadians(Math.PI));
+       
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -493,25 +520,28 @@ public class DrivetrainSubsystem implements Subsystem {
         );
     }
     
-    // public Command followPathCommand(String pathName){
-    //     PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+    public Command followPathCommand(String pathName){
+        //PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-    //     return new FollowPathHolonomic(
-    //         path, 
-    //         this::getPose,
-    //         this::getChassisSpeeds,
-    //         this::robotRelativeDrive,
-    //         HOLONOMIC_PATH_FOLLOWER_CONFIG,
-    //         () -> {
-    //             Optional<Alliance> alliance = DriverStation.getAlliance();
-    //             if(alliance.isPresent()) {
-    //                 return alliance.get() == DriverStation.Alliance.Red;
-    //             }
-    //             return false;
-    //         },
-    //         this
-    //     );    
-    // }
+        // return new FollowPathCommand(
+        //     path, 
+        //     this::getPose,
+        //     this::getChassisSpeeds,
+        //     this::robotRelativeDrive,
+        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
+        //     null,
+        //     () -> {
+        //         Optional<Alliance> alliance = DriverStation.getAlliance();
+        //         if(alliance.isPresent()) {
+        //             return alliance.get() == DriverStation.Alliance.Red;
+        //         }
+        //         return false;
+        //     },
+        //     this
+        // );  
+
+        return null;
+    }
 
     public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
         return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));

@@ -35,21 +35,23 @@ public final class Constants {
   public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
   public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters
 
-  public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 16;
-  public static final int BACK_RIGHT_STEER_MOTOR_ID = 17;
-  public static final int BACK_RIGHT_STEER_ENCODER_ID = 23;
+  public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 32;
+  public static final int BACK_RIGHT_STEER_MOTOR_ID = 34;
+  public static final int BACK_RIGHT_STEER_ENCODER_ID = 22;
   public static final double BACK_RIGHT_STEER_OFFSET = 5.9;
 
-  public static final int BACK_LEFT_DRIVE_MOTOR_ID = 14;
-  public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
-  public static final int BACK_LEFT_STEER_ENCODER_ID = 21;    public static final double BACK_LEFT_STEER_OFFSET = 1.28;
-  public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 12;
-  public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
-  public static final int FRONT_RIGHT_STEER_ENCODER_ID = 22;    public static final double FRONT_RIGHT_STEER_OFFSET = 3.75;
+  public static final int BACK_LEFT_DRIVE_MOTOR_ID = 39;
+  public static final int BACK_LEFT_STEER_MOTOR_ID = 38;
+  public static final int BACK_LEFT_STEER_ENCODER_ID = 21;   
+  public static final double BACK_LEFT_STEER_OFFSET = 1.28;
 
-  public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 10;
-  public static final int FRONT_LEFT_STEER_MOTOR_ID = 11;
-  public static final int FONT_LEFT_STEER_ENCODER_ID = 20;
+  public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 33;
+  public static final int FRONT_RIGHT_STEER_MOTOR_ID = 35;
+  public static final int FRONT_RIGHT_STEER_ENCODER_ID = 20;    public static final double FRONT_RIGHT_STEER_OFFSET = 3.75;
+
+  public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 36;
+  public static final int FRONT_LEFT_STEER_MOTOR_ID = 37;
+  public static final int FONT_LEFT_STEER_ENCODER_ID = 23;
   public static final double FRONT_LEFT_STEER_OFFSET = 4.71;
 
   public static final double WHEEL_DIAMETER = 0.1016;
@@ -65,7 +67,7 @@ public final class Constants {
   */
   public static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
-  public static final double MAX_ATTAINABLE_VELOCITY = 4.5;
+  public static final double MAX_ATTAINABLE_VELOCITY = 1.5;
 
   public static final double LINEAR_VELOCITY_CONSTRAINT = MAX_ATTAINABLE_VELOCITY;
   public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;

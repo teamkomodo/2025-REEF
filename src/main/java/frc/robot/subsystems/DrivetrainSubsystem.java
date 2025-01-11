@@ -41,7 +41,6 @@ import frc.robot.util.Util;
 import static frc.robot.Constants.*;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -54,9 +53,10 @@ import com.kauailabs.navx.frc.AHRS;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.RobotConfig;
+// import com.pathplanner.lib.config.ModuleConfig;
+// import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+// import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.FileVersionException;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -153,27 +153,17 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public DrivetrainSubsystem() {
 
+        
         // AutoBuilder.configure(
         //     this::getPose,
         //     this::resetPose,
         //     this::getChassisSpeeds,
         //     this::robotRelativeDrive,
         //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
+        //     null,//Gonna fix this if needed its probably important but idfk
         //     ON_RED_ALLIANCE,
         //     this
         // );
-
-
-        AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getChassisSpeeds,
-            this::robotRelativeDrive,
-            HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            null,//Gonna fix this if needed its probably important but idfk
-            ON_RED_ALLIANCE,
-            this
-        );
 
         
 
@@ -524,25 +514,28 @@ public class DrivetrainSubsystem implements Subsystem {
         );
     }
     
-
-    
     public Command followPathCommand(String pathName) throws IOException, ParseException{
-
-        
 
         PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-        return new FollowPathCommand(
-           path,
-           this::getPose,
-           this::getChassisSpeeds,
-           null,
-           HOLONOMIC_PATH_FOLLOWER_CONFIG,
-           null,
-           ON_RED_ALLIANCE,
-           this
-        );      
+        // return new FollowPathCommand(
+        //     path,
+        //     this::getPose,
+        //     this::getChassisSpeeds,
+        //     this::robotRelativeDrive,
+        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
+        //     null,
+        //     ON_RED_ALLIANCE,
+        //     this
+        // );   
+        
+        return null;
     }
+
+
+
+    
+
 
     public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
         return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));

@@ -241,7 +241,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-        resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79)));
         zeroGyro();
     }
 

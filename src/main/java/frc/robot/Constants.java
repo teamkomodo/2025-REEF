@@ -43,17 +43,17 @@ public final class Constants {
   public static final int BACK_LEFT_DRIVE_MOTOR_ID = 39;
   public static final int BACK_LEFT_STEER_MOTOR_ID = 38;
   public static final int BACK_LEFT_STEER_ENCODER_ID = 21;   
-  public static final double BACK_LEFT_STEER_OFFSET = 2.856;//0.067;
+  public static final double BACK_LEFT_STEER_OFFSET =  0;//Math.toRadians(90);
 
   public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 33;
   public static final int FRONT_RIGHT_STEER_MOTOR_ID = 35;
   public static final int FRONT_RIGHT_STEER_ENCODER_ID = 20;  
-  public static final double FRONT_RIGHT_STEER_OFFSET = 0; //Math.toRadians(0.137 + 90);
+  public static final double FRONT_RIGHT_STEER_OFFSET = 0;//Math.toRadians(0.137 + 90);
 
   public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 36;
   public static final int FRONT_LEFT_STEER_MOTOR_ID = 37;
   public static final int FONT_LEFT_STEER_ENCODER_ID = 23;
-  public static final double FRONT_LEFT_STEER_OFFSET = 1.103 + Math.toRadians(180);//2.441;
+  public static final double FRONT_LEFT_STEER_OFFSET = 0;//2.441;
 
   public static final double WHEEL_DIAMETER = 0.1016;
 

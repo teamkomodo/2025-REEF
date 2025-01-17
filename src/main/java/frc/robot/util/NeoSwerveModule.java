@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import com.revrobotics.spark.SparkMax;
@@ -16,6 +17,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,6 +28,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 //import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
@@ -57,7 +61,7 @@ public class NeoSwerveModule implements SwerveModule{
     private final SparkMax steerMotor;
     private final SparkMaxConfig steerConfig;
 
-    public double AbsoluteSensorDiscontinuityPoint =0.5;
+   // public double AbsoluteSensorDiscontinuityPoint = 0.5;
     
     
     private final CANcoder steerAbsoluteEncoder;
@@ -97,9 +101,12 @@ public class NeoSwerveModule implements SwerveModule{
         steerAbsoluteEncoder.getConfigurator().apply(
             new MagnetSensorConfigs()
             .withMagnetOffset(steerOffset / (2 * Math.PI))
-            .withAbsoluteSensorDiscontinuityPoint(AbsoluteSensorDiscontinuityPoint)); // CANCoder outputs between (-0.5, 0.5)
-            //hopefully this has the correct values but idk we ball
-        steerRelativeEncoder = steerMotor.getEncoder();
+            .withAbsoluteSensorDiscontinuityPoint(getAbsoluteSensorDiscontinuity())); //correct replacement
+            //.withAbsoluteSensorDiscontinuityPoint(AbsoluteSensorDiscontinuityPoint)); // CANCoder outputs between (-0.5, 0.5)
+            
+        
+        
+            steerRelativeEncoder = steerMotor.getEncoder();
         //steerController = steerMotor.getPIDController();
         steerController = steerMotor.getClosedLoopController();
         driverController = driveMotor.getClosedLoopController();
@@ -135,6 +142,7 @@ public class NeoSwerveModule implements SwerveModule{
         steerkDEntry.set(steerPIDGains.d);
 
         angularOffset = steerOffset;
+        
         
 
     }
@@ -184,24 +192,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-
-        
-        // steerMotor.setInverted(true);
-        // steerMotor.setIdleMode(IdleMode.kBrake);
-
-        // steerRelativeEncoder.setPositionConversionFactor(2 * Math.PI * STEER_REDUCTION); // motor rotations -> module rotation in radians
-        // steerRelativeEncoder.setVelocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60); // motor RPM -> module rad/s
-        steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
-        
-        
-
-        // steerController.setP(steerGains.p);
-        // steerController.setI(steerGains.i);
-        // steerController.setD(steerGains.d);
-
-
-      
-        
+        steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());      
     }
 
     public void updateTelemetry(){
@@ -248,6 +239,8 @@ public class NeoSwerveModule implements SwerveModule{
        // return null;
     }
 
+    
+
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(driveRelativeEncoder.getPosition(), getModuleRotation());
     }
@@ -287,6 +280,7 @@ public class NeoSwerveModule implements SwerveModule{
         //System.out.println(driveFeedforward);
         driveMotor.setVoltage(driveOutput + driveFeedforward);
         steerController.setReference(desiredState.angle.getRadians(), ControlType.kPosition);
+        System.out.println(angularOffset);
     }
 
     // private void correctRelativeEncoder() {
@@ -315,6 +309,11 @@ public class NeoSwerveModule implements SwerveModule{
         return driveRelativeEncoder.getVelocity();
         
     }
+
+    private Angle getAbsoluteSensorDiscontinuity(){
+        return new MagnetSensorConfigs().getAbsoluteSensorDiscontinuityPointMeasure();
+    }
+    
 
     @Override
     public void runForward(double voltage) {

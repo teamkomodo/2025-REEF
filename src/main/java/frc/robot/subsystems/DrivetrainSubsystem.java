@@ -577,10 +577,10 @@ public class DrivetrainSubsystem implements Subsystem {
         }, this);
     }
     
-    public Command runFrontLeft(){
-        return Commands.run(() -> {
-            System.out.println("ran the motor");
-            //frontLeft.runForward(1);
-        }, this);
-    }
+    // public Command runFrontLeft(){
+    //     return Commands.run(() -> {
+    //         System.out.println("ran the motor");
+    //         //frontLeft.runForward(1);
+    //     }, this);
+    // }
 }

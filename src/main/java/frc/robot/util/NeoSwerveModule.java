@@ -191,19 +191,16 @@ public class NeoSwerveModule implements SwerveModule{
 
         // steerRelativeEncoder.setPositionConversionFactor(2 * Math.PI * STEER_REDUCTION); // motor rotations -> module rotation in radians
         // steerRelativeEncoder.setVelocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60); // motor RPM -> module rad/s
-        steerRelativeEncoder.setPosition(getModuleRotation().getRadians());
+        steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
+        
+        
 
         // steerController.setP(steerGains.p);
         // steerController.setI(steerGains.i);
         // steerController.setD(steerGains.d);
 
 
-        // I cant find any replacement for this thing and i dont even know what it does
-        // if swerve freaks out then we're so done for since i can't find the new one in 2025
-     /*    steerController.setPositionPIDWrappingEnabled(true);
-        
-        steerController.setPositionPIDWrappingMaxInput(Math.PI);
-        steerController.setPositionPIDWrappingMinInput(-Math.PI);   */
+      
         
     }
 
@@ -306,7 +303,7 @@ public class NeoSwerveModule implements SwerveModule{
 
     public Rotation2d getModuleRotation() {
         //return new Rotation2d(steerRelativeEncoder.getPosition() + relativeSteerAdjustment);
-        return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + angularOffset + relativeSteerAdjustment)); // Handled by 
+        return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + relativeSteerAdjustment)); // Handled by 
     }
 
     public Rotation2d getAbsoluteModuleRotation() {

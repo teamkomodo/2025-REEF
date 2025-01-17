@@ -5,12 +5,16 @@ import com.ctre.phoenix6.hardware.CANcoder;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
+//import com.revrobotics.servohub.ServoHub.ResetMode;
+import com.revrobotics.servohub.config.ServoHubParameter;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -29,6 +33,8 @@ import static frc.robot.Constants.*;
 
 public class NeoSwerveModule implements SwerveModule{
 
+
+   // private  SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
     // Telemetry
     private final DoublePublisher normalizedVelocityError;
     private final DoublePublisher rotationErrorPublisher;
@@ -64,12 +70,15 @@ public class NeoSwerveModule implements SwerveModule{
     private final PIDController driveController;
 
     private final SparkClosedLoopController steerController;
+    private final SparkClosedLoopController driverController;
         
     private SimpleMotorFeedforward driveFeedforward; // Gains from SysId Analysis
 
 
     private double relativeSteerAdjustment = 0;
+    private double angularOffset = 0;
     // private double relativeSteerAdjustmentFactor = 0.1;
+   // public Rotation2d angle = Rotation2d.kZero;
 
     public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId, double steerOffset, PIDGains steerPIDGains, PIDGains drivePIDGains, FFGains driveFFGains, NetworkTable moduleNT) {
         this.driveMotor = new SparkMax(driveMotorId, MotorType.kBrushless);
@@ -93,6 +102,7 @@ public class NeoSwerveModule implements SwerveModule{
         steerRelativeEncoder = steerMotor.getEncoder();
         //steerController = steerMotor.getPIDController();
         steerController = steerMotor.getClosedLoopController();
+        driverController = driveMotor.getClosedLoopController();
 
         configureMotors(steerPIDGains);
      
@@ -124,7 +134,8 @@ public class NeoSwerveModule implements SwerveModule{
         steerkIEntry.set(steerPIDGains.i);
         steerkDEntry.set(steerPIDGains.d);
 
-
+        angularOffset = steerOffset;
+        
 
     }
 
@@ -148,6 +159,7 @@ public class NeoSwerveModule implements SwerveModule{
         .positionConversionFactor(wheelPositionConversionFactor)
         .velocityConversionFactor(wheelPositionConversionFactor / 60); // motor RPM -> wheel speed in m/s
 
+        driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //Steer Motor
         steerConfig.inverted(true)
@@ -156,13 +168,22 @@ public class NeoSwerveModule implements SwerveModule{
         steerConfig.encoder
         .positionConversionFactor(2 * Math.PI * STEER_REDUCTION)
         .velocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60);
+
+        
         
         steerAbsoluteEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
 
         steerConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .positionWrappingEnabled(true)
+        .positionWrappingMaxInput(Math.PI)
+        .positionWrappingMinInput(-Math.PI)
         .pid(steerGains.p, steerGains.i,steerGains.d);
 
+
+
+        steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
 
         
         // steerMotor.setInverted(true);
@@ -170,7 +191,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         // steerRelativeEncoder.setPositionConversionFactor(2 * Math.PI * STEER_REDUCTION); // motor rotations -> module rotation in radians
         // steerRelativeEncoder.setVelocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60); // motor RPM -> module rad/s
-        // steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
+        steerRelativeEncoder.setPosition(getModuleRotation().getRadians());
 
         // steerController.setP(steerGains.p);
         // steerController.setI(steerGains.i);
@@ -227,17 +248,40 @@ public class NeoSwerveModule implements SwerveModule{
 
     public SwerveModuleState getDesiredState(){
         return desiredState;
+       // return null;
     }
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(driveRelativeEncoder.getPosition(), getModuleRotation());
     }
 
-    public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getModuleRotation());
-   
-        this.desiredState = optimizedState;
+    public void setDesiredState(SwerveModuleState inputSwerveState) {
+        //SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getModuleRotation());
+       // SwerveModuleState optimizedState = new SwerveModuleState();
+
+       // optimizedState.optimize(getModuleRotation());
+
+
+    //    SwerveModuleState optimizedState = new SwerveModuleState();
+    //    optimizedState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
+    //    optimizedState.angle = desiredState.angle.plus(Rotation2d.fromRadians(angularOffset));
+
+    //    optimizedState.optimize(getModuleRotation());
+
+
+       //driverController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+       //steerController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+       inputSwerveState.optimize(getModuleRotation());
+       this.desiredState = inputSwerveState;
+
+      // this.desiredState = desiredState;
+       
+      
     }
+
+    
+
+
 
     @Override
     public void periodic() {
@@ -261,8 +305,8 @@ public class NeoSwerveModule implements SwerveModule{
     // }
 
     public Rotation2d getModuleRotation() {
-        return new Rotation2d(steerRelativeEncoder.getPosition() + relativeSteerAdjustment);
-        // return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + steerOffset + relativeSteerAdjustment)); // Handled by 
+        //return new Rotation2d(steerRelativeEncoder.getPosition() + relativeSteerAdjustment);
+        return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + angularOffset + relativeSteerAdjustment)); // Handled by 
     }
 
     public Rotation2d getAbsoluteModuleRotation() {

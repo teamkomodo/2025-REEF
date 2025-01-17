@@ -40,6 +40,7 @@ import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -176,7 +177,7 @@ public class DrivetrainSubsystem implements Subsystem {
         
 
         // Drive FFGain updated AM 03/07
-
+        
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
                 FRONT_LEFT_STEER_MOTOR_ID,
@@ -185,6 +186,9 @@ public class DrivetrainSubsystem implements Subsystem {
                 new PIDGains(1.0, 0, 0),
                 new PIDGains(1, 1.0e-6, 0),
                 new FFGains(0.19861, 3.2379, 0.562),
+                /*new PIDGains(1, 0, 0),
+                new PIDGains(1, 0, 0),
+                new FFGains(1, 0, 0)*/
                 drivetrainNT.getSubTable("frontleft"));
 
         frontRight = new NeoSwerveModule(
@@ -193,8 +197,11 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(1, 1.0e-6, 0),
+               new PIDGains(1, 1.0e-6, 0),
                 new FFGains(0.18406, 3.2722, 0.40914),
+                /*new PIDGains(0, 0, 0),
+                new PIDGains(0, 0, 0),
+                new FFGains(0, 0, 0),*/
                 drivetrainNT.getSubTable("frontright"));
 
         backLeft = new NeoSwerveModule(
@@ -202,9 +209,12 @@ public class DrivetrainSubsystem implements Subsystem {
                 BACK_LEFT_STEER_MOTOR_ID,
                 BACK_LEFT_STEER_ENCODER_ID,
                 BACK_LEFT_STEER_OFFSET,
-                new PIDGains(1.0, 0, 0),
-                new PIDGains(1, 1.0e-6, 0),
-                new FFGains(0.17395, 3.286, 0.51328),
+               new PIDGains(1.0, 0, 0),
+               new PIDGains(1, 1.0e-6, 0),
+               new FFGains(0.17395, 3.286, 0.51328),
+              /*new PIDGains(0, 0, 0),
+                new PIDGains(0, 0, 0),
+                new FFGains(0, 0, 0),*/
                 drivetrainNT.getSubTable("backleft"));
 
         backRight = new NeoSwerveModule(
@@ -215,6 +225,9 @@ public class DrivetrainSubsystem implements Subsystem {
                 new PIDGains(1.0, 0, 0),
                 new PIDGains(1, 1.0e-6, 0),
                 new FFGains(0.17731, 3.2446, 0.41604),
+             /*   new PIDGains(0, 0, 0),
+                new PIDGains(0, 0, 0),
+                new FFGains(0, 0, 0),*/
                 drivetrainNT.getSubTable("backright"));
 
         poseEstimator = new SwerveDrivePoseEstimator(
@@ -371,6 +384,9 @@ public class DrivetrainSubsystem implements Subsystem {
         backLeft.runRotation(voltage);
         backRight.runRotation(voltage);
     }
+
+
+    
 
     // Getters
 
@@ -561,4 +577,10 @@ public class DrivetrainSubsystem implements Subsystem {
         }, this);
     }
     
+    public Command runFrontLeft(){
+        return Commands.run(() -> {
+            System.out.println("ran the motor");
+            //frontLeft.runForward(1);
+        }, this);
+    }
 }

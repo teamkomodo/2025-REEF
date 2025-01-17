@@ -59,6 +59,11 @@ public class RobotContainer {
     Trigger driverLB = driverController.leftBumper();
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
+
+    Trigger driverB = driverController.b();
+    driverB.whileTrue(drivetrainSubsystem.runFrontLeft());
+    
+
         // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(

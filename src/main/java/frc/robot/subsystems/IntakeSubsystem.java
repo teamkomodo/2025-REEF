@@ -1,0 +1,247 @@
+package frc.robot.subsystems;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+import static frc.robot.Constants.*;
+
+public class IntakeSubsystem extends SubsystemBase {
+
+    // NetworkTable publishers
+    private final NetworkTable intakeTable = NetworkTableInstance.getDefault().getTable("intake");
+        // Motor publishers
+    private final DoublePublisher hingeMotorPositionPublisher = intakeTable.getDoubleTopic("hingeMotorPosition").publish();
+    private final DoublePublisher hingeMotorSupposedPositionPublisher = intakeTable.getDoubleTopic("HingeMotorSupposedPosition").publish();
+    private final DoublePublisher hingeMotorDutyCyclePublisher = intakeTable.getDoubleTopic("motorDutyCycle").publish();
+    private final DoublePublisher intakeVelocityPublisher = intakeTable.getDoubleTopic("intakeDutyCycle").publish();
+        // Variable publishers
+    private final BooleanPublisher pieceIntakedPublisher = intakeTable.getBooleanTopic("pieceIntaked").publish();
+        // Sensor publishers
+    private final BooleanPublisher pieceIntakedSensorPublisher = intakeTable.getBooleanTopic("pieceIntakedSensor").publish();
+    private final BooleanPublisher pieceLoadedSensorPublisher = intakeTable.getBooleanTopic("pieceLoadedSensor").publish();
+    private final BooleanPublisher atLimitSwitchPublisher = intakeTable.getBooleanTopic("atLimitSwitch").publish();
+
+    // Intake motors
+    private final SparkMax intakeMotor;
+    private final SparkMaxConfig intakeMotorConfig;
+
+    private final RelativeEncoder intakeEncoder;
+    private final SparkClosedLoopController intakeController;
+
+    // Hinge motors
+    private final SparkMax hingeMotor;
+    private final SparkMaxConfig hingeMotorConfig;
+    private final SoftLimitConfig hingeSoftLimitConfig;
+
+    private final RelativeEncoder hingeEncoder;
+    private final SparkClosedLoopController hingeController;
+
+    // Sensors
+    public final DigitalInput coralIntakedSensor;
+    public final DigitalInput coralIntakedSensor2;
+    private final DigitalInput hingeLimitSwitch;
+
+    // Status variables (and others)
+    public String currentCommand = "idle";
+
+    private double filteredCurrent = 0;
+    private double currentFilterConstant = 0.1;
+
+    public boolean coralIntaked;
+
+    private boolean limitSwitchAtCurrentCheck;
+    private boolean limitSwitchAtLastCheck;
+    private boolean zeroed = false;
+
+    private double hingeSupposedPosition = 0;
+    
+    public IntakeSubsystem() {
+        // Assign intake motors
+        intakeMotor = new SparkMax(INTAKE_MOTOR_1_ID, MotorType.kBrushless); //FIXME: find motor id
+        intakeMotorConfig = new SparkMaxConfig();
+
+        // Assign hinge motors
+        hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_1_ID, MotorType.kBrushless); //FIXME: find motor id
+        hingeMotorConfig = new SparkMaxConfig();
+        hingeSoftLimitConfig = new SoftLimitConfig();
+
+        // Assign sensors
+        coralIntakedSensor = new DigitalInput(CORAL_INTAKED_SENSOR_CHANNEL); //FIXME: find port number
+        coralIntakedSensor2 = new DigitalInput(CORAL_LOADED_SENSOR_CHANNEL); //FIXME: find port number
+        hingeLimitSwitch = new DigitalInput(INTAKE_HINGE_ZERO_SWITCH_CHANNEL); //FIXME: find port number
+
+        // Assign intake encoder and controller
+        intakeEncoder = intakeMotor.getEncoder();
+        intakeEncoder.setPosition(0);
+        intakeController = intakeMotor.getClosedLoopController();
+
+        // Assign hinge encoder and controller
+        hingeEncoder = intakeMotor.getEncoder();
+        hingeEncoder.setPosition(0);
+        hingeController = intakeMotor.getClosedLoopController();
+
+        configMotors();
+        setIntakeDutyCycle(0);
+        setHingeDutyCycle(0);
+    }
+
+    public void teleopInit() {
+        setIntakeDutyCycle(0);
+        setHingeDutyCycle(0);
+    }
+
+    @Override
+    public void periodic() {
+        updateTelemetry();
+        filterCurrent();
+        checkSensors();
+        checkLimitSwitch();
+    }
+
+    private void filterCurrent() {
+        filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + intakeMotor.getOutputCurrent() * currentFilterConstant;
+    }
+
+    public void checkSensors() {
+        
+    }
+
+    public void updateTelemetry() {
+        // Coral status publishing
+        pieceIntakedPublisher.set(getPieceIntaked());
+        pieceIntakedSensorPublisher.set(coralIntakedSensor.get());
+        pieceLoadedSensorPublisher.set(coralIntakedSensor2.get());
+        // Intake publishing
+        intakeVelocityPublisher.set(intakeMotor.getOutputCurrent());
+        // Hinge publishing
+        hingeMotorPositionPublisher.set(hingeEncoder.getPosition());
+        hingeMotorSupposedPositionPublisher.set(hingeSupposedPosition);
+        hingeMotorDutyCyclePublisher.set(hingeEncoder.getVelocity());
+        atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
+    }
+
+    public void setIntakeDutyCycle(double dutyCycle) {
+        intakeController.setReference(dutyCycle, ControlType.kDutyCycle);
+    }
+
+    public boolean getCoralDetection(DigitalInput beamBreak) {
+        return beamBreak.get();
+    }
+
+    public boolean getPieceIntaked() {
+        return coralIntaked;
+    }
+
+    public double getIntakeVelocity() {
+        return intakeEncoder.getVelocity();
+    }
+
+    public double getFilteredCurrent() {
+        return filteredCurrent;
+    }
+
+    public void configMotors() {
+        // Intake motors
+        intakeMotorConfig
+            .inverted(false)
+            .smartCurrentLimit(80);
+
+        intakeMotorConfig.closedLoop
+            .pid(1, 0, 0);
+
+        // Hinge motors        
+        hingeSoftLimitConfig
+        .forwardSoftLimit(INTAKE_HINGE_MIN_POSITION)
+        .reverseSoftLimit(INTAKE_HINGE_MAX_POSITION)
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimitEnabled(true);
+
+        hingeMotorConfig
+            .inverted(true)
+            .smartCurrentLimit(50)
+            .apply(hingeSoftLimitConfig);
+
+        hingeMotorConfig.closedLoop
+            .pid(1, 0, 0);
+
+        hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
+    }
+
+    public void checkLimitSwitch() {
+        limitSwitchAtCurrentCheck = getLimitSwitchAtCurrentCheck();
+        if (limitSwitchAtCurrentCheck != limitSwitchAtLastCheck) {
+            hingeEncoder.setPosition(INTAKE_HINGE_MIN_POSITION);
+            zeroed = true;
+            if (!limitSwitchAtLastCheck) {
+                holdHingePosition();
+            }
+        }
+        limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
+    }
+
+    public void setHingeSupposedPosition(double position) {
+        hingeSupposedPosition = position;
+        hingeController.setReference(position, ControlType.kPosition);
+    }
+    
+    public void setHingeDutyCycle(double dutyCycle) {
+        hingeController.setReference(dutyCycle, ControlType.kDutyCycle);
+    }
+
+    public void holdHingePosition() {
+        setHingeSupposedPosition(hingeEncoder.getPosition());
+    }
+
+    public Command stowPositionCommand() {
+        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_STOW_POSITION));
+    }
+
+    public Command stationIntakePositionCommand() {
+        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_STATION_INTAKE_POSITION));
+    }
+
+    public Command intakePositionCommand() {
+        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_INTAKE_POSITION));
+    }
+
+    public Command zeroJointCommand() {
+        return Commands.runEnd(() -> setHingeDutyCycle(-0.3), () -> setHingeDutyCycle(0), this).until(() -> (getLimitSwitchAtCurrentCheck()));
+    }
+
+    // public Command intake() {
+        
+    // }
+
+    // public Command eject() {
+        
+    // }
+
+    public boolean getLimitSwitchAtCurrentCheck() {
+        return !hingeLimitSwitch.get();
+    }
+
+    public boolean getZeroed() {
+        return zeroed;
+    }
+}

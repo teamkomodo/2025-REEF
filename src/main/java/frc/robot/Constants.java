@@ -55,6 +55,39 @@ public final class Constants {
   public static final int FONT_LEFT_STEER_ENCODER_ID = 23;
   public static final double FRONT_LEFT_STEER_OFFSET = 1.103 + Math.toRadians(180);//2.441;
 
+  // Intake
+    // Intake motor IDs
+  public static final int INTAKE_MOTOR_1_ID = 0; // FIXME: Find actual values
+  public static final int INTAKE_HINGE_MOTOR_1_ID = 0;
+    // Intake and hinge sensor channels
+  public static final int CORAL_INTAKED_SENSOR_CHANNEL = 0; // FIXME: Find actual values
+  public static final int CORAL_LOADED_SENSOR_CHANNEL = 0;
+  public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 0;
+    // Intake hinge positions
+  public static final double INTAKE_HINGE_MIN_POSITION = 0; // FIXME: Find actual values
+  public static final double INTAKE_HINGE_MAX_POSITION = 0;
+  public static final double INTAKE_HINGE_STOW_POSITION = 0;
+  public static final double INTAKE_HINGE_STATION_INTAKE_POSITION = 0;
+  public static final double INTAKE_HINGE_INTAKE_POSITION = 0;
+
+  // Elevator
+    // Motor ID
+  public static final int ELEVATOR_MOTOR_ID = 0; // FIXME: Find actual value
+    // Sensor channel
+  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0; // FIXME: Find actual values
+    // Elevator positions
+  public static final double ELEVATOR_MIN_POSITION = 0; // FIXME: Find actual values
+  public static final double ELEVATOR_MAX_POSITION = 0;
+  public static final double ELEVATOR_WAIT_POSITION = 0;
+  public static final double ELEVATOR_STOW_GRAB_POSITION = 0;
+  public static final double ELEVATOR_LOW_ALGAE_POSITION = 0;
+  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 0;
+  public static final double ELEVATOR_L1_POSITION = 0;
+  public static final double ELEVATOR_L2_POSITION = 0;
+  public static final double ELEVATOR_L3_POSITION = 0;
+  public static final double ELEVATOR_L4_POSITION = 0;
+
+
   public static final double WHEEL_DIAMETER = 0.1016;
 
     /**

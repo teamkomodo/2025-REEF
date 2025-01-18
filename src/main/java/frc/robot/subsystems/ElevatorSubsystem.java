@@ -99,7 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevatorEncoder.getVelocity();
     }
 
-    public void configMotors() {
+    private void configMotors() {
         // Intake motors
         elevatorMotorConfig
             .inverted(false)

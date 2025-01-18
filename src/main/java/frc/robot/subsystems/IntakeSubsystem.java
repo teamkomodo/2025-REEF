@@ -31,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final NetworkTable intakeTable = NetworkTableInstance.getDefault().getTable("intake");
         // Motor publishers
     private final DoublePublisher hingeMotorPositionPublisher = intakeTable.getDoubleTopic("hingeMotorPosition").publish();
-    private final DoublePublisher hingeMotorSupposedPositionPublisher = intakeTable.getDoubleTopic("HingeMotorSupposedPosition").publish();
+    private final DoublePublisher hingeMotorSupposedPositionPublisher = intakeTable.getDoubleTopic("hingeMotorSupposedPosition").publish();
     private final DoublePublisher hingeMotorDutyCyclePublisher = intakeTable.getDoubleTopic("motorDutyCycle").publish();
     private final DoublePublisher intakeVelocityPublisher = intakeTable.getDoubleTopic("intakeDutyCycle").publish();
         // Variable publishers
@@ -77,11 +77,11 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public IntakeSubsystem() {
         // Assign intake motors
-        intakeMotor = new SparkMax(INTAKE_MOTOR_1_ID, MotorType.kBrushless); //FIXME: find motor id
+        intakeMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         intakeMotorConfig = new SparkMaxConfig();
 
         // Assign hinge motors
-        hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_1_ID, MotorType.kBrushless); //FIXME: find motor id
+        hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         hingeMotorConfig = new SparkMaxConfig();
         hingeSoftLimitConfig = new SoftLimitConfig();
 
@@ -123,7 +123,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void checkSensors() {
-        
+        // 
     }
 
     public void updateTelemetry() {
@@ -160,7 +160,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return filteredCurrent;
     }
 
-    public void configMotors() {
+    private void configMotors() {
         // Intake motors
         intakeMotorConfig
             .inverted(false)
@@ -168,13 +168,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
         intakeMotorConfig.closedLoop
             .pid(1, 0, 0);
+        
+        intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Hinge motors        
         hingeSoftLimitConfig
-        .forwardSoftLimit(INTAKE_HINGE_MIN_POSITION)
-        .reverseSoftLimit(INTAKE_HINGE_MAX_POSITION)
-        .forwardSoftLimitEnabled(true)
-        .reverseSoftLimitEnabled(true);
+            .forwardSoftLimit(INTAKE_HINGE_MIN_POSITION)
+            .reverseSoftLimit(INTAKE_HINGE_MAX_POSITION)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimitEnabled(true);
 
         hingeMotorConfig
             .inverted(true)

@@ -57,8 +57,8 @@ public final class Constants {
 
   // Intake
     // Intake motor IDs
-  public static final int INTAKE_MOTOR_1_ID = 0; // FIXME: Find actual values
-  public static final int INTAKE_HINGE_MOTOR_1_ID = 0;
+  public static final int INTAKE_MOTOR_ID = 0; // FIXME: Find actual values
+  public static final int INTAKE_HINGE_MOTOR_ID = 0;
     // Intake and hinge sensor channels
   public static final int CORAL_INTAKED_SENSOR_CHANNEL = 0; // FIXME: Find actual values
   public static final int CORAL_LOADED_SENSOR_CHANNEL = 0;
@@ -86,6 +86,15 @@ public final class Constants {
   public static final double ELEVATOR_L2_POSITION = 0;
   public static final double ELEVATOR_L3_POSITION = 0;
   public static final double ELEVATOR_L4_POSITION = 0;
+
+  // Indexer
+    // Indexer motor IDs
+  public static final int INDEXER_LEFT_BELT_MOTOR_ID = 0; // FIXME: Find actual values
+  public static final int INDEXER_RIGHT_BELT_MOTOR_ID = 0;
+  public static final int INDEXER_CENTERING_MOTOR_ID = 0;
+    // Indexer sensor channels
+  public static final int INDEXER_END_SENSOR_CHANNEL = 0; // FIXME: Find actual values
+  public static final int INDEXER_START_SENSOR_CHANNEL = 0;
 
 
   public static final double WHEEL_DIAMETER = 0.1016;

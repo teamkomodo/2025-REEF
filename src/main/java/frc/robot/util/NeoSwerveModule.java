@@ -62,7 +62,7 @@ public class NeoSwerveModule implements SwerveModule{
     private final SparkMaxConfig steerConfig;
 
     private Rotation2d angleOffset;
-   // public double AbsoluteSensorDiscontinuityPoint = 0.5;
+   
     
     
     private final CANcoder steerAbsoluteEncoder;
@@ -82,10 +82,11 @@ public class NeoSwerveModule implements SwerveModule{
 
     private double relativeSteerAdjustment = 0;
     private double angularOffset = 0;
+    private double steeringOffset;
     // private double relativeSteerAdjustmentFactor = 0.1;
    // public Rotation2d angle = Rotation2d.kZero;
 
-    public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId, double steerOffset, PIDGains steerPIDGains, PIDGains drivePIDGains, FFGains driveFFGains, NetworkTable moduleNT) {
+    public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId,double steerOffset, PIDGains steerPIDGains, PIDGains drivePIDGains, FFGains driveFFGains, NetworkTable moduleNT) {
         this.driveMotor = new SparkMax(driveMotorId, MotorType.kBrushless);
         this.steerMotor = new SparkMax(steerMotorId, MotorType.kBrushless);
         this.steerAbsoluteEncoder = new CANcoder(steerAbsoluteEncoderId);
@@ -101,9 +102,9 @@ public class NeoSwerveModule implements SwerveModule{
 
         steerAbsoluteEncoder.getConfigurator().apply(
             new MagnetSensorConfigs()
-            .withMagnetOffset(steerOffset / (2 * Math.PI))
+            .withMagnetOffset(0.0/*steerOffset / (2 * Math.PI*)*/)
             .withAbsoluteSensorDiscontinuityPoint(getAbsoluteSensorDiscontinuity())); //correct replacement
-            //.withAbsoluteSensorDiscontinuityPoint(AbsoluteSensorDiscontinuityPoint)); // CANCoder outputs between (-0.5, 0.5)
+           
             
         
         
@@ -112,6 +113,9 @@ public class NeoSwerveModule implements SwerveModule{
         //steerController = steerMotor.getPIDController();
         steerController = steerMotor.getClosedLoopController();
         driverController = driveMotor.getClosedLoopController();
+
+
+        steeringOffset = steerOffset;
 
         configureMotors(steerPIDGains);
      
@@ -143,13 +147,10 @@ public class NeoSwerveModule implements SwerveModule{
         steerkIEntry.set(steerPIDGains.i);
         steerkDEntry.set(steerPIDGains.d);
 
-        
-       // angularOffset = steerOffset;
-        
-       //steerAbsoluteEncoder.setPosition(0);
-        //steerAbsoluteEncoder.setPosition(angularOffset);
 
-       // resetToAbsolute();
+
+        
+       
     }
 
     private void configureMotors(PIDGains steerGains) {
@@ -184,7 +185,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         
         
-        //steerAbsoluteEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
+        
 
         steerConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -197,7 +198,8 @@ public class NeoSwerveModule implements SwerveModule{
 
         steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        //resetToAbsolute(); 
+       // resetToAbsolute(); 
+       steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
     }
 
     public void updateTelemetry(){
@@ -302,12 +304,12 @@ public class NeoSwerveModule implements SwerveModule{
     // }
 
     public Rotation2d getModuleRotation() {
-        //return new Rotation2d(steerRelativeEncoder.getPosition() + relativeSteerAdjustment);
-        return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + relativeSteerAdjustment)); // Handled by 
+        return new Rotation2d(steerRelativeEncoder.getPosition()/*  + relativeSteerAdjustment*/);
+       // return new Rotation2d(MathUtil.angleModulus(steerRelativeEncoder.getPosition() + relativeSteerAdjustment)); // Handled by 
     }
 
     public Rotation2d getAbsoluteModuleRotation() {
-        return new Rotation2d(steerAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI);
+        return new Rotation2d(steerAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI + steeringOffset);
         // return new Rotation2d(MathUtil.angleModulus(Math.toRadians(steerAbsoluteEncoder.getAbsolutePosition()) + steerOffset));
     }
     
@@ -322,7 +324,7 @@ public class NeoSwerveModule implements SwerveModule{
 
 
     // private void resetToAbsolute(){
-    //     double position = getModuleRotation().getRotations() - angleOffset.getRotations();
+    //     double position = getModuleRotation().getRotations() - .getRotations();
     //     steerAbsoluteEncoder.setPosition(position);
     // }
     

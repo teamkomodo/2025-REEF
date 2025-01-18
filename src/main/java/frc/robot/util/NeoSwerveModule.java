@@ -61,6 +61,7 @@ public class NeoSwerveModule implements SwerveModule{
     private final SparkMax steerMotor;
     private final SparkMaxConfig steerConfig;
 
+    private Rotation2d angleOffset;
    // public double AbsoluteSensorDiscontinuityPoint = 0.5;
     
     
@@ -107,6 +108,7 @@ public class NeoSwerveModule implements SwerveModule{
         
         
             steerRelativeEncoder = steerMotor.getEncoder();
+            
         //steerController = steerMotor.getPIDController();
         steerController = steerMotor.getClosedLoopController();
         driverController = driveMotor.getClosedLoopController();
@@ -141,10 +143,13 @@ public class NeoSwerveModule implements SwerveModule{
         steerkIEntry.set(steerPIDGains.i);
         steerkDEntry.set(steerPIDGains.d);
 
-        angularOffset = steerOffset;
         
+       // angularOffset = steerOffset;
         
+       //steerAbsoluteEncoder.setPosition(0);
+        //steerAbsoluteEncoder.setPosition(angularOffset);
 
+       // resetToAbsolute();
     }
 
     private void configureMotors(PIDGains steerGains) {
@@ -179,7 +184,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         
         
-        steerAbsoluteEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
+        //steerAbsoluteEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
 
         steerConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -192,7 +197,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         steerMotor.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());      
+        //resetToAbsolute(); 
     }
 
     public void updateTelemetry(){
@@ -280,7 +285,8 @@ public class NeoSwerveModule implements SwerveModule{
         //System.out.println(driveFeedforward);
         driveMotor.setVoltage(driveOutput + driveFeedforward);
         steerController.setReference(desiredState.angle.getRadians(), ControlType.kPosition);
-        System.out.println(angularOffset);
+        //steerAbsoluteEncoder.setPosition(steerOffset);
+        //System.out.println(angularOffset);
     }
 
     // private void correctRelativeEncoder() {
@@ -313,6 +319,12 @@ public class NeoSwerveModule implements SwerveModule{
     private Angle getAbsoluteSensorDiscontinuity(){
         return new MagnetSensorConfigs().getAbsoluteSensorDiscontinuityPointMeasure();
     }
+
+
+    // private void resetToAbsolute(){
+    //     double position = getModuleRotation().getRotations() - angleOffset.getRotations();
+    //     steerAbsoluteEncoder.setPosition(position);
+    // }
     
 
     @Override

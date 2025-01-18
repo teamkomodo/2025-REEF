@@ -14,6 +14,8 @@ import static frc.robot.Constants.DRIVER_XBOX_PORT;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,9 +46,13 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureBindings();
-    autoChooser = null; //AutoBuilder.buildAutoChooser();
+    
 
-    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    
+    autoChooser = AutoBuilder.buildAutoChooser();
+
+   SmartDashboard.putData("Auto Chooser", autoChooser);
+    
   }
 
   
@@ -83,8 +89,14 @@ public class RobotContainer {
     // // An example command will be run in autonomous
     // if(autoChooser != null){
     //   return autoChooser.getSelected();
+    //   System.out.println("got an auto");
     // }
 
-    return null;
+    // return null;
+
+    return autoChooser.getSelected();
+    // return new PathPlannerAuto("Test Path");
+
+  
   }
 }

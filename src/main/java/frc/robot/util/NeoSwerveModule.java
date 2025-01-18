@@ -78,7 +78,7 @@ public class NeoSwerveModule implements SwerveModule{
     private final SparkClosedLoopController driverController;
         
     private SimpleMotorFeedforward driveFeedforward; // Gains from SysId Analysis
-
+    
 
     private double relativeSteerAdjustment = 0;
     private double angularOffset = 0;

@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
 import frc.robot.util.FFGains;
 import frc.robot.util.NeoSwerveModule;
 import frc.robot.util.PIDGains;
@@ -42,10 +43,13 @@ import static frc.robot.Constants.*;
 
 import java.io.Console;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import java.io.File;
+import java.io.IOException;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -54,9 +58,11 @@ import com.kauailabs.navx.frc.AHRS;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.RobotConfig;
 // import com.pathplanner.lib.config.ModuleConfig;
 // import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.DriveFeedforwards;
 // import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -122,6 +128,9 @@ public class DrivetrainSubsystem implements Subsystem {
         )
     );
 
+
+    
+
     // Swerve
     private final Translation2d frontLeftPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D); // All translations are relative to center of rotation
     private final Translation2d frontRightPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, -DRIVETRAIN_LENGTH / 2D);
@@ -143,10 +152,17 @@ public class DrivetrainSubsystem implements Subsystem {
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-    
+    //private final RobotConfig robotConfig     
 
 
     private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
+    RobotConfig config;
+    // private DriveFeedforwards driveFeedforwards = new DriveFeedforwards(
+    //     null, 
+    //     null, 
+    //     null, 
+    //     null, 
+    //     null);
     private boolean slowMode = false;
     private double rotationOffsetRadians = 0.0;
 
@@ -243,6 +259,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
         resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79))); //x = 10
         zeroGyro();
+        setupPathPlanner();
     }
 
 
@@ -265,6 +282,34 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
         drive(chassisSpeeds, false, false);
+    }
+
+
+    private void setupPathPlanner(){
+
+        
+        
+        
+        
+        try {
+            config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            config,
+            ON_RED_ALLIANCE,
+            this
+             );
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
+
+
+        
     }
 
     private void updateTelemetry(){
@@ -415,6 +460,9 @@ public class DrivetrainSubsystem implements Subsystem {
         return driveController;
     }
 
+
+    
+
     /**
      * @return a rotation2d object representing the robot's zeored heading, with 0 degrees being the direction the robot will drive forward in
      */
@@ -433,6 +481,22 @@ public class DrivetrainSubsystem implements Subsystem {
     public ChassisSpeeds getChassisSpeeds() {
         return currentChassisSpeeds;
     }
+
+
+    public BiConsumer getChassisOutput(ChassisSpeeds chassisSpeed, DriveFeedforwards feedforwards){
+        return null; //Needs to return a biconsumer of chassisspeeds and feedforward
+    }
+
+
+    // public DriveFeedforwards getFeedforwards(){
+    //     return driveFeedforwards;
+    // }
+
+
+
+
+
+    
 
 
     // Setters
@@ -534,19 +598,20 @@ public class DrivetrainSubsystem implements Subsystem {
 
         PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-        // return new FollowPathCommand(
-        //     path,
-        //     this::getPose,
-        //     this::getChassisSpeeds,
-        //     this::robotRelativeDrive,
-        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
-        //     null,
-        //     ON_RED_ALLIANCE,
-        //     this
-        // );   
-        
-        return null;
+        return new FollowPathCommand(
+            path, 
+            this::getPose, 
+            this::getChassisSpeeds, 
+            null, //needs to be replaced with actual biconsumer
+            HOLONOMIC_PATH_FOLLOWER_CONFIG, 
+            config, 
+            ON_RED_ALLIANCE,
+            this
+        ); 
     }
+
+
+    
 
 
 
@@ -576,11 +641,4 @@ public class DrivetrainSubsystem implements Subsystem {
 
         }, this);
     }
-    
-    // public Command runFrontLeft(){
-    //     return Commands.run(() -> {
-    //         System.out.println("ran the motor");
-    //         //frontLeft.runForward(1);
-    //     }, this);
-    // }
 }

@@ -170,7 +170,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public DrivetrainSubsystem() {
 
-        
         // AutoBuilder.configure(
         //     this::getPose,
         //     this::resetPose,
@@ -181,19 +180,8 @@ public class DrivetrainSubsystem implements Subsystem {
         //     ON_RED_ALLIANCE,
         //     this
         // );
-
         
-
-
-        
-
-
-        
-
-        
-
         // Drive FFGain updated AM 03/07
-        
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
                 FRONT_LEFT_STEER_MOTOR_ID,
@@ -262,7 +250,6 @@ public class DrivetrainSubsystem implements Subsystem {
         setupPathPlanner();
     }
 
-
     @Override
     public void periodic() {
         // does not need to use adjusted rotation, odometry handles it.
@@ -284,13 +271,7 @@ public class DrivetrainSubsystem implements Subsystem {
         drive(chassisSpeeds, false, false);
     }
 
-
     private void setupPathPlanner(){
-
-        
-        
-        
-        
         try {
             config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -305,11 +286,7 @@ public class DrivetrainSubsystem implements Subsystem {
              );
         } catch (Exception e){
             e.printStackTrace();
-        }
-        
-
-
-        
+        } 
     }
 
     private void updateTelemetry(){
@@ -369,10 +346,6 @@ public class DrivetrainSubsystem implements Subsystem {
         lastCommandedChassisSpeeds = chassisSpeeds;
     }
 
-
-
-
-
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, boolean limitAcceleration) {
         drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative, limitAcceleration);
     }
@@ -430,11 +403,7 @@ public class DrivetrainSubsystem implements Subsystem {
         backRight.runRotation(voltage);
     }
 
-
-    
-
     // Getters
-
     public SwerveModulePosition[] getSwervePositions() {
         return new SwerveModulePosition[] {
             frontLeft.getPosition(),
@@ -460,9 +429,6 @@ public class DrivetrainSubsystem implements Subsystem {
         return driveController;
     }
 
-
-    
-
     /**
      * @return a rotation2d object representing the robot's zeored heading, with 0 degrees being the direction the robot will drive forward in
      */
@@ -487,20 +453,7 @@ public class DrivetrainSubsystem implements Subsystem {
         return null; //Needs to return a biconsumer of chassisspeeds and feedforward
     }
 
-
-    // public DriveFeedforwards getFeedforwards(){
-    //     return driveFeedforwards;
-    // }
-
-
-
-
-
-    
-
-
     // Setters
-
     public void setModuleStates(SwerveModuleState[] moduleStates) {
         frontLeft.setDesiredState(moduleStates[0]);
         frontRight.setDesiredState(moduleStates[1]);
@@ -570,9 +523,9 @@ public class DrivetrainSubsystem implements Subsystem {
     // SysID Routine Commands
     public Command driveSysIdRoutineCommand() {
         return Commands.sequence(
-            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(4),
             Commands.waitSeconds(2),
-            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(4),
             Commands.waitSeconds(2),
             driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
             Commands.waitSeconds(2),

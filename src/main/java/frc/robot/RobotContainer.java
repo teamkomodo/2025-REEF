@@ -46,12 +46,9 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureBindings();
-    
 
-    
     autoChooser = AutoBuilder.buildAutoChooser();
-
-   SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     
   }
 
@@ -65,12 +62,13 @@ public class RobotContainer {
     Trigger driverLB = driverController.leftBumper();
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-
+    Trigger driverA = driverController.a();
     Trigger driverB = driverController.b();
-    //driverB.whileTrue(drivetrainSubsystem.runFrontLeft());
     
+    driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
+    driverB.onTrue(drivetrainSubsystem.steerSysIdRoutineCommand());
 
-        // deadband and curves are applied in command
+    // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(
         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot

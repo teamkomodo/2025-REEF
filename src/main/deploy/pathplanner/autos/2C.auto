@@ -7,7 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test Straight"
+            "pathName": "2C A"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2C B"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2C C"
           }
         }
       ]

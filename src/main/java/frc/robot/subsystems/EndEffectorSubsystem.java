@@ -11,12 +11,20 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EndEffectorSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
+	// NetworkTable publishers
+	private final NetworkTable endEffectorTable = NetworkTableInstance.getDefault().getTable("endEffector");
+	private final DoublePublisher motorVelocityPublisher = endEffectorTable.getDoubleTopic("intakeDutyCycle").publish();
+	private final BooleanPublisher pieceLoadedSensorPublisher = endEffectorTable.getBooleanTopic("pieceLoadedSensor").publish();
+
 
   private final SparkMax endEffectorMotor;
   private final SparkMaxConfig endEffectorMotorConfig;
@@ -48,16 +56,31 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   }
 
+  @Override
+  public void periodic() {
+		checkSensors();
+    updateTelemetry();
+  }
+
+	private void updateTelemetry() {
+		motorVelocityPublisher.set(endEffectorMotor.getOutputCurrent());
+		pieceLoadedSensorPublisher.set(coralLoadedSensor.get());
+	}
+
+	private void checkSensors() {
+		
+	}
+
   private void configMotors() {
     endEffectorMotorConfig
-        .inverted(false)
-        .smartCurrentLimit( 50); //FIXME: set current limit
+      .inverted(false)
+      .smartCurrentLimit( 50); //FIXME: set current limit
 
     endEffectorMotorConfig.closedLoop
-        .pid(1, 0, 0); //FIXME: set PID values
+      .pid(1, 0, 0); //FIXME: set PID values
 
     endEffectorMotor
-        .configure(endEffectorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      .configure(endEffectorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
   }
@@ -83,15 +106,5 @@ public class EndEffectorSubsystem extends SubsystemBase {
         () -> {
           /* one-time action goes here */
         });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 }

@@ -10,12 +10,17 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HelicopterSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
+  // NetworkTable publishers
+	private final NetworkTable helicopterTable = NetworkTableInstance.getDefault().getTable("helicoper");
+	private final DoublePublisher armAnglePublisher = helicopterTable.getDoubleTopic("armAnglePublisher").publish();
 
   private final SparkMax helicopterMotor;
   private final SparkMaxConfig helicopterMotorConfig;
@@ -23,7 +28,7 @@ public class HelicopterSubsystem extends SubsystemBase {
   private final RelativeEncoder helicopterEncoder;
   private final SparkClosedLoopController helicopterController;
 
-  private final DigitalInput heliZeroingSensor;
+  private final DigitalInput helicopterLimitSwitch;
 
 
 
@@ -39,7 +44,7 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     //Sensors
 
-    heliZeroingSensor = new DigitalInput(HELICOPTER_SENSOR_CHANNEL);
+    helicopterLimitSwitch = new DigitalInput(HELICOPTER_SENSOR_CHANNEL);
 
     configMotors();
 
@@ -47,21 +52,33 @@ public class HelicopterSubsystem extends SubsystemBase {
 
   }
 
+  @Override
+  public void periodic() {
+    checkSensors();
+    updateTelemetry();
+  }
+
+  private void updateTelemetry() {
+    armAnglePublisher.set(helicopterEncoder.getPosition());
+  }
+
+	private void checkSensors() {
+    
+	}
+
   private void configMotors() {
     helicopterMotorConfig
-        .inverted(false)
-        .smartCurrentLimit( 50); //FIXME: set current limit
+      .inverted(false)
+      .smartCurrentLimit(50); //FIXME: set current limit
 
     helicopterMotorConfig.closedLoop
-        .pid(1, 0, 0); //FIXME: set PID values
+      .pid(1, 0, 0); //FIXME: set PID values
 
     helicopterMotor
-        .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
   }
-
-  
 
   /**
    * Example command factory method.
@@ -75,15 +92,5 @@ public class HelicopterSubsystem extends SubsystemBase {
         () -> {
           /* one-time action goes here */
         });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
   }
 }

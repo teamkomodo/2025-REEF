@@ -57,6 +57,21 @@ public final class Constants {
 
   public static final double WHEEL_DIAMETER = 0.1016;
 
+  // End Effector
+  public static final int ENDEFFECTOR_MOTOR_ID = 1; //FIXME - Change this to the correct ID
+  public static final int ENDEFFECTOR_SENSOR_CHANNEL = 1; //FIXME - Change this to the correct channel
+
+  // Helicopter
+
+  public static final int HELICOPTER_MOTOR_ID = 1; //FIXME - Change this to the correct ID
+  public static final int HELICOPTER_ABSOLUTE_ENCODER_CHANNEL = 1; //FIXME - Change this to the correct channel
+  public static final double HELICOPTER_STOW_GRAB_POSITION = 0;
+  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0;
+  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0;
+  public static final double HELICOPTER_L1_POSITION = 0;
+  public static final double HELICOPTER_L2_L3_POSITION = 0;
+  public static final double HELICOPTER_L4_POSITION = 0;
+
     /**
      * motor rotations -> wheel rotations
      */
@@ -82,20 +97,6 @@ public final class Constants {
     new PIDConstants(2, 0, 0),
     Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2
   );
-// End Effector
-  public static final int ENDEFFECTOR_MOTOR_ID = 1; //FIXME - Change this to the correct ID
-  
-  public static final int ENDEFFECTOR_SENSOR_CHANNEL = 1; //FIXME - Change this to the correct channel
-
-  //Helicopter
-
-  public static final int HELICOPTER_MOTOR_ID = 1; //FIXME - Change this to the correct ID
-  
-  public static final int HELICOPTER_SENSOR_CHANNEL = 1; //FIXME - Change this to the correct channel
-
-
-
-
 
 
   

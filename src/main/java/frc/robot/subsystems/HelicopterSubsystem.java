@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.PIDGains;
 
 import static frc.robot.Constants.*;
 
@@ -26,7 +27,7 @@ public class HelicopterSubsystem extends SubsystemBase {
 	private final DoublePublisher armTargetAnglePublisher = helicopterTable.getDoubleTopic("armTargetAnglePublisher").publish();
 	private final DoublePublisher armAngleOffsetPublisher = helicopterTable.getDoubleTopic("armAngleOffsetPublisher").publish();
 
-
+  // Motor
   private final SparkMax helicopterMotor;
   private final SparkMaxConfig helicopterMotorConfig;
 
@@ -36,6 +37,13 @@ public class HelicopterSubsystem extends SubsystemBase {
   private final DigitalInput helicopterAngleEncoder;
   private final DutyCycleEncoder helicopterAbsoluteEncoder;
 
+  // PID Constants
+  private final PIDGains helicopterPIDGains = new PIDGains(1, 0, 0);
+  private final double helicopterMaxAccel = 1000;
+  private final double helicopterMaxVelocity = 1000;
+  private final double helicopterAllowedClosedLoopError = 0.2; // = +/- 1/2 inches of arm movement
+
+  // Variables
   private double targetAngle = 0;
   private double motorCommandAngle = 0;
   private double angleOffset = 0;
@@ -82,7 +90,10 @@ public class HelicopterSubsystem extends SubsystemBase {
       .smartCurrentLimit(50); //FIXME: set current limit
 
     helicopterMotorConfig.closedLoop
-      .pid(1, 0, 0); //FIXME: set PID values
+      .pid(helicopterPIDGains.p, helicopterPIDGains.i, helicopterPIDGains.d)
+      .maxMotion.maxAcceleration(helicopterMaxAccel)
+      .maxVelocity(helicopterMaxVelocity)
+      .allowedClosedLoopError(helicopterAllowedClosedLoopError);
 
     helicopterMotor
       .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -95,7 +106,7 @@ public class HelicopterSubsystem extends SubsystemBase {
   }
 
   public void setMotorPosition(double position) {
-    helicopterController.setReference(position, ControlType.kPosition);
+    helicopterController.setReference(position, ControlType.kMAXMotionPositionControl);
   }
 
   public void setMotorDutyCycle(double dutyCycle) {

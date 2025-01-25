@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.PIDGains;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -53,8 +54,18 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMaxConfig hingeMotorConfig;
     private final SoftLimitConfig hingeSoftLimitConfig;
 
+    private final SparkMax hingeMotor2;
+    private final SparkMaxConfig hingeMotorConfig2;
+
     private final RelativeEncoder hingeEncoder;
     private final SparkClosedLoopController hingeController;
+
+    // PID constants
+    private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
+    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
+    private final double hingeMaxAccel = 1000;
+    private final double hingeMaxVelocity = 1000;
+    private final double hingeAllowedClosedLoopError = 1;
 
     // Sensors
     public final DigitalInput coralIntakedSensor;
@@ -80,10 +91,14 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         intakeMotorConfig = new SparkMaxConfig();
 
-        // Assign hinge motors
+        // Assign the first hinge motor
         hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         hingeMotorConfig = new SparkMaxConfig();
         hingeSoftLimitConfig = new SoftLimitConfig();
+
+        // Assign the second hinge motor
+        hingeMotor2 = new SparkMax(INTAKE_HINGE_MOTOR_2_ID, MotorType.kBrushless); //FIXME: find motor id
+        hingeMotorConfig2 = new SparkMaxConfig();
 
         // Assign sensors
         coralIntakedSensor = new DigitalInput(CORAL_INTAKED_SENSOR_CHANNEL); //FIXME: find port number
@@ -123,7 +138,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void checkSensors() {
-        // 
+        
     }
 
     public void updateTelemetry() {
@@ -167,7 +182,7 @@ public class IntakeSubsystem extends SubsystemBase {
             .smartCurrentLimit(80);
 
         intakeMotorConfig.closedLoop
-            .pid(1, 0, 0);
+            .pid(intakePIDGains.p, intakePIDGains.i, intakePIDGains.d);
         
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -184,9 +199,18 @@ public class IntakeSubsystem extends SubsystemBase {
             .apply(hingeSoftLimitConfig);
 
         hingeMotorConfig.closedLoop
-            .pid(1, 0, 0);
+            .pid(hingePIDGains.p, hingePIDGains.i, hingePIDGains.d)
+            .maxMotion.maxAcceleration(hingeMaxAccel)
+            .maxVelocity(hingeMaxVelocity)
+            .allowedClosedLoopError(hingeAllowedClosedLoopError);
 
         hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        hingeMotorConfig2
+            .smartCurrentLimit(50)
+            .follow(hingeMotor, true);
+
+        hingeMotor2.configure(hingeMotorConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
     }
 

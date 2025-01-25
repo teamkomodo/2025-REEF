@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.PIDGains;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -42,6 +43,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final RelativeEncoder elevatorEncoder;
     private final SparkClosedLoopController elevatorController;
     private final SoftLimitConfig softLimitConfig;
+
+    // PID constants
+    private final PIDGains elevatorPIDGains = new PIDGains(1, 0, 0);
+    private final double elevatorMaxAccel = 1000;
+    private final double elevatorMaxVelocity = 1000;
+    private final double elevatorAllowedClosedLoopError = 1;
 
     // Sensors
     private final DigitalInput limitSwitch;
@@ -106,11 +113,14 @@ public class ElevatorSubsystem extends SubsystemBase {
             .smartCurrentLimit(80);
 
         elevatorMotorConfig.closedLoop
-            .pid(1, 0, 0);
-       
+            .pid(elevatorPIDGains.p, elevatorPIDGains.i, elevatorPIDGains.d)
+            .maxMotion.maxAcceleration(elevatorMaxAccel)
+            .maxVelocity(elevatorMaxVelocity)
+            .allowedClosedLoopError(elevatorAllowedClosedLoopError);
+        
         softLimitConfig
-            .forwardSoftLimit(ELEVATOR_MIN_POSITION)
-            .reverseSoftLimit(ELEVATOR_MAX_POSITION)
+            .forwardSoftLimit(ELEVATOR_MAX_POSITION)
+            .reverseSoftLimit(ELEVATOR_MIN_POSITION)
             .forwardSoftLimitEnabled(true)
             .reverseSoftLimitEnabled(true);
 
@@ -132,7 +142,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setElevatorPosition(double position) {
         elevatorPosition = position;
-        elevatorController.setReference(position, ControlType.kPosition);
+        elevatorController.setReference(position, ControlType.kMAXMotionPositionControl);
     }
     
     public void setElevatorDutyCycle(double dutyCycle) {
@@ -179,9 +189,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.runOnce(() -> setElevatorPosition(ELEVATOR_L4_POSITION));
     }
 
-    public Command zeroJointCommand() {
+    public Command zeroElevatorCommand() {
         return Commands.runEnd(() -> setElevatorDutyCycle(-0.3), () -> setElevatorDutyCycle(0), this).until(() -> (getLimitSwitchAtCurrentCheck()));
     }
+
     public boolean getLimitSwitchAtCurrentCheck() {
         return !limitSwitch.get();
     }

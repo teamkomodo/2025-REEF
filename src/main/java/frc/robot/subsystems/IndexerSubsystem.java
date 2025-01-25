@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.PIDGains;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
@@ -57,6 +58,11 @@ public class IndexerSubsystem extends SubsystemBase {
     private final RelativeEncoder centeringEncoder;
     private final SparkClosedLoopController centeringController;
 
+    // PID constants
+    private final PIDGains leftBeltMotorPID = new PIDGains(1, 0, 0);
+    private final PIDGains rightBeltMotorPID = new PIDGains(1, 0, 0);
+    private final PIDGains centeringMotorPID = new PIDGains(1, 0, 0);
+
     // Sensors
     public final DigitalInput coralInIndexerSensor;
     public final DigitalInput coralIndexedSensor;
@@ -67,13 +73,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public boolean coralIndexed = false;
     public boolean coralInIndexer = false;
 
-    private double filteredCurrent = 0;
-    private double currentFilterConstant = 0.1;
-
     private boolean coralIndexedAtCurrentCheck;
     private boolean coralInIndexerAtCurrentCheck;
-    private boolean coralIndexedAtLastCheck;
-    private boolean coralInIndexerAtLastCheck;
     
     public IndexerSubsystem() {
         // Assign left belt motor, encoder, and controller
@@ -112,12 +113,7 @@ public class IndexerSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         updateTelemetry();
-        filterCurrent();
         checkSensors();
-    }
-
-    private void filterCurrent() {
-        filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + leftBeltMotor.getOutputCurrent() * currentFilterConstant;
     }
 
     public void checkSensors() {
@@ -134,15 +130,11 @@ public class IndexerSubsystem extends SubsystemBase {
             coralInIndexer = true;
             startIndexer();
         }
-        // If coralIndexed and not coralIndexedAtLastCheck then the coral got taken so set coralInIndexer and coralIndexed to false
-        if (coralIndexed && !coralIndexedAtLastCheck) {
+        // If coralIndexed and not coralIndexedAtCurrentCheck then the coral got taken so set coralInIndexer and coralIndexed to false
+        if (coralIndexed && !coralIndexedAtCurrentCheck) {
             coralInIndexer = false;
             coralIndexed = false;
         }
-
-        // Set the last check variables to the current check variables
-        coralInIndexerAtLastCheck = coralInIndexerAtCurrentCheck;
-        coralIndexedAtLastCheck = coralIndexedAtCurrentCheck;
     }
 
     public void updateTelemetry() {
@@ -163,17 +155,17 @@ public class IndexerSubsystem extends SubsystemBase {
             .smartCurrentLimit(80);
 
         leftBeltMotorConfig.closedLoop
-            .pid(1, 0, 0);
+            .pid(leftBeltMotorPID.p, leftBeltMotorPID.i, leftBeltMotorPID.d);
 
         leftBeltMotor.configure(leftBeltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         // Right belt motor
         rightBeltMotorConfig
-            .inverted(false)
+            .inverted(true)
             .smartCurrentLimit(80);
         
         rightBeltMotorConfig.closedLoop
-            .pid(1, 0, 0);
+            .pid(rightBeltMotorPID.p, rightBeltMotorPID.i, rightBeltMotorPID.d);
         
         rightBeltMotor.configure(rightBeltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -183,15 +175,15 @@ public class IndexerSubsystem extends SubsystemBase {
             .smartCurrentLimit(80);
         
         centeringMotorConfig.closedLoop
-            .pid(1, 0, 0);
+            .pid(centeringMotorPID.p, centeringMotorPID.i, centeringMotorPID.d);
         
         centeringMotor.configure(centeringMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void setIndexerDutyCycle(double dutyCycle) {
-        leftBeltController.setReference(dutyCycle, ControlType.kDutyCycle);
-        rightBeltController.setReference(dutyCycle * 0.8, ControlType.kDutyCycle);
-        centeringController.setReference(dutyCycle * 0.7, ControlType.kDutyCycle);
+        leftBeltController.setReference(dutyCycle * INDEXER_LEFT_BELT_SPEED_PROPORTION, ControlType.kDutyCycle);
+        rightBeltController.setReference(dutyCycle * INDEXER_RIGHT_BELT_SPEED_PROPORTION, ControlType.kDutyCycle);
+        centeringController.setReference(dutyCycle * INDEXER_CENTERING_SPEED_PROPORTION, ControlType.kDutyCycle);
     }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
@@ -208,10 +200,6 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public double getIndexerVelocity() {
         return leftBeltEncoder.getVelocity();
-    }
-
-    public double getFilteredCurrent() {
-        return filteredCurrent;
     }
 
     public void stopIndexer() {

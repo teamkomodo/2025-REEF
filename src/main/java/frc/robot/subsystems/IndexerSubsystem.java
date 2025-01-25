@@ -78,21 +78,21 @@ public class IndexerSubsystem extends SubsystemBase {
     
     public IndexerSubsystem() {
         // Assign left belt motor, encoder, and controller
-        leftBeltMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
+        leftBeltMotor = new SparkMax(INDEXER_LEFT_BELT_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         leftBeltMotorConfig = new SparkMaxConfig();
         leftBeltEncoder = leftBeltMotor.getEncoder();
         leftBeltEncoder.setPosition(0);
         leftBeltController = leftBeltMotor.getClosedLoopController();
 
         // Assign right belt motor, encoder, and controller
-        rightBeltMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
+        rightBeltMotor = new SparkMax(INDEXER_RIGHT_BELT_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         rightBeltMotorConfig = new SparkMaxConfig();
         rightBeltEncoder = rightBeltMotor.getEncoder();
         rightBeltEncoder.setPosition(0);
         rightBeltController = rightBeltMotor.getClosedLoopController();
 
         // Assign centering motor, encoder, and controller
-        centeringMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
+        centeringMotor = new SparkMax(INDEXER_CENTERING_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         centeringMotorConfig = new SparkMaxConfig();
         centeringEncoder = centeringMotor.getEncoder();
         centeringEncoder.setPosition(0);

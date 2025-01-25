@@ -61,9 +61,11 @@ public final class Constants {
   public static final int INTAKE_HINGE_MOTOR_ID = 0;
   public static final int INTAKE_HINGE_MOTOR_2_ID = 0;
     // Intake and hinge sensor channels
-  public static final int CORAL_INTAKED_SENSOR_CHANNEL = 0; // FIXME: Find actual values
-  public static final int CORAL_LOADED_SENSOR_CHANNEL = 0;
+  public static final int CORAL_INTAKE_SENSOR_CHANNEL = 0; // FIXME: Find actual values
+  public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 0;
   public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 0;
+    // Intake speed
+  public static final double INTAKE_SPEED = 0.5; // FIXME: Find actual value
     // Intake hinge positions
   public static final double INTAKE_HINGE_MIN_POSITION = 0; // FIXME: Find actual values
   public static final double INTAKE_HINGE_MAX_POSITION = 0;

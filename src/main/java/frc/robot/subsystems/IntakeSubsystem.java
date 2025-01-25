@@ -101,8 +101,8 @@ public class IntakeSubsystem extends SubsystemBase {
         hingeMotorConfig2 = new SparkMaxConfig();
 
         // Assign sensors
-        coralIntakedSensor = new DigitalInput(CORAL_INTAKED_SENSOR_CHANNEL); //FIXME: find port number
-        coralIntakedSensor2 = new DigitalInput(CORAL_LOADED_SENSOR_CHANNEL); //FIXME: find port number
+        coralIntakedSensor = new DigitalInput(CORAL_INTAKE_SENSOR_CHANNEL); //FIXME: find port number
+        coralIntakedSensor2 = new DigitalInput(CORAL_INTAKE_SENSOR_2_CHANNEL); //FIXME: find port number
         hingeLimitSwitch = new DigitalInput(INTAKE_HINGE_ZERO_SWITCH_CHANNEL); //FIXME: find port number
 
         // Assign intake encoder and controller
@@ -138,7 +138,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void checkSensors() {
-        
+        // FIXME: Fill this in
     }
 
     public void updateTelemetry() {
@@ -171,6 +171,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return intakeEncoder.getVelocity();
     }
 
+    public void startIntake() {
+        setIntakeDutyCycle(INTAKE_SPEED);
+    }
+
+    public void stopIntake() {
+        setIntakeDutyCycle(0);
+    }
+
     public double getFilteredCurrent() {
         return filteredCurrent;
     }
@@ -195,7 +203,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         hingeMotorConfig
             .inverted(true)
-            .smartCurrentLimit(50)
+            .smartCurrentLimit(80)
             .apply(hingeSoftLimitConfig);
 
         hingeMotorConfig.closedLoop
@@ -207,7 +215,7 @@ public class IntakeSubsystem extends SubsystemBase {
         hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         hingeMotorConfig2
-            .smartCurrentLimit(50)
+            .smartCurrentLimit(80)
             .follow(hingeMotor, true);
 
         hingeMotor2.configure(hingeMotorConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -226,9 +234,9 @@ public class IntakeSubsystem extends SubsystemBase {
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
 
-    public void setHingeSupposedPosition(double position) {
+    public void setHingePosition(double position) {
         hingeSupposedPosition = position;
-        hingeController.setReference(position, ControlType.kPosition);
+        hingeController.setReference(position, ControlType.kMAXMotionPositionControl);
     }
     
     public void setHingeDutyCycle(double dutyCycle) {
@@ -236,19 +244,19 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void holdHingePosition() {
-        setHingeSupposedPosition(hingeEncoder.getPosition());
+        setHingePosition(hingeEncoder.getPosition());
     }
 
     public Command stowPositionCommand() {
-        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_STOW_POSITION));
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION));
     }
 
     public Command stationIntakePositionCommand() {
-        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_STATION_INTAKE_POSITION));
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STATION_INTAKE_POSITION));
     }
 
     public Command intakePositionCommand() {
-        return this.runOnce(() -> setHingeSupposedPosition(INTAKE_HINGE_INTAKE_POSITION));
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION));
     }
 
     public Command zeroJointCommand() {
@@ -256,11 +264,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     // public Command intake() {
-        
+        // FIXME: Fill this in
     // }
 
     // public Command eject() {
-        
+        // FIXME: Fill this in
     // }
 
     public boolean getLimitSwitchAtCurrentCheck() {

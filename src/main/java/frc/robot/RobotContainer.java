@@ -63,6 +63,7 @@ public class RobotContainer {
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
     Trigger driverA = driverController.a();
+    
     Trigger driverB = driverController.b();
     
     driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());

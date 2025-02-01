@@ -63,9 +63,9 @@ public final class Constants {
   public static final double DRIVE_REDUCTION = /*(14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)*/ 1/6.75;
     
 
-  /*
-  * motor rotations -> module rotations
-  */
+    /*
+    * motor rotations -> module rotations
+    */
   public static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
   public static double MAX_ATTAINABLE_VELOCITY = 4.5;

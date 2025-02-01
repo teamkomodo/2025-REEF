@@ -128,9 +128,6 @@ public class DrivetrainSubsystem implements Subsystem {
         )
     );
 
-
-    
-
     // Swerve
     private final Translation2d frontLeftPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D); // All translations are relative to center of rotation
     private final Translation2d frontRightPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, -DRIVETRAIN_LENGTH / 2D);
@@ -524,26 +521,26 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command driveSysIdRoutineCommand() {
         return Commands.sequence(
             driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(4),
-            Commands.waitSeconds(2),
+            Commands.waitSeconds(1),
             driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(4),
-            Commands.waitSeconds(2),
-            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
-            Commands.waitSeconds(2),
-            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
-            Commands.waitSeconds(2)
+            Commands.waitSeconds(1),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(1),
+            Commands.waitSeconds(1),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(1),
+            Commands.waitSeconds(1)
         );
     }
 
     public Command steerSysIdRoutineCommand() {
         return Commands.sequence(
             steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
-            Commands.waitSeconds(2),
+            Commands.waitSeconds(1),
             steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
-            Commands.waitSeconds(2),
+            Commands.waitSeconds(1),
             steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
-            Commands.waitSeconds(2),
+            Commands.waitSeconds(1),
             steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
-            Commands.waitSeconds(2)
+            Commands.waitSeconds(1)
         );
     }
     

@@ -39,8 +39,10 @@ public class IntakeSubsystem extends SubsystemBase {
     private final BooleanPublisher pieceIntakedPublisher = intakeTable.getBooleanTopic("pieceIntaked").publish();
         // Sensor publishers
     private final BooleanPublisher pieceIntakedSensorPublisher = intakeTable.getBooleanTopic("pieceIntakedSensor").publish();
-    private final BooleanPublisher pieceLoadedSensorPublisher = intakeTable.getBooleanTopic("pieceLoadedSensor").publish();
+    private final BooleanPublisher pieceIntakedSensor2Publisher = intakeTable.getBooleanTopic("pieceIntakedSensor2").publish();
     private final BooleanPublisher atLimitSwitchPublisher = intakeTable.getBooleanTopic("atLimitSwitch").publish();
+    private final BooleanPublisher zeroedPublisher = intakeTable.getBooleanTopic("zeroed").publish();
+
 
     // Intake motors
     private final SparkMax intakeMotor;
@@ -78,7 +80,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double filteredCurrent = 0;
     private double currentFilterConstant = 0.1;
 
-    public boolean coralIntaked;
+    private boolean coralInIntake;
 
     private boolean limitSwitchAtCurrentCheck;
     private boolean limitSwitchAtLastCheck;
@@ -111,9 +113,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeController = intakeMotor.getClosedLoopController();
 
         // Assign hinge encoder and controller
-        hingeEncoder = intakeMotor.getEncoder();
+        hingeEncoder = hingeMotor.getEncoder();
         hingeEncoder.setPosition(0);
-        hingeController = intakeMotor.getClosedLoopController();
+        hingeController = hingeMotor.getClosedLoopController();
 
         configMotors();
         setIntakeDutyCycle(0);
@@ -138,14 +140,16 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void checkSensors() {
-        // FIXME: Fill this in
+        if (getCoralDetection(coralIntakedSensor)/* || getCoralDetection(coralIntakedSensor2)*/) {
+            coralInIntake = true;
+        }
     }
 
     public void updateTelemetry() {
         // Coral status publishing
         pieceIntakedPublisher.set(getPieceIntaked());
-        pieceIntakedSensorPublisher.set(coralIntakedSensor.get());
-        pieceLoadedSensorPublisher.set(coralIntakedSensor2.get());
+        pieceIntakedSensorPublisher.set(getCoralDetection(coralIntakedSensor));
+        pieceIntakedSensor2Publisher.set(getCoralDetection(coralIntakedSensor2));
         // Intake publishing
         intakeVelocityPublisher.set(intakeMotor.getOutputCurrent());
         // Hinge publishing
@@ -153,6 +157,7 @@ public class IntakeSubsystem extends SubsystemBase {
         hingeMotorSupposedPositionPublisher.set(hingeSupposedPosition);
         hingeMotorDutyCyclePublisher.set(hingeEncoder.getVelocity());
         atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
+        zeroedPublisher.set(zeroed);
     }
 
     public void setIntakeDutyCycle(double dutyCycle) {
@@ -160,11 +165,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
-        return beamBreak.get();
+        return !beamBreak.get();
     }
 
     public boolean getPieceIntaked() {
-        return coralIntaked;
+        return coralInIntake;
     }
 
     public double getIntakeVelocity() {
@@ -183,6 +188,16 @@ public class IntakeSubsystem extends SubsystemBase {
         return filteredCurrent;
     }
 
+    private void setHingeMinMaxLimit() {
+        hingeSoftLimitConfig
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimitEnabled(true);
+
+        hingeMotorConfig.apply(hingeSoftLimitConfig);
+
+        hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
     private void configMotors() {
         // Intake motors
         intakeMotorConfig
@@ -194,12 +209,12 @@ public class IntakeSubsystem extends SubsystemBase {
         
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Hinge motors        
+        // Hinge motors
         hingeSoftLimitConfig
-            .forwardSoftLimit(INTAKE_HINGE_MIN_POSITION)
-            .reverseSoftLimit(INTAKE_HINGE_MAX_POSITION)
-            .forwardSoftLimitEnabled(true)
-            .reverseSoftLimitEnabled(true);
+            .forwardSoftLimit(INTAKE_HINGE_MAX_POSITION)
+            .reverseSoftLimit(INTAKE_HINGE_MIN_POSITION)
+            .forwardSoftLimitEnabled(false)
+            .reverseSoftLimitEnabled(false);
 
         hingeMotorConfig
             .inverted(true)
@@ -224,12 +239,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void checkLimitSwitch() {
         limitSwitchAtCurrentCheck = getLimitSwitchAtCurrentCheck();
-        if (limitSwitchAtCurrentCheck != limitSwitchAtLastCheck) {
+        if (limitSwitchAtCurrentCheck && !limitSwitchAtLastCheck) {
             hingeEncoder.setPosition(INTAKE_HINGE_MIN_POSITION);
-            zeroed = true;
-            if (!limitSwitchAtLastCheck) {
-                holdHingePosition();
+            if (!zeroed) {
+                setHingePosition(INTAKE_HINGE_MIN_POSITION);
+                setHingeMinMaxLimit();
             }
+            zeroed = true;
         }
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
@@ -259,20 +275,20 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION));
     }
 
-    public Command zeroJointCommand() {
-        return Commands.runEnd(() -> setHingeDutyCycle(-0.3), () -> setHingeDutyCycle(0), this).until(() -> (getLimitSwitchAtCurrentCheck()));
+    public Command unzeroCommand() {
+        return this.runOnce(() -> { zeroed = false; });
     }
 
-    // public Command intake() {
-        // FIXME: Fill this in
-    // }
-
-    // public Command eject() {
-        // FIXME: Fill this in
-    // }
+    public Command zeroHingeCommand() {
+        return Commands.runEnd(() -> { if (!zeroed) { setHingeDutyCycle(-0.3); } }, () -> { if (!zeroed) { holdHingePosition(); } }, this).until(() -> (zeroed));
+    }
 
     public boolean getLimitSwitchAtCurrentCheck() {
         return !hingeLimitSwitch.get();
+    }
+
+    public void setDoneIntaking() {
+        coralInIntake = false;
     }
 
     public boolean getZeroed() {

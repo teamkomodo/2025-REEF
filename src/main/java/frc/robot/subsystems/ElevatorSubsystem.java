@@ -3,9 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDGains;
 
@@ -36,6 +34,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final DoublePublisher elevatorMotorDutyCyclePublisher = elevatorTable.getDoubleTopic("motorDutyCycle").publish();
         // Sensor publisher
     private final BooleanPublisher atLimitSwitchPublisher = elevatorTable.getBooleanTopic("atLimitSwitch").publish();
+    private final BooleanPublisher zeroedPublisher = elevatorTable.getBooleanTopic("zeroed").publish();
 
     // Intake motors
     private final SparkMax elevatorMotor;
@@ -100,6 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotorDutyCyclePublisher.set(elevatorEncoder.getVelocity());
         // Sensor publishing
         atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
+        zeroedPublisher.set(getZeroed());
     }
 
     public double getElevatorVelocity() {
@@ -130,12 +130,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void checkLimitSwitch() {
         limitSwitchAtCurrentCheck = getLimitSwitchAtCurrentCheck();
-        if (limitSwitchAtCurrentCheck != limitSwitchAtLastCheck) {
+        if (limitSwitchAtCurrentCheck && !limitSwitchAtLastCheck) {
             elevatorEncoder.setPosition(ELEVATOR_MIN_POSITION);
-            zeroed = true;
-            if (!limitSwitchAtLastCheck) {
-                holdElevatorPosition();
+            if (!zeroed) {
+                setElevatorPosition(ELEVATOR_MIN_POSITION);
             }
+            zeroed = true;
         }
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
@@ -190,7 +190,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command zeroElevatorCommand() {
-        return Commands.runEnd(() -> setElevatorDutyCycle(-0.3), () -> setElevatorDutyCycle(0), this).until(() -> (getLimitSwitchAtCurrentCheck()));
+        return Commands.runEnd(() -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } }, () -> { if (!zeroed) { holdElevatorPosition(); } }, this).until(() -> (zeroed));
     }
 
     public boolean getLimitSwitchAtCurrentCheck() {

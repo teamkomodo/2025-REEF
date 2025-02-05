@@ -31,7 +31,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // NetworkTable publishers
     private final NetworkTable indexerTable = NetworkTableInstance.getDefault().getTable("indexer");
         // Motor publishers
-    private final DoublePublisher indexerVelocityPublisher = indexerTable.getDoubleTopic("indexerBeltLeftDutyCycle").publish();
+    private final DoublePublisher indexerVelocityPublisher = indexerTable.getDoubleTopic("indexerBeltLeftOutput").publish();
         // Variable publishers
     private final BooleanPublisher pieceIndexedPublisher = indexerTable.getBooleanTopic("pieceIndexed").publish();
     private final BooleanPublisher pieceInIndexerPublisher = indexerTable.getBooleanTopic("pieceInIndexer").publish();
@@ -68,10 +68,11 @@ public class IndexerSubsystem extends SubsystemBase {
     public final DigitalInput coralIndexedSensor;
 
     // Status variables (and others)
-    public String currentState = "idle";
+    public String currentState = "locked";
 
     public boolean coralIndexed = false;
     public boolean coralInIndexer = false;
+    public boolean indexingAllowed = false;
 
     private boolean coralIndexedAtCurrentCheck;
     private boolean coralInIndexerAtCurrentCheck;
@@ -120,13 +121,13 @@ public class IndexerSubsystem extends SubsystemBase {
         // Set the coral sensed variables
         coralInIndexerAtCurrentCheck = getCoralDetection(coralInIndexerSensor);
         coralIndexedAtCurrentCheck = getCoralDetection(coralIndexedSensor);
-        
+
         // Handle the coralIndexed sensor
         if (coralIndexedAtCurrentCheck) {
             coralInIndexer = true;
             coralIndexed = true;
             stopIndexer();
-        } else if (coralInIndexerAtCurrentCheck) {
+        } else if (indexingAllowed && coralInIndexerAtCurrentCheck) {
             coralInIndexer = true;
             startIndexer();
         }
@@ -141,8 +142,8 @@ public class IndexerSubsystem extends SubsystemBase {
         // Coral status publishing
         pieceIndexedPublisher.set(getPieceIndexed());
         pieceInIndexerPublisher.set(getPieceInIndexer());
-        pieceIndexedSensorPublisher.set(coralInIndexerSensor.get());
-        pieceInIndexerSensorPublisher.set(coralIndexedSensor.get());
+        pieceIndexedSensorPublisher.set(getCoralDetection(coralIndexedSensor));
+        pieceInIndexerSensorPublisher.set(getCoralDetection(coralInIndexerSensor));
         currentStatePublisher.set(currentState);
         // Indexer publishing
         indexerVelocityPublisher.set(leftBeltMotor.getOutputCurrent());
@@ -187,15 +188,23 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
-        return beamBreak.get();
+        return !beamBreak.get();
+    }
+
+    public void allowIndexing() {
+        indexingAllowed = true;
+    }
+
+    public void disallowIndexing() {
+        indexingAllowed = false;
     }
 
     public boolean getPieceIndexed() {
-        return coralIndexedAtCurrentCheck;
+        return coralIndexed;
     }
 
     public boolean getPieceInIndexer() {
-        return coralInIndexerAtCurrentCheck;
+        return coralInIndexer;
     }
 
     public double getIndexerVelocity() {
@@ -209,7 +218,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public void startIndexer() {
         currentState = "running";
-        setIndexerDutyCycle(0.5);
+        setIndexerDutyCycle(0.1);
     }
 
 }

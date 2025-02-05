@@ -6,9 +6,13 @@ package frc.robot;
 
 //import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
+import frc.robot.commands.IntakeIndexCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 //import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 import static frc.robot.Constants.DRIVER_XBOX_PORT;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
@@ -18,6 +22,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -37,7 +42,9 @@ public class RobotContainer {
 
   //Subsystems
   private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-
+  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  // private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
   
 
@@ -49,7 +56,7 @@ public class RobotContainer {
     //SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
-  
+
   private void configureBindings() {
     Trigger driverRT = driverController.rightTrigger();
 
@@ -59,19 +66,32 @@ public class RobotContainer {
     Trigger driverLB = driverController.leftBumper();
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
+    Trigger driverRB = driverController.leftBumper();
+    driverRB.onTrue(intakeSubsystem.unzeroCommand());
 
+
+    Trigger driverA = driverController.a();
     Trigger driverB = driverController.b();
-    //driverB.whileTrue(drivetrainSubsystem.runFrontLeft());
+    Trigger driverX = driverController.x();
+    Trigger driverY = driverController.y();
+    driverB.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem));
+    driverA.whileTrue(intakeSubsystem.zeroHingeCommand());
+    driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
+    driverY.onTrue(intakeSubsystem.intakePositionCommand());
+    // driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)));
+    // driverB.onTrue(elevatorSubsystem.l2PositionCommand());
+    // driverX.onTrue(elevatorSubsystem.l3PositionCommand());
+    // driverY.onTrue(elevatorSubsystem.l4PositionCommand());
     
 
         // deadband and curves are applied in command
-    drivetrainSubsystem.setDefaultCommand(
-      drivetrainSubsystem.joystickDriveCommand(
-        () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-        () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-        )
-    );
+    // drivetrainSubsystem.setDefaultCommand(
+    //   drivetrainSubsystem.joystickDriveCommand(
+    //     () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+    //     () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+    //     () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+    //     )
+    // );
   }
 
   /**

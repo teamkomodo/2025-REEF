@@ -75,20 +75,20 @@ public final class Constants {
 
   // Elevator
     // Motor ID
-  public static final int ELEVATOR_MOTOR_ID = 21; // FIXME: Find actual value
+  public static final int ELEVATOR_MOTOR_ID = 40; // FIXME: Find actual value
     // Sensor channel
   public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0; // FIXME: Find actual values
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // FIXME: Find actual values
-  public static final double ELEVATOR_MAX_POSITION = 50; // Min position is the limit switch position
+  public static final double ELEVATOR_MAX_POSITION = 29; // Min position is the limit switch position
   public static final double ELEVATOR_WAIT_POSITION = 10;
-  public static final double ELEVATOR_STOW_GRAB_POSITION = 0;
-  public static final double ELEVATOR_LOW_ALGAE_POSITION = 25;
-  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 35;
-  public static final double ELEVATOR_L1_POSITION = 20;
-  public static final double ELEVATOR_L2_POSITION = 30;
-  public static final double ELEVATOR_L3_POSITION = 40;
-  public static final double ELEVATOR_L4_POSITION = 50;
+  public static final double ELEVATOR_STOW_GRAB_POSITION = 1;
+  public static final double ELEVATOR_LOW_ALGAE_POSITION = 16;
+  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 25;
+  public static final double ELEVATOR_L1_POSITION = 7;
+  public static final double ELEVATOR_L2_POSITION = 14;
+  public static final double ELEVATOR_L3_POSITION = 21;
+  public static final double ELEVATOR_L4_POSITION = 29;
 
   // Indexer
     // Indexer motor IDs

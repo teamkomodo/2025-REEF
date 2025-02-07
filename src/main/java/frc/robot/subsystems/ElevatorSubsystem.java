@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDGains;
@@ -44,10 +45,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SoftLimitConfig softLimitConfig;
 
     // PID constants
-    private final PIDGains elevatorPIDGains = new PIDGains(1, 0, 0);
-    private final double elevatorMaxAccel = 1000;
-    private final double elevatorMaxVelocity = 1000;
-    private final double elevatorAllowedClosedLoopError = 1;
+    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00001, 0.002);
+    private final double elevatorMaxAccel = 3000;
+    private final double elevatorMaxVelocity = 3000;
+    private final double elevatorAllowedClosedLoopError = 0.2;
 
     // Sensors
     private final DigitalInput limitSwitch;
@@ -74,7 +75,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorController = elevatorMotor.getClosedLoopController();
 
         configMotors();
-        setElevatorDutyCycle(0);
+        holdElevatorPosition();
     }
 
     public void teleopInit() {
@@ -109,7 +110,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void configMotors() {
         // Intake motors
         elevatorMotorConfig
-            .inverted(false)
+            .inverted(true)
             .smartCurrentLimit(80);
 
         elevatorMotorConfig.closedLoop
@@ -189,8 +190,19 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.runOnce(() -> setElevatorPosition(ELEVATOR_L4_POSITION));
     }
 
-    public Command zeroElevatorCommand() {
-        return Commands.runEnd(() -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } }, () -> { if (!zeroed) { holdElevatorPosition(); } }, this).until(() -> (zeroed));
+    public Command zeroElevatorCommand() { // Activate with one press
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } } ), 
+            Commands.waitUntil(() -> (zeroed)),
+            Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(0); holdElevatorPosition(); } })
+        );
+    }
+
+    public Command holdButtonZeroElevatorCommand() { // Press and hold button to use
+        return Commands.runEnd(
+            () -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } }, 
+            () -> { if (!zeroed) { setElevatorDutyCycle(0); holdElevatorPosition(); } }, this
+            ).until(() -> (zeroed));
     }
 
     public boolean getLimitSwitchAtCurrentCheck() {

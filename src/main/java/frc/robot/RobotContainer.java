@@ -42,9 +42,9 @@ public class RobotContainer {
 
   //Subsystems
   private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  // private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  // private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
+  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
   
 
@@ -67,31 +67,32 @@ public class RobotContainer {
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
     Trigger driverRB = driverController.leftBumper();
-    driverRB.onTrue(intakeSubsystem.unzeroCommand());
+    //driverRB.onTrue(intakeSubsystem.unzeroCommand());
 
 
     Trigger driverA = driverController.a();
     Trigger driverB = driverController.b();
     Trigger driverX = driverController.x();
     Trigger driverY = driverController.y();
-    driverB.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem));
-    driverA.whileTrue(intakeSubsystem.zeroHingeCommand());
-    driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
-    driverY.onTrue(intakeSubsystem.intakePositionCommand());
+    // driverB.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem));
+    // driverA.whileTrue(intakeSubsystem.zeroHingeCommand());
+    // driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
+    // driverY.onTrue(intakeSubsystem.intakePositionCommand());
     // driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)));
-    // driverB.onTrue(elevatorSubsystem.l2PositionCommand());
-    // driverX.onTrue(elevatorSubsystem.l3PositionCommand());
-    // driverY.onTrue(elevatorSubsystem.l4PositionCommand());
+    driverA.onTrue(elevatorSubsystem.zeroElevatorCommand());
+    driverB.onTrue(elevatorSubsystem.stowPositionCommand());
+    driverX.onTrue(elevatorSubsystem.l2PositionCommand());
+    driverY.onTrue(elevatorSubsystem.l4PositionCommand());
     
 
         // deadband and curves are applied in command
-    // drivetrainSubsystem.setDefaultCommand(
-    //   drivetrainSubsystem.joystickDriveCommand(
-    //     () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-    //     () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-    //     () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-    //     )
-    // );
+    drivetrainSubsystem.setDefaultCommand(
+      drivetrainSubsystem.joystickDriveCommand(
+        () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+        () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+        () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+      )
+    );
   }
 
   /**

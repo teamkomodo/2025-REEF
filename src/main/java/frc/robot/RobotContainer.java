@@ -6,9 +6,13 @@ package frc.robot;
 
 //import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
+import frc.robot.commands.IntakeIndexCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 //import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 import static frc.robot.Constants.DRIVER_XBOX_PORT;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
@@ -20,6 +24,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -39,7 +44,9 @@ public class RobotContainer {
 
   //Subsystems
   private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-
+  // private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
+  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
   
 
@@ -52,7 +59,7 @@ public class RobotContainer {
     
   }
 
-  
+
   private void configureBindings() {
     Trigger driverRT = driverController.rightTrigger();
 
@@ -62,12 +69,16 @@ public class RobotContainer {
     Trigger driverLB = driverController.leftBumper();
     driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
+    Trigger driverRB = driverController.leftBumper();
+    //driverRB.onTrue(intakeSubsystem.unzeroCommand());
+
+
+    Trigger driverA = driverController.a();
     Trigger driverA = driverController.a();
     
     Trigger driverB = driverController.b();
+    //driverB.whileTrue(drivetrainSubsystem.runFrontLeft());
     
-    driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
-    driverB.onTrue(drivetrainSubsystem.steerSysIdRoutineCommand());
 
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
@@ -75,7 +86,7 @@ public class RobotContainer {
         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
         () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-        )
+      )
     );
   }
 

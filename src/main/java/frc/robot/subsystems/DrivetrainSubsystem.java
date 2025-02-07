@@ -383,7 +383,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void zeroGyro() {
-        rotationOffsetRadians = -getRotation().getRadians();
+        rotationOffsetRadians = -getRotation().getRadians() - Math.PI/2;
     }
 
     public void runDriveVolts(double voltage) {

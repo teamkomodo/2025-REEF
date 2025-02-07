@@ -74,7 +74,7 @@ public class RobotContainer {
       drivetrainSubsystem.joystickDriveCommand(
         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+        () -> ( driverController.getRightX() ) // -X on right joystick is +Z for robot
         )
     );
   }

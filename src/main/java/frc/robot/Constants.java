@@ -75,16 +75,15 @@ public final class Constants {
 
   // Elevator
     // Motor ID
-  public static final int ELEVATOR_MOTOR_ID = 40; // FIXME: Find actual value
-    // Sensor channel
-  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0; // FIXME: Find actual values
+  public static final int ELEVATOR_MOTOR_ID = 40;
+  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // FIXME: Find actual values
   public static final double ELEVATOR_MAX_POSITION = 29; // Min position is the limit switch position
   public static final double ELEVATOR_WAIT_POSITION = 10;
-  public static final double ELEVATOR_STOW_GRAB_POSITION = 1;
-  public static final double ELEVATOR_LOW_ALGAE_POSITION = 16;
-  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 25;
+  public static final double ELEVATOR_STOW_GRAB_POSITION = 14;
+  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 17;
+  
   public static final double ELEVATOR_L1_POSITION = 7;
   public static final double ELEVATOR_L2_POSITION = 14;
   public static final double ELEVATOR_L3_POSITION = 21;
@@ -105,17 +104,26 @@ public final class Constants {
 
   // Helicopter
     // Motor IDs
-  public static final int HELICOPTER_MOTOR_ID = 1; //FIXME - Change this to the correct ID
+  public static final int HELICOPTER_MOTOR_ID = 41;
   public static final int HELICOPTER_ABSOLUTE_ENCODER_CHANNEL = 1; //FIXME - Change this to the correct channel
+    // Gear ratio and offset
+  public static final double HELICOPTER_GEAR_RATIO = 47.25;
+  public static final double HELICOPTER_OFFSET = 0; // FIXME: Find actual value
     // Helicopter positions
-  public static final double HELICOPTER_STOW_GRAB_POSITION = 0;
+  public static final double HELICOPTER_STOW_GRAB_POSITION = 0; // FIXME: Find actual values
   public static final double HELICOPTER_LOW_ALGAE_POSITION = 0;
   public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0;
-  public static final double HELICOPTER_WAIT_FOR_ALGAE_POSITION = 0;
-  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0;
+  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = HELICOPTER_GEAR_RATIO * 0.5;
+  public static final double HELICOPTER_ZERO_ELEVATOR_POSITION = HELICOPTER_GEAR_RATIO * 0.5;
+  public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0;
+  public static final double HELICOPTER_REMOVE_ALGAE_POSITION = 0;
   public static final double HELICOPTER_L1_POSITION = 0;
   public static final double HELICOPTER_L2_L3_POSITION = 0;
   public static final double HELICOPTER_L4_POSITION = 0;
+
+  // End Effector
+  public static final int ENDEFFECTOR_MOTOR_ID = 1; //FIXME - Change this to the correct ID
+  public static final int ENDEFFECTOR_SENSOR_CHANNEL = 1; //FIXME - Change this to the correct channel
 
 
   public static final double WHEEL_DIAMETER = 0.1016;

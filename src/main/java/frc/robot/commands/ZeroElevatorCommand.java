@@ -6,12 +6,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class L2PositionCommand extends DynamicCommand {
+public class ZeroElevatorCommand extends DynamicCommand {
 
     private final ElevatorSubsystem elevatorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
 
-    public L2PositionCommand(ElevatorSubsystem elevatorSubsystem, HelicopterSubsystem helicopterSubsystem) {
+    public ZeroElevatorCommand(ElevatorSubsystem elevatorSubsystem, HelicopterSubsystem helicopterSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
 
@@ -22,13 +22,9 @@ public class L2PositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            new SequentialCommandGroup(
-                elevatorSubsystem.clearIntakePositionCommand(),
-                Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
-                helicopterSubsystem.l2WaitPositionCommand(),
-                Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition())
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 2)),
-            elevatorSubsystem.l2PositionCommand()
-        );
+            helicopterSubsystem.zeroElevatorPositionCommand(),
+            Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
+            elevatorSubsystem.zeroElevatorCommand()
+        ).onlyIf(() -> (!elevatorSubsystem.getZeroed()));
     }
-}
+}     

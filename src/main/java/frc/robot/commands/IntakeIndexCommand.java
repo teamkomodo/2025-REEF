@@ -13,7 +13,6 @@ public class IntakeIndexCommand extends DynamicCommand {
     private final IndexerSubsystem indexerSubsystem;
 
     public IntakeIndexCommand(IntakeSubsystem intakeSubsystem, IndexerSubsystem indexerSubsystem) {
-        
         this.intakeSubsystem = intakeSubsystem;
         this.indexerSubsystem = indexerSubsystem;
 

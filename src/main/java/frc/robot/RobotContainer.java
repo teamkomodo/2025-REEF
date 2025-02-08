@@ -7,10 +7,14 @@ package frc.robot;
 //import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
 import frc.robot.commands.IntakeIndexCommand;
+import frc.robot.commands.L1PositionCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ZeroElevatorCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-//import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -47,6 +51,8 @@ public class RobotContainer {
   // private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final HelicopterSubsystem helicopterSubsystem = new HelicopterSubsystem();
+  private final EndEffectorSubsystem endEffectorSubsystem = new EndEffectorSubsystem();
 
   
 
@@ -83,9 +89,9 @@ public class RobotContainer {
     // driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
     // driverY.onTrue(intakeSubsystem.intakePositionCommand());
     // driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)));
-    driverA.onTrue(elevatorSubsystem.zeroElevatorCommand());
-    driverB.onTrue(elevatorSubsystem.stowPositionCommand());
-    driverX.onTrue(elevatorSubsystem.l2PositionCommand());
+    driverA.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
+    driverB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem));
+    driverX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem));
     driverY.onTrue(elevatorSubsystem.l4PositionCommand());
     
 

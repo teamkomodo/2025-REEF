@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+// import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDGains;
 
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -58,7 +58,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean limitSwitchAtLastCheck;
     private boolean zeroed = false;
 
-    private double elevatorPosition = 0;
+    private double elevatorSupposedPosition = 0;
     
     public ElevatorSubsystem() {
         // Assign intake motors
@@ -96,7 +96,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void updateTelemetry() {
         // Motor publishing
         elevatorMotorPositionPublisher.set(elevatorEncoder.getPosition());
-        elevatorMotorSupposedPositionPublisher.set(elevatorPosition);
+        elevatorMotorSupposedPositionPublisher.set(elevatorSupposedPosition);
         elevatorMotorDutyCyclePublisher.set(elevatorEncoder.getVelocity());
         // Sensor publishing
         atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
@@ -105,6 +105,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public double getElevatorVelocity() {
         return elevatorEncoder.getVelocity();
+    }
+
+    private void setSoftLimits() {
+        softLimitConfig
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimitEnabled(true);
+        elevatorMotorConfig.apply(softLimitConfig);
+        elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     private void configMotors() {
@@ -122,9 +130,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         softLimitConfig
             .forwardSoftLimit(ELEVATOR_MAX_POSITION)
             .reverseSoftLimit(ELEVATOR_MIN_POSITION)
-            .forwardSoftLimitEnabled(true)
-            .reverseSoftLimitEnabled(true);
-
+            .forwardSoftLimitEnabled(false)
+            .reverseSoftLimitEnabled(false);
+        
+        elevatorMotorConfig.apply(softLimitConfig);
         elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
     }
@@ -134,15 +143,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         if (limitSwitchAtCurrentCheck && !limitSwitchAtLastCheck) {
             elevatorEncoder.setPosition(ELEVATOR_MIN_POSITION);
             if (!zeroed) {
-                setElevatorPosition(ELEVATOR_MIN_POSITION);
+                holdElevatorPosition();
+                setSoftLimits();
             }
             zeroed = true;
         }
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
 
-    public void setElevatorPosition(double position) {
-        elevatorPosition = position;
+    public void setElevatorSupposedPosition(double position) {
+        if (!zeroed) return;
+        elevatorSupposedPosition = position;
         elevatorController.setReference(position, ControlType.kMAXMotionPositionControl);
     }
     
@@ -151,46 +162,43 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void holdElevatorPosition() {
-        setElevatorPosition(elevatorEncoder.getPosition());
+        setElevatorSupposedPosition(elevatorEncoder.getPosition());
     }
 
     public Command stowPositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_STOW_GRAB_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_GRAB_POSITION));
     }
 
     public Command grabPositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_STOW_GRAB_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_GRAB_POSITION));
     }
 
-    public Command stowWaitCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_WAIT_POSITION));
-    }
-
-    public Command lowAlgaePositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_LOW_ALGAE_POSITION));
-    }
-
-    public Command highAlgaePositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_HIGH_ALGAE_POSITION));
+    public Command stowWaitPositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_WAIT_POSITION));
     }
     
     public Command l1PositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_L1_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L1_POSITION));
     }
 
     public Command l2PositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_L2_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L2_POSITION));
     }
 
     public Command l3PositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_L3_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L3_POSITION));
     }
 
     public Command l4PositionCommand() {
-        return this.runOnce(() -> setElevatorPosition(ELEVATOR_L4_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L4_POSITION));
     }
 
-    public Command zeroElevatorCommand() { // Activate with one press
+    public Command clearIntakePositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION));
+    }
+
+    public Command zeroElevatorCommand() { // Code uses this function
+        // Activate with one press
         return new SequentialCommandGroup(
             Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } } ), 
             Commands.waitUntil(() -> (zeroed)),
@@ -198,11 +206,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command holdButtonZeroElevatorCommand() { // Press and hold button to use
+    public Command holdButtonZeroElevatorCommand() { // Code doesn't use this function!
+        // Press and hold button to use
         return Commands.runEnd(
             () -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } }, 
             () -> { if (!zeroed) { setElevatorDutyCycle(0); holdElevatorPosition(); } }, this
             ).until(() -> (zeroed));
+    }
+
+    public boolean atCommandedPosition() {
+        return Math.abs(elevatorEncoder.getPosition() - elevatorSupposedPosition) < elevatorAllowedClosedLoopError;
     }
 
     public boolean getLimitSwitchAtCurrentCheck() {

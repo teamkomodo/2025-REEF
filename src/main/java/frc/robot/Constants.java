@@ -103,6 +103,20 @@ public final class Constants {
   public static final double INDEXER_RIGHT_BELT_SPEED_PROPORTION = 0.8; // These are all relative to the same value
   public static final double INDEXER_CENTERING_SPEED_PROPORTION = 0.7;
 
+  // Helicopter
+    // Motor IDs
+  public static final int HELICOPTER_MOTOR_ID = 1; //FIXME - Change this to the correct ID
+  public static final int HELICOPTER_ABSOLUTE_ENCODER_CHANNEL = 1; //FIXME - Change this to the correct channel
+    // Helicopter positions
+  public static final double HELICOPTER_STOW_GRAB_POSITION = 0;
+  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0;
+  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0;
+  public static final double HELICOPTER_WAIT_FOR_ALGAE_POSITION = 0;
+  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0;
+  public static final double HELICOPTER_L1_POSITION = 0;
+  public static final double HELICOPTER_L2_L3_POSITION = 0;
+  public static final double HELICOPTER_L4_POSITION = 0;
+
 
   public static final double WHEEL_DIAMETER = 0.1016;
 

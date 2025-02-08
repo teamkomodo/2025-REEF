@@ -24,7 +24,7 @@ public class IntakeIndexCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            //Commands.runOnce(() -> indexerSubsystem.allowIndexing()),
+            Commands.runOnce(() -> indexerSubsystem.allowIndexing()),
             Commands.runOnce(() -> intakeSubsystem.startIntake()),
             Commands.waitUntil(() -> (indexerSubsystem.getPieceInIndexer())),
             Commands.runOnce(() -> intakeSubsystem.stopIntake()),

@@ -82,6 +82,4 @@ public interface SwerveModule {
      * @return A Rotation2d object representing the current rotation of the module.
      */
     public Rotation2d getAbsoluteModuleRotation();
-
-    public void correctRelativeEncoder();
 }

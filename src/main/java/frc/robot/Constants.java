@@ -38,22 +38,22 @@ public final class Constants {
   public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 32;
   public static final int BACK_RIGHT_STEER_MOTOR_ID = 34;
   public static final int BACK_RIGHT_STEER_ENCODER_ID = 22;
-  public static final double BACK_RIGHT_STEER_OFFSET = 2.183;
+  public static final double BACK_RIGHT_STEER_OFFSET = 5.277;
 
   public static final int BACK_LEFT_DRIVE_MOTOR_ID = 39;
   public static final int BACK_LEFT_STEER_MOTOR_ID = 38;
   public static final int BACK_LEFT_STEER_ENCODER_ID = 21;   
-  public static final double BACK_LEFT_STEER_OFFSET =  -1.984;
+  public static final double BACK_LEFT_STEER_OFFSET = 1.089;
 
   public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 33;
   public static final int FRONT_RIGHT_STEER_MOTOR_ID = 35;
   public static final int FRONT_RIGHT_STEER_ENCODER_ID = 20;  
-  public static final double FRONT_RIGHT_STEER_OFFSET = -1.865;
+  public static final double FRONT_RIGHT_STEER_OFFSET = 1.2796;
 
   public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 36;
   public static final int FRONT_LEFT_STEER_MOTOR_ID = 37;
   public static final int FONT_LEFT_STEER_ENCODER_ID = 23;
-  public static final double FRONT_LEFT_STEER_OFFSET = -1.509;
+  public static final double FRONT_LEFT_STEER_OFFSET = 1.7006;
 
   // Intake
     // Intake motor IDs

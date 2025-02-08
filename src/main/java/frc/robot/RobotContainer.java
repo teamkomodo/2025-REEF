@@ -73,11 +73,20 @@ public class RobotContainer {
     //driverRB.onTrue(intakeSubsystem.unzeroCommand());
 
 
-    Trigger driverA = driverController.a();
-    Trigger driverA = driverController.a();
     
+    Trigger driverA = driverController.a();
     Trigger driverB = driverController.b();
-    //driverB.whileTrue(drivetrainSubsystem.runFrontLeft());
+    Trigger driverX = driverController.x();
+    Trigger driverY = driverController.y();
+    // driverB.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem));
+    // driverA.whileTrue(intakeSubsystem.zeroHingeCommand());
+    // driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
+    // driverY.onTrue(intakeSubsystem.intakePositionCommand());
+    // driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)));
+    driverA.onTrue(elevatorSubsystem.zeroElevatorCommand());
+    driverB.onTrue(elevatorSubsystem.stowPositionCommand());
+    driverX.onTrue(elevatorSubsystem.l2PositionCommand());
+    driverY.onTrue(elevatorSubsystem.l4PositionCommand());
     
 
     // deadband and curves are applied in command
@@ -85,7 +94,7 @@ public class RobotContainer {
       drivetrainSubsystem.joystickDriveCommand(
         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+        () -> ( driverController.getRightX() ) // -X on right joystick is +Z for robot
       )
     );
   }

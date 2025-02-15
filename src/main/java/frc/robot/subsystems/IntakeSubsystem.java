@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDGains;
@@ -138,7 +139,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void checkSensors() {
-        if (getCoralDetection(coralIntakedSensor)/* || getCoralDetection(coralIntakedSensor2)*/) {
+        if (getCoralDetection(coralIntakedSensor) || getCoralDetection(coralIntakedSensor2)) {
             coralInIntake = true;
         }
     }
@@ -273,12 +274,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION));
     }
 
-    public Command unzeroCommand() {
-        return this.runOnce(() -> { zeroed = false; });
-    }
-
-    public Command zeroHingeCommand() {
-        return Commands.runEnd(() -> { if (!zeroed) { setHingeDutyCycle(-0.3); } }, () -> { if (!zeroed) { holdHingePosition(); } }, this).until(() -> (zeroed));
+    public Command zeroHingeCommand() { // Code uses this function
+        // Activate with one press
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> setHingeDutyCycle(INTAKE_HINGE_ZEROING_SPEED))
+                .onlyIf(() -> (!zeroed)), 
+            Commands.waitUntil(() -> (zeroed)),
+            Commands.runOnce(() -> { setHingeDutyCycle(0); holdHingePosition(); })
+        ).onlyIf(() -> (!zeroed));
     }
 
     public boolean getLimitSwitchAtCurrentCheck() {

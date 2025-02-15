@@ -27,11 +27,10 @@ public class GrabCoralCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            helicopterSubsystem.stowWaitCommand(),
+            helicopterSubsystem.grabPositionCommand(),
             Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
-            //Commands.waitUntil(() -> ))
-            endEffectorSubsystem.intakeCommand(),
-            elevatorSubsystem.grabPositionCommand()
+            elevatorSubsystem.grabPositionCommand(),
+            endEffectorSubsystem.intakeCommand()
         );
     }
 }     

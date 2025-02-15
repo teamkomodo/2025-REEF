@@ -8,6 +8,10 @@ package frc.robot;
 import frc.robot.commands.Autos;
 import frc.robot.commands.IntakeIndexCommand;
 import frc.robot.commands.L1PositionCommand;
+import frc.robot.commands.L2PositionCommand;
+import frc.robot.commands.L3PositionCommand;
+import frc.robot.commands.L4PositionCommand;
+import frc.robot.commands.ScoreAndRemoveAlgaeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ZeroElevatorCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -20,6 +24,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 import static frc.robot.Constants.DRIVER_XBOX_PORT;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
+
+import java.util.Dictionary;
+import java.util.random.RandomGenerator.LeapableGenerator;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -49,7 +56,7 @@ public class RobotContainer {
   //Subsystems
   private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
   // private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final HelicopterSubsystem helicopterSubsystem = new HelicopterSubsystem();
   private final EndEffectorSubsystem endEffectorSubsystem = new EndEffectorSubsystem();
@@ -67,32 +74,38 @@ public class RobotContainer {
 
 
   private void configureBindings() {
+    Trigger driverLT = driverController.leftTrigger();
     Trigger driverRT = driverController.rightTrigger();
 
-    driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-    driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
-
     Trigger driverLB = driverController.leftBumper();
-    driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
-
-    Trigger driverRB = driverController.leftBumper();
-    //driverRB.onTrue(intakeSubsystem.unzeroCommand());
-
-
-    
+    Trigger driverRB = driverController.rightBumper();
     Trigger driverA = driverController.a();
     Trigger driverB = driverController.b();
     Trigger driverX = driverController.x();
     Trigger driverY = driverController.y();
-    // driverB.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem));
-    // driverA.whileTrue(intakeSubsystem.zeroHingeCommand());
-    // driverX.onTrue(intakeSubsystem.stationIntakePositionCommand());
-    // driverY.onTrue(intakeSubsystem.intakePositionCommand());
-    // driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)));
-    driverA.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
-    driverB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem));
+
+    driverA.onTrue(intakeSubsystem.intakePositionCommand());
+    driverB.onTrue(intakeSubsystem.stowPositionCommand());
+    //driverX.onTrue(new IntakeIndexCommand(intakeSubsystem, null, elevatorSubsystem, helicopterSubsystem, null));
+    driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.startIntake()));
+    driverY.onFalse(Commands.runOnce(() -> intakeSubsystem.stopIntake()));
+
+
+    // Drivetrain commands
+    driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
+
+    driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+    driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+
+    /* OFFICIAL CONTROLS */
+    // driverLB.onTrue(new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
+    driverRB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
+    driverLT.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
+    // driverRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     driverX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem));
-    driverY.onTrue(elevatorSubsystem.l4PositionCommand());
+    // driverY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem));
+    // driverB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem));
+    // driverA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem));
     
 
     // deadband and curves are applied in command

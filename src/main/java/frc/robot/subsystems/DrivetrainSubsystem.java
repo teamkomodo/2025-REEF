@@ -64,7 +64,6 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 // import com.pathplanner.lib.util.FileVersionException;
-import com.pathplanner.lib.util.FileVersionException;
 
 public class DrivetrainSubsystem implements Subsystem {
 
@@ -591,4 +590,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
         }, this);
     }
+
+    public Command backOffCommand() {
+        return Commands.run(() -> drive(0, 0.8, 0, false, true), this).withTimeout(0.3);
+    }
+
 }

@@ -45,7 +45,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SoftLimitConfig softLimitConfig;
 
     // PID constants
-    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00001, 0.002);
+    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00001, 0.002, 0.00);
     private final double elevatorMaxAccel = 3000;
     private final double elevatorMaxVelocity = 3000;
     private final double elevatorAllowedClosedLoopError = 0.2;
@@ -122,7 +122,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             .smartCurrentLimit(80);
 
         elevatorMotorConfig.closedLoop
-            .pid(elevatorPIDGains.p, elevatorPIDGains.i, elevatorPIDGains.d)
+            .pidf(elevatorPIDGains.p, elevatorPIDGains.i, elevatorPIDGains.d, elevatorPIDGains.FF)
             .maxMotion.maxAcceleration(elevatorMaxAccel)
             .maxVelocity(elevatorMaxVelocity)
             .allowedClosedLoopError(elevatorAllowedClosedLoopError);
@@ -153,7 +153,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setElevatorSupposedPosition(double position) {
         if (!zeroed) return;
-        elevatorSupposedPosition = position;
+        // Constain the position to the elevator limits
+        elevatorSupposedPosition = Math.min(Math.max(position, ELEVATOR_MIN_POSITION), ELEVATOR_MAX_POSITION);
         elevatorController.setReference(position, ControlType.kMAXMotionPositionControl);
     }
     
@@ -173,7 +174,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_GRAB_POSITION));
     }
 
-    public Command stowWaitPositionCommand() {
+    public Command waitPositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_WAIT_POSITION));
     }
     
@@ -194,24 +195,28 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command clearIntakePositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION));
+        return this.runOnce(() -> {
+            if (elevatorEncoder.getPosition() < ELEVATOR_CLEAR_INTAKE_POSITION - elevatorAllowedClosedLoopError) {
+                setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
+            }
+        });
     }
 
     public Command zeroElevatorCommand() { // Code uses this function
         // Activate with one press
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } } ), 
+            Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(ELEVATOR_ZEROING_SPEED); } } ), 
             Commands.waitUntil(() -> (zeroed)),
-            Commands.runOnce(() -> { if (!zeroed) { setElevatorDutyCycle(0); holdElevatorPosition(); } })
-        );
+            Commands.runOnce(() -> { setElevatorDutyCycle(0); holdElevatorPosition(); })
+        ).onlyIf(() -> (!zeroed));
     }
 
     public Command holdButtonZeroElevatorCommand() { // Code doesn't use this function!
         // Press and hold button to use
         return Commands.runEnd(
-            () -> { if (!zeroed) { setElevatorDutyCycle(-0.1); } }, 
-            () -> { if (!zeroed) { setElevatorDutyCycle(0); holdElevatorPosition(); } }, this
-            ).until(() -> (zeroed));
+            () -> { setElevatorDutyCycle(ELEVATOR_ZEROING_SPEED); }, 
+            () -> { setElevatorDutyCycle(0); holdElevatorPosition(); }, this
+            ).until(() -> (zeroed)).onlyIf(() -> (!zeroed));
     }
 
     public boolean atCommandedPosition() {

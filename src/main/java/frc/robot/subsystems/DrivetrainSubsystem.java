@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
@@ -40,6 +41,7 @@ import frc.robot.util.SwerveModule;
 import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
+import frc.robot.LimelightHelpers;
 
 import java.io.Console;
 import java.io.IOException;
@@ -264,10 +266,9 @@ public class DrivetrainSubsystem implements Subsystem {
         backRight.periodic();
     }
 
-    public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
-        drive(chassisSpeeds, false, false);
+    public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
+        drive(chassisSpeeds, false);
     }
-
     private void setupPathPlanner(){
         try {
             config = RobotConfig.fromGUISettings();
@@ -331,20 +332,27 @@ public class DrivetrainSubsystem implements Subsystem {
         poseEstimator.addVisionMeasurement(visionPose, measurementTime);
     }
 
-    public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, boolean limitAcceleration) {
+    public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);
-        if(limitAcceleration)
-            desaturateChassisSpeedsAcceleration(chassisSpeeds);
+        SwerveModuleState[] moduleStates = 
+        kinematics.toSwerveModuleStates(
+            fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                chassisSpeeds, getAdjustedRotation()) : chassisSpeeds);
 
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(fieldRelative? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getAdjustedRotation()) : chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_ATTAINABLE_VELOCITY);
+        // var moduleStates = kinematics.toSwerveModuleStates(
+        //     ChassisSpeeds.discretize(
+        //         fieldRelative
+        //         ? ChassisSpeeds.fromFieldRelativeSpeeds(
+        //             xSpeed, ySpeed, angularVelocity, getAdjustedRotation())
+        //             : new ChassisSpeeds(xSpeed, ySpeed, angularVelocity), periodSeconds));
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_MODULE_VELOCITY);
         setModuleStates(moduleStates);
-
-        lastCommandedChassisSpeeds = chassisSpeeds;
     }
 
-    public void drive(ChassisSpeeds speeds, boolean fieldRelative, boolean limitAcceleration) {
-        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative, limitAcceleration);
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative);
     }
 
     private long lastTime = 0;
@@ -379,9 +387,8 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void stopMotion() {
-        drive(0, 0, 0, false, false);
+        drive(0, 0, 0, false);
     }
-
     public void zeroGyro() {
         rotationOffsetRadians = -getRotation().getRadians() - Math.PI/2;
     }
@@ -510,9 +517,10 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
         return Commands.run(() -> {
 
-            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
-            drive(speeds, true, true);
-
+            double xVelocity = MathUtil.applyDeadband(xAxis.getAsDouble(), 0.1) * MAX_MODULE_VELOCITY * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+            double yVelocity = MathUtil.applyDeadband(yAxis.getAsDouble(), 0.1) * MAX_MODULE_VELOCITY * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+            double rotVelocity = MathUtil.applyDeadband(rotAxis.getAsDouble(), 0.1) * MAX_ANGULAR_VELOCITY * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+            drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE);
 
         }, this);
     }
@@ -560,35 +568,158 @@ public class DrivetrainSubsystem implements Subsystem {
         ); 
     }
 
-
-    
-
-
-
-    
-
-
-    public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
-        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));
+    double limelightX(){
+        double xP = 0.02;
+        double targetingForwardSpeed = LimelightHelpers.getTX("limelight") * xP;
+        targetingForwardSpeed *= 1;
+        targetingForwardSpeed *= -3.5;
+        
+        if(Math.abs(LimelightHelpers.getTX("limelight")) > 0){
+            return targetingForwardSpeed;
+        }
+        return 0;
     }
 
-    public Command pointToSpeakerCommand() {
-        return pointToSpeakerWithSpeedsCommand(() -> (new ChassisSpeeds()));
+    double limelightY(){
+        double yP = .04;
+        double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * yP;
+        //targetingForwardSpeed *= 1;
+        targetingForwardSpeed *= -3;
+        
+        if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.5){
+            return targetingForwardSpeed;
+        }
+        return 0;
+
+    }
+    double limelightZ(){
+        double zP = 0.4;
+        double targetingZ = NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+        targetingZ *= 1;
+        //if(targetingZ = 0)
+        //spin in place
+        
+        //System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]);
+        if(Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.5){
+            return targetingZ;
+        }
+        return 0;
+        
     }
 
-    public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
+
+    public double calculateAlignDistance(boolean right) {
+        double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
+            / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
+
+        double branchOffset = limelightDistance
+            / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
+            + LIMELIGHT_ROBOT_X_OFFSET;
+
+        if(right)
+            branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
+        else
+            branchOffset -= APRILTAG_TO_BRANCH_X_DISTANCE;
+
+        return branchOffset;
+    }
+
+    public double calculateAlignTime(boolean right) {
+        double alignDriveTime = Math.pow((Math.abs(calculateAlignDistance(right)) / ROBOT_ALIGNMENT_SPEED * ALIGN_LINEAR_SPEED_FACTOR), ALIGN_EXPONENTIAL_SPEED_FACTOR);
+        return alignDriveTime;
+    }
+
+    public double calculateAlignSpeedDirection(boolean right) {
+        if(right) {
+            if(calculateAlignDistance(true) < 0)
+                return ROBOT_ALIGNMENT_SPEED;
+            else
+                return -ROBOT_ALIGNMENT_SPEED;
+        } else {
+            if(calculateAlignDistance(false) < 0)
+                return ROBOT_ALIGNMENT_SPEED;
+            else
+                return -ROBOT_ALIGNMENT_SPEED;
+        }
+    }
+
+    public void timedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double driveTime) {
+        new SequentialCommandGroup(
+            Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).withTimeout(driveTime),
+            Commands.runOnce(() -> stopMotion())
+        ).schedule();
+    }
+
+    public void alignToBranch(boolean right) {
+        if(LimelightHelpers.getTV("limelight")) {
+            double alignDriveTime = Math.abs(calculateAlignTime(right));
+            double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
+            timedDriveCommand(0, robotAlignmentSpeed, 0, ALIGNMENT_DRIVE, alignDriveTime);
+        }
+    }
+
+    public void stopAlign () {
+        Commands.run(() -> drive(0, 0, 0, ALIGNMENT_DRIVE), this).schedule();
+    }
+
+    public Command limelightForwardCommand(){
+        return Commands.run(() -> { 
+           if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.01){
+                drive(limelightY(), 0, 0, false);
+  
+            } else {
+                timedDriveCommand(1, 0, 0, false,  0.2);
+            }
+        }, this);  
+    }
+
+
+    public Command limelightCenterCommand(){
         return Commands.run(() -> {
 
-            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.0f;
-            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.2f;
-
-            // TODO: Account for alliance
-            //improve this math eventually
-            //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
-            double desiredAngle = Math.atan(yDistance/xDistance);
             
-            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getPose().getRotation().getRadians(), desiredAngle), true, true);
-
+            drive(0, limelightX(), 0, false);
+        
+            
         }, this);
     }
+
+    // public Command limelightPointCommand(){
+    //     return Commands.run(() -> {
+    //         drive(0, 0, limelightRot(), false);
+    //     }, this);
+    // }
+
+
+    public Command limelightCenterandDriveCommand(){
+        return Commands.run(() -> {
+            drive(limelightY(), limelightX(), -limelightZ(),  false);
+        }, this);
+    }
+
+    public Command parallelCommand(){        
+        return Commands.run(() -> {
+            
+            drive(0, 0, -limelightZ(), false);
+
+            System.out.println(limelightZ());
+
+            // if(limelightZ() != 0){
+            //     drive(0, 0, -limelightZ(), false);
+            // } else {
+            //     System.out.println("stop it get some help");
+            // }
+                
+        }, this).until(() -> (Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) < 0.5));
+        
+    }
+
+
+    public Command limelightAlignCommand(){
+        return Commands.sequence(
+           // parallelCommand(),
+            limelightCenterandDriveCommand()
+        );
+    }
+
 }

@@ -65,7 +65,7 @@ public final class Constants {
   public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 1;
   public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 7;
     // Intake speed and gear ratio
-  public static final double INTAKE_SPEED = 0.4; // FIXME: Find best value, 0.3 might be better
+  public static final double INTAKE_SPEED = 0.55; // FIXME: Find best value, 0.3 might be better
   public static final double INTAKE_HINGE_GEAR_RATIO = 45;
   public static final double INTAKE_HINGE_ZEROING_SPEED = -0.1;
     // Intake hinge positions
@@ -87,9 +87,9 @@ public final class Constants {
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
   public static final double ELEVATOR_MAX_POSITION = 29.75;
-  public static final double ELEVATOR_WAIT_POSITION = 13.31;
+  public static final double ELEVATOR_WAIT_POSITION = 14.31;
   public static final double ELEVATOR_STOW_POSITION = 3.25;
-  public static final double ELEVATOR_GRAB_POSITION = 9.9;
+  public static final double ELEVATOR_GRAB_POSITION = 9.7;
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 13.5;
   
   public static final double ELEVATOR_L1_POSITION = 7.54; // FIXME: These are not tuned!
@@ -154,7 +154,7 @@ public final class Constants {
   public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;
 
   public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) * 0.8;
-  public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
+  public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) * 0.5;
 
 
   public static final PPHolonomicDriveController HOLONOMIC_PATH_FOLLOWER_CONFIG = 

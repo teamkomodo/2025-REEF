@@ -48,7 +48,7 @@ public class newIntakeIndexCommand extends DynamicCommand {
                     elevatorSubsystem.clearIntakePositionCommand(),
                     Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
                     helicopterSubsystem.grabPositionCommand(),
-                    Commands.waitUntil(() -> (intakeSubsystem.atCommandedPosition() && helicopterSubsystem.atCommandedPosition())),
+                    Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
                     elevatorSubsystem.waitPositionCommand(),
                     Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition())
                 ),//.schedule();

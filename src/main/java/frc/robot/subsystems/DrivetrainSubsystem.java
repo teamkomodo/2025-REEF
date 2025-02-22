@@ -80,6 +80,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
+    public boolean brakeMode = false;
+
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
@@ -508,8 +510,16 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
         return Commands.run(() -> {
-
-            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
+            double x = xAxis.getAsDouble();
+            double y = yAxis.getAsDouble();
+            double r = rotAxis.getAsDouble();
+            if (brakeMode) {
+                double mult = 0.35;
+                x *= mult;
+                y *= mult;
+                r *= mult;
+            }
+            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(x, y, r);
             drive(speeds, true, true);
 
 
@@ -594,5 +604,8 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command backOffCommand() {
         return Commands.run(() -> drive(0, 0.6, 0, false, true), this).withTimeout(0.08);
     }
+
+
+    
 
 }

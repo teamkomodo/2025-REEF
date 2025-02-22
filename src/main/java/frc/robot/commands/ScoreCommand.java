@@ -1,8 +1,7 @@
 package frc.robot.commands;
 
-import java.lang.constant.DirectMethodHandleDesc;
-
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -35,13 +34,15 @@ public class ScoreCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             // Score and release
             helicopterSubsystem.scoreCommand(),
-            endEffectorSubsystem.ejectCommand(),
-            helicopterSubsystem.releaseCoralPositionCommand(),
-            drivetrainSubsystem.backOffCommand(),
-            // Return to waiting position
-            elevatorSubsystem.clearIntakePositionCommand(),
-            helicopterSubsystem.grabPositionCommand(),
-            elevatorSubsystem.waitPositionCommand()
+            Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1))
+            // endEffectorSubsystem.ejectCommand(),
+            // helicopterSubsystem.releaseCoralPositionCommand(),
+            // drivetrainSubsystem.backOffCommand(),
+            // // Return to waiting position
+            // elevatorSubsystem.clearIntakePositionCommand(),
+            // helicopterSubsystem.grabPositionCommand(),
+            // elevatorSubsystem.waitPositionCommand()
         ).onlyIf(() -> (elevatorSubsystem.getZeroed()));
     }
 }

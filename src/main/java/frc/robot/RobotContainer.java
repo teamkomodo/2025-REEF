@@ -32,10 +32,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -55,7 +57,7 @@ public class RobotContainer {
 
   //Subsystems
   private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-  // private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
+  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final HelicopterSubsystem helicopterSubsystem = new HelicopterSubsystem();
@@ -84,26 +86,43 @@ public class RobotContainer {
     Trigger driverX = driverController.x();
     Trigger driverY = driverController.y();
 
-    driverA.onTrue(intakeSubsystem.intakePositionCommand());
-    driverB.onTrue(intakeSubsystem.stowPositionCommand());
-    //driverX.onTrue(new IntakeIndexCommand(intakeSubsystem, null, elevatorSubsystem, helicopterSubsystem, null));
-    driverY.onTrue(Commands.runOnce(() -> intakeSubsystem.startIntake()));
-    driverY.onFalse(Commands.runOnce(() -> intakeSubsystem.stopIntake()));
 
+    // driverA.onTrue(intakeSubsystem.intakePositionCommand());
+    // driverB.onTrue(intakeSubsystem.stowPositionCommand());
+    // driverY.onTrue(Commands.runOnce(() -> { intakeSubsystem.startIntake(); indexerSubsystem.allowIndexing(); }));
+    // driverY.onFalse(Commands.runOnce(() -> { intakeSubsystem.stopIntake();  }));
+    // driverX.onTrue(elevatorSubsystem.stowPositionCommand());
+    // driverX.onFalse(Commands.runOnce(() -> indexerSubsystem.disallowIndexing()));
+    driverA.onTrue(helicopterSubsystem.stowPositionCommand());
+    driverB.onTrue(helicopterSubsystem.grabPositionCommand());
+    // driverY.onTrue(helicopterSubsystem.l1WaitPositionCommand());
+    // driverX.onTrue(helicopterSubsystem.scoreCommand());
+    // driverY.onTrue(helicopterSubsystem.highAlgaePositionCommand());
+    driverX.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
+    // driverX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-0.4)));
+
+    driverLB.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
+    driverRB.onTrue(intakeSubsystem.zeroHingeCommand());
+    driverLT.onTrue(elevatorSubsystem.waitPositionCommand());
+    driverRT.onTrue(intakeSubsystem.intakePositionCommand());
+    // driverA.onTrue(elevatorSubsystem.clearIntakePositionCommand());
+    
 
     // Drivetrain commands
-    driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
+    // driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-    driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-    driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+    // driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+    // driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
     /* OFFICIAL CONTROLS */
     // driverLB.onTrue(new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
-    driverRB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
-    driverLT.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
+    // driverRB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
+    // driverLT.onTrue(new SequentialCommandGroup(
+    //   new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
+    //   intakeSubsystem.zeroHingeCommand()));
     // driverRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    driverX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem));
-    // driverY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem));
+    // driverX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem));
+    driverY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem));
     // driverB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem));
     // driverA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem));
     

@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final DoublePublisher hingeMotorDutyCyclePublisher = intakeTable.getDoubleTopic("motorDutyCycle").publish();
     private final DoublePublisher intakeVelocityPublisher = intakeTable.getDoubleTopic("intakeDutyCycle").publish();
         // Variable publishers
-    private final BooleanPublisher pieceIntakedPublisher = intakeTable.getBooleanTopic("pieceIntaked").publish();
+    private final BooleanPublisher pieceIntakedPublisher = intakeTable.getBooleanTopic("pieceInIntake").publish();
         // Sensor publishers
     private final BooleanPublisher pieceIntakedSensorPublisher = intakeTable.getBooleanTopic("pieceIntakedSensor").publish();
     private final BooleanPublisher pieceIntakedSensor2Publisher = intakeTable.getBooleanTopic("pieceIntakedSensor2").publish();
@@ -63,7 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
-    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
+    private final PIDGains hingePIDGains = new PIDGains(0.1, 0, 0);
     private final double hingeMaxAccel = 1000;
     private final double hingeMaxVelocity = 1000;
     private final double hingeAllowedClosedLoopError = 1;
@@ -79,7 +79,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double filteredCurrent = 0;
     private double currentFilterConstant = 0.1;
 
-    private boolean coralInIntake;
+    private boolean coralInIntake = false;
 
     private boolean limitSwitchAtCurrentCheck;
     private boolean limitSwitchAtLastCheck;
@@ -89,22 +89,22 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public IntakeSubsystem() {
         // Assign intake motors
-        intakeMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
+        intakeMotor = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
         intakeMotorConfig = new SparkMaxConfig();
 
         // Assign the first hinge motor
-        hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
+        hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_ID, MotorType.kBrushless);
         hingeMotorConfig = new SparkMaxConfig();
         hingeSoftLimitConfig = new SoftLimitConfig();
 
         // Assign the second hinge motor
-        hingeMotor2 = new SparkMax(INTAKE_HINGE_MOTOR_2_ID, MotorType.kBrushless); //FIXME: find motor id
+        hingeMotor2 = new SparkMax(INTAKE_HINGE_MOTOR_2_ID, MotorType.kBrushless);
         hingeMotorConfig2 = new SparkMaxConfig();
 
         // Assign sensors
-        coralIntakedSensor = new DigitalInput(CORAL_INTAKE_SENSOR_CHANNEL); //FIXME: find port number
-        coralIntakedSensor2 = new DigitalInput(CORAL_INTAKE_SENSOR_2_CHANNEL); //FIXME: find port number
-        hingeLimitSwitch = new DigitalInput(INTAKE_HINGE_ZERO_SWITCH_CHANNEL); //FIXME: find port number
+        coralIntakedSensor = new DigitalInput(CORAL_INTAKE_SENSOR_CHANNEL);
+        coralIntakedSensor2 = new DigitalInput(CORAL_INTAKE_SENSOR_2_CHANNEL);
+        hingeLimitSwitch = new DigitalInput(INTAKE_HINGE_ZERO_SWITCH_CHANNEL);
 
         // Assign intake encoder and controller
         intakeEncoder = intakeMotor.getEncoder();
@@ -146,7 +146,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void updateTelemetry() {
         // Coral status publishing
-        pieceIntakedPublisher.set(getPieceIntaked());
+        pieceIntakedPublisher.set(coralInIntake);
         pieceIntakedSensorPublisher.set(getCoralDetection(coralIntakedSensor));
         pieceIntakedSensor2Publisher.set(getCoralDetection(coralIntakedSensor2));
         // Intake publishing
@@ -161,30 +161,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void setIntakeDutyCycle(double dutyCycle) {
         intakeController.setReference(dutyCycle, ControlType.kDutyCycle);
-    }
-
-    public boolean getCoralDetection(DigitalInput beamBreak) {
-        return !beamBreak.get();
-    }
-
-    public boolean getPieceIntaked() {
-        return coralInIntake;
-    }
-
-    public double getIntakeVelocity() {
-        return intakeEncoder.getVelocity();
-    }
-
-    public void startIntake() {
-        setIntakeDutyCycle(INTAKE_SPEED);
-    }
-
-    public void stopIntake() {
-        setIntakeDutyCycle(0);
-    }
-
-    public double getFilteredCurrent() {
-        return filteredCurrent;
     }
 
     private void setHingeMinMaxLimit() {
@@ -249,6 +225,26 @@ public class IntakeSubsystem extends SubsystemBase {
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
 
+    public boolean getCoralDetection(DigitalInput beamBreak) {
+        return !beamBreak.get();
+    }
+
+    public double getIntakeVelocity() {
+        return intakeEncoder.getVelocity();
+    }
+
+    public void startIntake() {
+        setIntakeDutyCycle(INTAKE_SPEED);
+    }
+
+    public void stopIntake() {
+        setIntakeDutyCycle(0);
+    }
+
+    public double getFilteredCurrent() {
+        return filteredCurrent;
+    }
+
     public void setHingePosition(double position) {
         hingeSupposedPosition = position;
         hingeController.setReference(position, ControlType.kMAXMotionPositionControl);
@@ -290,6 +286,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void setDoneIntaking() {
         coralInIntake = false;
+    }
+
+    public boolean getPieceInIntake() {
+        return coralInIntake;
     }
 
     public boolean getZeroed() {

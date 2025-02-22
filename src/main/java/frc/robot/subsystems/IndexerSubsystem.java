@@ -31,6 +31,7 @@ public class IndexerSubsystem extends SubsystemBase {
         // Variable publishers
     private final BooleanPublisher pieceIndexedPublisher = indexerTable.getBooleanTopic("pieceIndexed").publish();
     private final BooleanPublisher pieceInIndexerPublisher = indexerTable.getBooleanTopic("pieceInIndexer").publish();
+    private final BooleanPublisher pieceFullyIntakedPublisher = indexerTable.getBooleanTopic("pieceFullyIntaked").publish();
     private final StringPublisher currentStatePublisher = indexerTable.getStringTopic("currentState").publish();
         // Sensor publishers
     private final BooleanPublisher pieceIndexedSensorPublisher = indexerTable.getBooleanTopic("pieceIndexedSensor").publish();
@@ -48,16 +49,9 @@ public class IndexerSubsystem extends SubsystemBase {
     private final RelativeEncoder rightBeltEncoder;
     private final SparkClosedLoopController rightBeltController;
 
-    // Centering motor
-    private final SparkMax centeringMotor;
-    private final SparkMaxConfig centeringMotorConfig;
-    private final RelativeEncoder centeringEncoder;
-    private final SparkClosedLoopController centeringController;
-
     // PID constants
     private final PIDGains leftBeltMotorPID = new PIDGains(1, 0, 0);
     private final PIDGains rightBeltMotorPID = new PIDGains(1, 0, 0);
-    private final PIDGains centeringMotorPID = new PIDGains(1, 0, 0);
 
     // Sensors
     public final DigitalInput coralInIndexerSensor;
@@ -68,6 +62,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public boolean coralIndexed = false;
     public boolean coralInIndexer = false;
+    public boolean coralFullyInIndexer = false;
     public boolean indexingAllowed = false;
 
     private boolean coralIndexedAtCurrentCheck;
@@ -87,13 +82,6 @@ public class IndexerSubsystem extends SubsystemBase {
         rightBeltEncoder = rightBeltMotor.getEncoder();
         rightBeltEncoder.setPosition(0);
         rightBeltController = rightBeltMotor.getClosedLoopController();
-
-        // Assign centering motor, encoder, and controller
-        centeringMotor = new SparkMax(INDEXER_CENTERING_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
-        centeringMotorConfig = new SparkMaxConfig();
-        centeringEncoder = centeringMotor.getEncoder();
-        centeringEncoder.setPosition(0);
-        centeringController = centeringMotor.getClosedLoopController();
 
         // Assign sensors
         coralInIndexerSensor = new DigitalInput(INDEXER_START_SENSOR_CHANNEL); //FIXME: find port number
@@ -120,16 +108,27 @@ public class IndexerSubsystem extends SubsystemBase {
 
         // Handle the coralIndexed sensor
         if (coralIndexedAtCurrentCheck) {
+            // Coral is now indexed, set all the variables to true
             coralInIndexer = true;
+            coralFullyInIndexer = true;
             coralIndexed = true;
             stopIndexer();
-        } else if (indexingAllowed && coralInIndexerAtCurrentCheck) {
+        } else if (coralInIndexerAtCurrentCheck) {
+            // The coral is coming into the indexer
             coralInIndexer = true;
-            startIndexer();
+            // But only start the indexer if that is allowed
+            if (indexingAllowed) {
+                startIndexer();
+            }
+        } else if (coralInIndexer && !coralInIndexerAtCurrentCheck) {
+            // The coral has gone all the way into the indexer, so record it
+            coralFullyInIndexer = true;
         }
-        // If coralIndexed and not coralIndexedAtCurrentCheck then the coral got taken so set coralInIndexer and coralIndexed to false
+
+        // If coralIndexed and not coralIndexedAtCurrentCheck then the coral got taken so set the variables to false
         if (coralIndexed && !coralIndexedAtCurrentCheck) {
             coralInIndexer = false;
+            coralFullyInIndexer = false;
             coralIndexed = false;
         }
     }
@@ -137,12 +136,13 @@ public class IndexerSubsystem extends SubsystemBase {
     public void updateTelemetry() {
         // Coral status publishing
         pieceIndexedPublisher.set(getPieceIndexed());
+        pieceFullyIntakedPublisher.set(getPieceFullyIntaked());
         pieceInIndexerPublisher.set(getPieceInIndexer());
         pieceIndexedSensorPublisher.set(getCoralDetection(coralIndexedSensor));
         pieceInIndexerSensorPublisher.set(getCoralDetection(coralInIndexerSensor));
         currentStatePublisher.set(currentState);
         // Indexer publishing
-        indexerVelocityPublisher.set(leftBeltMotor.getOutputCurrent());
+        indexerVelocityPublisher.set(getIndexerVelocity());
     }
 
     private void configMotors() {
@@ -165,22 +165,11 @@ public class IndexerSubsystem extends SubsystemBase {
             .pid(rightBeltMotorPID.p, rightBeltMotorPID.i, rightBeltMotorPID.d);
         
         rightBeltMotor.configure(rightBeltMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        // Centering motor
-        centeringMotorConfig
-            .inverted(false)
-            .smartCurrentLimit(80);
-        
-        centeringMotorConfig.closedLoop
-            .pid(centeringMotorPID.p, centeringMotorPID.i, centeringMotorPID.d);
-        
-        centeringMotor.configure(centeringMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void setIndexerDutyCycle(double dutyCycle) {
         leftBeltController.setReference(dutyCycle * INDEXER_LEFT_BELT_SPEED_PROPORTION, ControlType.kDutyCycle);
         rightBeltController.setReference(dutyCycle * INDEXER_RIGHT_BELT_SPEED_PROPORTION, ControlType.kDutyCycle);
-        centeringController.setReference(dutyCycle * INDEXER_CENTERING_SPEED_PROPORTION, ControlType.kDutyCycle);
     }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
@@ -201,6 +190,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public boolean getPieceInIndexer() {
         return coralInIndexer;
+    }
+
+    public boolean getPieceFullyIntaked() {
+        return coralFullyInIndexer;
     }
 
     public double getIndexerVelocity() {

@@ -29,6 +29,6 @@ public class L4PositionCommand extends DynamicCommand {
                 Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition())
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 4)),
             elevatorSubsystem.l4PositionCommand()
-        );
+        ).onlyIf(() -> elevatorSubsystem.getZeroed());
     }
 }     

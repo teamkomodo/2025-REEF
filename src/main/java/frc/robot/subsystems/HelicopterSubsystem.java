@@ -15,8 +15,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,15 +26,13 @@ public class HelicopterSubsystem extends SubsystemBase {
     // NetworkTable publishers
     private final NetworkTable helicopterTable = NetworkTableInstance.getDefault().getTable("helicopter");
     private final DoublePublisher armAnglePublisher = helicopterTable.getDoubleTopic("armAnglePublisher").publish();
-    private final DoublePublisher armCommandAnglePublisher = helicopterTable.getDoubleTopic("armCommandAnglePublisher").publish();
     private final DoublePublisher armTargetAnglePublisher = helicopterTable.getDoubleTopic("armTargetAnglePublisher").publish();
-    private final DoublePublisher armAngleOffsetPublisher = helicopterTable.getDoubleTopic("armAngleOffsetPublisher").publish();
     private final DoublePublisher armAbsoluteEncoderPublisher = helicopterTable.getDoubleTopic("armAbsoluteEncoderPosition").publish();
     private final BooleanPublisher atCommandedPositionPublisher = helicopterTable.getBooleanTopic("atCommandedPosition").publish();
     private final IntegerPublisher positionWaitingOnPublisher = helicopterTable.getIntegerTopic("positionWaitingOnPublisher").publish();
 
     // Are we using the absolute encoder? Just for early testing. Might be useful later.
-    private final boolean useAbsoluteEncoder = !true;
+    private final boolean useAbsoluteEncoder = true;
 
     // Motors
     private final SparkMax helicopterMotor;
@@ -56,8 +52,6 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     // Variables
     private double targetAngle = 0;
-    private double motorCommandAngle = 0;
-    private double angleOffset = 0;
     private int positionWaitingOn = 0;
 
 
@@ -89,10 +83,8 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
 
     private void updateTelemetry() {
-        //armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-        armCommandAnglePublisher.set(motorCommandAngle);
+        armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
         armTargetAnglePublisher.set(targetAngle);
-        // armAngleOffsetPublisher.set(angleOffset);
         atCommandedPositionPublisher.set(atCommandedPosition());
         positionWaitingOnPublisher.set(positionWaitingOn);
         if (useAbsoluteEncoder)
@@ -116,10 +108,10 @@ public class HelicopterSubsystem extends SubsystemBase {
         
         
         softLimitConfig
-            .forwardSoftLimit(ELEVATOR_MAX_POSITION)
-            .reverseSoftLimit(ELEVATOR_MIN_POSITION)
-            .forwardSoftLimitEnabled(false)
-            .reverseSoftLimitEnabled(false);
+            .forwardSoftLimit(HELICOPTER_MAX_POSITION * HELICOPTER_GEAR_RATIO)
+            .reverseSoftLimit(HELICOPTER_MIN_POSITION * HELICOPTER_GEAR_RATIO)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimitEnabled(true);
 
         helicopterMotorConfig.apply(softLimitConfig);
         helicopterMotor
@@ -149,7 +141,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
     
     public Command grabPositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_WAIT_POSITION));
     }
 
     public Command lowAlgaePositionCommand() {

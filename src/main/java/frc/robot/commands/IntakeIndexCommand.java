@@ -31,6 +31,9 @@ public class IntakeIndexCommand extends DynamicCommand {
 
         addRequirements(intakeSubsystem);
         addRequirements(indexerSubsystem);
+        addRequirements(elevatorSubsystem);
+        addRequirements(helicopterSubsystem);
+        addRequirements(endEffectorSubsystem);
     }
 
     @Override
@@ -40,20 +43,34 @@ public class IntakeIndexCommand extends DynamicCommand {
             Commands.runOnce(() -> indexerSubsystem.allowIndexing()),
             intakeSubsystem.intakePositionCommand(),
             Commands.runOnce(() -> intakeSubsystem.startIntake()),
-            Commands.waitUntil(() -> (indexerSubsystem.getPieceInIndexer())),
+            Commands.waitUntil(() -> (intakeSubsystem.getPieceInIntake())),
+            Commands.runOnce(() -> intakeSubsystem.setDoneIntaking()),
+            // Change the lights to indicate that the robot has a coral
+            Commands.waitUntil(() -> (indexerSubsystem.getPieceFullyIntaked())),
             Commands.runOnce(() -> intakeSubsystem.stopIntake())//,
-            /*/ Index
-            intakeSubsystem.stowPositionCommand(),
-            elevatorSubsystem.waitPositionCommand(),
-            Commands.runOnce(() -> { intakeSubsystem.setDoneIntaking(); }),
-            Commands.waitUntil(() -> indexerSubsystem.getPieceIndexed()),
-            Commands.runOnce(() -> indexerSubsystem.disallowIndexing()),
-            // Grab
-            helicopterSubsystem.grabPositionCommand(),
-            Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
-            elevatorSubsystem.grabPositionCommand(),
-            endEffectorSubsystem.intakeCommand()
+            // //*/ Index
+            // intakeSubsystem.stowPositionCommand(),
+            // elevatorSubsystem.waitPositionCommand(),
+            // Commands.runOnce(() -> { intakeSubsystem.setDoneIntaking(); }),
+            // Commands.waitUntil(() -> indexerSubsystem.getPieceIndexed()),
+            // Commands.runOnce(() -> indexerSubsystem.disallowIndexing()),
+            // // Grab
+            // helicopterSubsystem.grabPositionCommand(),
+            // Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
+            // elevatorSubsystem.grabPositionCommand(),
+            // endEffectorSubsystem.intakeCommand(),
+            // // Change the lights to indicate that the robot grabbed the coral and is now ready to score
+            // // Stow
+            // elevatorSubsystem.clearIntakePositionCommand(),
+            // Commands.waitUntil(() -> (elevatorSubsystem.atCommandedPosition())),
+            // helicopterSubsystem.stowPositionCommand(),
+            // Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
+            // elevatorSubsystem.stowPositionCommand()
             //*/
-        );
+        ).onlyIf(() -> (
+            elevatorSubsystem.getZeroed() &&
+            intakeSubsystem.getZeroed() && 
+            !indexerSubsystem.getPieceInIndexer() &&
+            !endEffectorSubsystem.getCoralLoaded()));
     }
 }     

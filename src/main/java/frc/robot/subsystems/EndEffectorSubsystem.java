@@ -34,7 +34,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     private final RelativeEncoder endEffectorEncoder;
     private final SparkClosedLoopController endEffectorController;
-    private final PIDGains endEffectorPIDGains = new PIDGains(1, 0, 0);
+    private final PIDGains endEffectorPIDGains = new PIDGains(0.1, 0, 0);
 
     private final DigitalInput coralLoadedSensor;
 
@@ -78,7 +78,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
             .smartCurrentLimit(50); //FIXME: set current limit
 
         endEffectorMotorConfig.closedLoop
-            .pid(endEffectorPIDGains.p, endEffectorPIDGains.i, endEffectorPIDGains.d); //FIXME: set PID values
+            .pid(endEffectorPIDGains.p, endEffectorPIDGains.i, endEffectorPIDGains.d);
 
         endEffectorMotor
             .configure(endEffectorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -103,7 +103,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
-        return !beamBreak.get();
+        return !beamBreak.get(); // This is correct!
     }
     
     public boolean getCoralLoaded() {
@@ -112,9 +112,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command intakeCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.2)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
             Commands.waitSeconds(0.5),
-            Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
+            Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
             Commands.runOnce(() -> { coralLoaded = true; })
@@ -123,7 +123,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command ejectCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.2)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
             Commands.waitSeconds(0.5),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.1),

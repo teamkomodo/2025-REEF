@@ -61,33 +61,34 @@ public final class Constants {
   public static final int INTAKE_HINGE_MOTOR_ID = 11;
   public static final int INTAKE_HINGE_MOTOR_2_ID = 12;
     // Intake and hinge sensor channels
-  public static final int CORAL_INTAKE_SENSOR_CHANNEL = 2; // FIXME: Find actual values
-  public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 4;
-  public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 6;
+  public static final int CORAL_INTAKE_SENSOR_CHANNEL = 0;
+  public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 1;
+  public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 7;
     // Intake speed and gear ratio
   public static final double INTAKE_SPEED = 0.2; // FIXME: Find best value, 0.3 might be better
-  public static final double INTAKE_HINGE_GEAR_RATIO = 0.02222222222;
+  public static final double INTAKE_HINGE_GEAR_RATIO = 45;
   public static final double INTAKE_HINGE_ZEROING_SPEED = -0.1;
     // Intake hinge positions
-  public static final double INTAKE_HINGE_MIN_POSITION = 0; // FIXME: Find actual values
-  public static final double INTAKE_HINGE_MAX_POSITION = 30;
-  public static final double INTAKE_HINGE_STOW_POSITION = 28;
-  public static final double INTAKE_HINGE_START_POSITION = 30;
-  public static final double INTAKE_HINGE_STATION_INTAKE_POSITION = 14;
-  public static final double INTAKE_HINGE_INTAKE_POSITION = 1;
-
+  public static final double INTAKE_HINGE_MIN_POSITION = 0;
+  public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
+  public static final double INTAKE_HINGE_STOW_POSITION = 1;
+  public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
+  public static final double INTAKE_HINGE_STATION_INTAKE_POSITION = 4.238;
+  public static final double INTAKE_HINGE_INTAKE_POSITION = 13.547; // This is flat on the ground
+  
   // Elevator
     // Motor ID
   public static final int ELEVATOR_MOTOR_ID = 40;
-  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
+  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 5;
     // Zeroing speed
   public static final double ELEVATOR_ZEROING_SPEED = -0.1;
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
-  public static final double ELEVATOR_MAX_POSITION = 29.75; // FIXME: Find actual values
-  public static final double ELEVATOR_WAIT_POSITION = 11;
-  public static final double ELEVATOR_STOW_GRAB_POSITION = 9;
-  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 12;
+  public static final double ELEVATOR_MAX_POSITION = 29.75;
+  public static final double ELEVATOR_WAIT_POSITION = 13.31;
+  public static final double ELEVATOR_STOW_POSITION = 3.25;
+  public static final double ELEVATOR_GRAB_POSITION = 9.59;
+  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 10;
   
   public static final double ELEVATOR_L1_POSITION = 7.54; // FIXME: These are not tuned!
   public static final double ELEVATOR_L2_POSITION = 9.53; // They are kind of close though.
@@ -96,12 +97,11 @@ public final class Constants {
 
   // Indexer
     // Indexer motor IDs
-  public static final int INDEXER_LEFT_BELT_MOTOR_ID = 26; // FIXME: Find actual values
-  public static final int INDEXER_RIGHT_BELT_MOTOR_ID = 20;
-  public static final int INDEXER_CENTERING_MOTOR_ID = 10;
+  public static final int INDEXER_LEFT_BELT_MOTOR_ID = 16;
+  public static final int INDEXER_RIGHT_BELT_MOTOR_ID = 15;
     // Indexer sensor channels
-  public static final int INDEXER_END_SENSOR_CHANNEL = 5; // FIXME: Find actual values
-  public static final int INDEXER_START_SENSOR_CHANNEL = 1;
+  public static final int INDEXER_END_SENSOR_CHANNEL = 3;
+  public static final int INDEXER_START_SENSOR_CHANNEL = 2;
     // Indexer motor proportions
   public static final double INDEXER_LEFT_BELT_SPEED_PROPORTION = 1.0; // FIXME: Correct proportions
   public static final double INDEXER_RIGHT_BELT_SPEED_PROPORTION = 0.8; // These are all relative to the same value
@@ -113,24 +113,24 @@ public final class Constants {
     // Gear ratio and offset
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
   public static final double HELICOPTER_OFFSET = 0.1171;
-  public static final double HELICOPTER_MIN_POSITION = 0.1 + HELICOPTER_OFFSET; // = 0.2171
-  public static final double HELICOPTER_MAX_POSITION = 0.93 + HELICOPTER_OFFSET; // = 1.0471
+  public static final double HELICOPTER_MIN_POSITION = 0.5;
+  public static final double HELICOPTER_MAX_POSITION = 1.07;
     // Helicopter positions
-  public static final double HELICOPTER_STOW_POSITION = 1; // FIXME: Find actual values
-  public static final double HELICOPTER_GRAB_POSITION = 1;
-  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.5;
+  public static final double HELICOPTER_STOW_POSITION = 0.55; // FIXME: Find actual values
+  public static final double HELICOPTER_GRAB_WAIT_POSITION = 1;
+  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.55;
   public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.75;
-  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0.5;
-  public static final double HELICOPTER_ZERO_ELEVATOR_POSITION = 0.5;
+  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0.55;
+  public static final double HELICOPTER_ZERO_ELEVATOR_POSITION = 0.55;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.767;
   public static final double HELICOPTER_REMOVE_ALGAE_POSITION = 0.79;
-  public static final double HELICOPTER_L1_POSITION = 0.75;
-  public static final double HELICOPTER_L2_L3_POSITION = 0.75;
-  public static final double HELICOPTER_L4_POSITION = 0.708;
+  public static final double HELICOPTER_L1_POSITION = 0.90;
+  public static final double HELICOPTER_L2_L3_POSITION = 0.80;
+  public static final double HELICOPTER_L4_POSITION = 0.83;
 
   // End Effector
-  public static final int ENDEFFECTOR_MOTOR_ID = 1; //FIXME - Change this to the correct ID
-  public static final int ENDEFFECTOR_SENSOR_CHANNEL = 1; //FIXME - Change this to the correct channel
+  public static final int ENDEFFECTOR_MOTOR_ID = 10;
+  public static final int ENDEFFECTOR_SENSOR_CHANNEL = 4;
 
 
   public static final double WHEEL_DIAMETER = 0.1016;

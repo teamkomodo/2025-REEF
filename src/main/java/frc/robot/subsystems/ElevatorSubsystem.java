@@ -167,11 +167,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command stowPositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_GRAB_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_POSITION));
     }
 
     public Command grabPositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_GRAB_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_POSITION));
     }
 
     public Command waitPositionCommand() {

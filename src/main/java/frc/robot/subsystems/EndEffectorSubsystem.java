@@ -112,11 +112,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command intakeCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
-            Commands.waitSeconds(0.5),
-            Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
-            Commands.waitSeconds(0.1),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.9)),
+            Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.3)),
+            Commands.waitSeconds(0.2),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.05)),
             Commands.runOnce(() -> { coralLoaded = true; })
         );
     }
@@ -124,9 +124,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
     public Command ejectCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
-            Commands.waitSeconds(0.5),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
-            Commands.waitSeconds(0.1),
+            Commands.waitSeconds(0.7),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
             Commands.runOnce(() -> { coralLoaded = false; })
         );
@@ -135,4 +134,5 @@ public class EndEffectorSubsystem extends SubsystemBase {
     public Command removeAlgaeCommand() {
         return Commands.runOnce(() -> runEndEffectorRotations(4));
     }
+    
 }

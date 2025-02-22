@@ -262,6 +262,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION));
     }
 
+    public Command clearCoralPositionCommand() {
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_CORAL_POSITION));
+    }
+
     public Command stationIntakePositionCommand() {
         return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STATION_INTAKE_POSITION));
     }
@@ -290,6 +294,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public boolean getPieceInIntake() {
         return coralInIntake;
+    }
+
+    public boolean atCommandedPosition() {
+        return Math.abs(hingeEncoder.getPosition() - hingeSupposedPosition) < hingeAllowedClosedLoopError;
+    }
+
+    public boolean isSafeForElevator() {
+        return hingeEncoder.getPosition() > INTAKE_HINGE_SAFE_ELEVATOR_POSITION;
     }
 
     public boolean getZeroed() {

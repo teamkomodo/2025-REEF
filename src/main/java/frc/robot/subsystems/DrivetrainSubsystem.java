@@ -592,7 +592,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Command backOffCommand() {
-        return Commands.run(() -> drive(0, 0.8, 0, false, true), this).withTimeout(0.3);
+        return Commands.run(() -> drive(0, 0.6, 0, false, true), this).withTimeout(0.08);
     }
 
 }

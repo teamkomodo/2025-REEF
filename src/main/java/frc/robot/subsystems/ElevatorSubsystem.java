@@ -171,7 +171,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command grabPositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_POSITION));
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_GRAB_POSITION));
     }
 
     public Command waitPositionCommand() {
@@ -198,6 +198,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.runOnce(() -> {
             if (elevatorEncoder.getPosition() < ELEVATOR_CLEAR_INTAKE_POSITION - elevatorAllowedClosedLoopError) {
                 setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
+            } else {
+                holdElevatorPosition();
             }
         });
     }

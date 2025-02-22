@@ -207,7 +207,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public void startIndexer() {
         currentState = "running";
-        setIndexerDutyCycle(0.1);
+        setIndexerDutyCycle(-0.2);
     }
 
 }

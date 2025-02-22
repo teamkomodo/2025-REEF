@@ -13,7 +13,9 @@ import frc.robot.commands.L3PositionCommand;
 import frc.robot.commands.L4PositionCommand;
 import frc.robot.commands.ScoreAndRemoveAlgaeCommand;
 import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.StartScoreCommand;
 import frc.robot.commands.ZeroElevatorCommand;
+import frc.robot.commands.newIntakeIndexCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -74,17 +76,17 @@ public class RobotContainer {
     
   }
 
-
+  boolean scoreStarted = false;
   private void configureBindings() {
-    Trigger driverLT = driverController.leftTrigger();
-    Trigger driverRT = driverController.rightTrigger();
+    Trigger operatorLT = driverController.leftTrigger();
+    Trigger operatorRT = driverController.rightTrigger();
 
-    Trigger driverLB = driverController.leftBumper();
-    Trigger driverRB = driverController.rightBumper();
-    Trigger driverA = driverController.a();
-    Trigger driverB = driverController.b();
-    Trigger driverX = driverController.x();
-    Trigger driverY = driverController.y();
+    Trigger operatorLB = operatorController.leftBumper();
+   // Trigger operatorRB = operatorController.rightBumper();
+    Trigger operatorA = operatorController.a();
+    Trigger operatorB = operatorController.b();
+    Trigger operatorX = operatorController.x();
+    Trigger operatorY = operatorController.y();
 
 
     // driverA.onTrue(intakeSubsystem.intakePositionCommand());
@@ -93,19 +95,54 @@ public class RobotContainer {
     // driverY.onFalse(Commands.runOnce(() -> { intakeSubsystem.stopIntake();  }));
     // driverX.onTrue(elevatorSubsystem.stowPositionCommand());
     // driverX.onFalse(Commands.runOnce(() -> indexerSubsystem.disallowIndexing()));
-    driverA.onTrue(helicopterSubsystem.stowPositionCommand());
-    driverB.onTrue(helicopterSubsystem.grabPositionCommand());
+    // driverA.onTrue(helicopterSubsystem.stowPositionCommand());
+    // driverB.onTrue(helicopterSubsystem.grabPositionCommand());
     // driverY.onTrue(helicopterSubsystem.l1WaitPositionCommand());
     // driverX.onTrue(helicopterSubsystem.scoreCommand());
     // driverY.onTrue(helicopterSubsystem.highAlgaePositionCommand());
-    driverX.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
+    // driverX.onTrue(new SequentialCommandGroup(
+    //     Commands.runOnce(() -> { scoreStarted = false; }),
+    //     new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem)
+    //   ).onlyIf(() -> scoreStarted));
+    
+    // driverY.onTrue(new SequentialCommandGroup(
+    //     new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
+    //     Commands.runOnce(() -> { scoreStarted = true; })
+    //   ));
     // driverX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-0.4)));
+    // driverY.onTrue(getAutonomousCommand());
 
-    driverLB.onTrue(new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem));
-    driverRB.onTrue(intakeSubsystem.zeroHingeCommand());
-    driverLT.onTrue(elevatorSubsystem.waitPositionCommand());
-    driverRT.onTrue(intakeSubsystem.intakePositionCommand());
-    // driverA.onTrue(elevatorSubsystem.clearIntakePositionCommand());
+    operatorLB.onTrue(new SequentialCommandGroup(
+      new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
+      intakeSubsystem.zeroHingeCommand()
+    ));
+    operatorLT.onTrue(Commands.runOnce(() -> {
+      if (scoreStarted) {
+        new SequentialCommandGroup(
+          Commands.runOnce(() -> { scoreStarted = false; }),
+          new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem)
+        ).schedule();
+      } else {
+        new SequentialCommandGroup(
+          new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
+          Commands.runOnce(() -> { scoreStarted = true; })
+        ).schedule();
+      }
+    }));
+    operatorLT.onTrue(Commands.runOnce(() -> {
+      if (scoreStarted) {
+        new SequentialCommandGroup(
+          Commands.runOnce(() -> { scoreStarted = false; }),
+          new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem)
+        ).schedule();
+      } else {
+        new SequentialCommandGroup(
+          new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
+          Commands.runOnce(() -> { scoreStarted = true; })
+        ).schedule();
+      }
+    }));
+    operatorRT.onTrue(new newIntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     
 
     // Drivetrain commands
@@ -121,10 +158,25 @@ public class RobotContainer {
     //   new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
     //   intakeSubsystem.zeroHingeCommand()));
     // driverRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // driverX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem));
-    driverY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem));
-    // driverB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem));
-    // driverA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem));
+    operatorX.onTrue(new SequentialCommandGroup(
+      new L1PositionCommand(elevatorSubsystem, helicopterSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
+    operatorY.onTrue(new SequentialCommandGroup(
+      new L2PositionCommand(elevatorSubsystem, helicopterSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
+    operatorB.onTrue(new SequentialCommandGroup(
+      new L3PositionCommand(elevatorSubsystem, helicopterSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
+    operatorA.onTrue(new SequentialCommandGroup(
+      new L4PositionCommand(elevatorSubsystem, helicopterSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
+
+    /* Manual controls */
+    // driverA.onTrue(Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1)));
     
 
     // deadband and curves are applied in command

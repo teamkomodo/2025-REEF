@@ -32,7 +32,6 @@ public class ScoreAndRemoveAlgaeCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            helicopterSubsystem.scoreCommand(),
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),
 

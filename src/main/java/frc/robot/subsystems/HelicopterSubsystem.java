@@ -48,7 +48,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0, 0);
     private final double helicopterMaxAccel = 3000;
     private final double helicopterMaxVelocity = 3000;
-    private final double helicopterAllowedClosedLoopError = 0.2; // = +/- 1/2 inch of arm movement
+    private final double helicopterAllowedClosedLoopError = 0.2 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement
 
     // Variables
     private double targetAngle = 0;
@@ -224,6 +224,10 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     public boolean atCommandedPosition() {
         return Math.abs(getAbsoluteEncoderPosition() - targetAngle) < helicopterAllowedClosedLoopError;
+    }
+
+    public  boolean atZeroingPosition() {
+        return Math.abs(getAbsoluteEncoderPosition() - HELICOPTER_ZERO_ELEVATOR_POSITION) < 0.1;
     }
 
     public int getPositionWaitingOn() {

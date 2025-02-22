@@ -23,8 +23,7 @@ public class ZeroElevatorCommand extends DynamicCommand {
     protected Command getCommand() {
         return new SequentialCommandGroup(
             helicopterSubsystem.zeroElevatorPositionCommand(),
-            Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
             elevatorSubsystem.zeroElevatorCommand()
-        ).onlyIf(() -> (!elevatorSubsystem.getZeroed()));
+        ).onlyIf(() -> (!elevatorSubsystem.getZeroed() && helicopterSubsystem.atZeroingPosition()));
     }
 }     

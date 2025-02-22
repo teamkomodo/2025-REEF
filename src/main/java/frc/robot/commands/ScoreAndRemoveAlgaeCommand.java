@@ -42,7 +42,6 @@ public class ScoreAndRemoveAlgaeCommand extends DynamicCommand {
                 endEffectorSubsystem.removeAlgaeCommand()
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() >= 3)),
             
-            drivetrainSubsystem.backOffCommand(),
             elevatorSubsystem.clearIntakePositionCommand(),
             helicopterSubsystem.grabPositionCommand(),
             elevatorSubsystem.waitPositionCommand()

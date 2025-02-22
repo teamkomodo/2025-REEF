@@ -13,20 +13,17 @@ public class ScoreCommand extends DynamicCommand {
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
-    private final DrivetrainSubsystem drivetrainSubsystem;
 
     public ScoreCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
-                ElevatorSubsystem elevatorSubsystem, DrivetrainSubsystem drivetrainSubsystem) {
+                ElevatorSubsystem elevatorSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
-        this.drivetrainSubsystem = drivetrainSubsystem;
 
         addRequirements(endEffectorSubsystem);
         addRequirements(helicopterSubsystem);
         addRequirements(elevatorSubsystem);
-        addRequirements(drivetrainSubsystem);
     }
 
     @Override
@@ -35,7 +32,6 @@ public class ScoreCommand extends DynamicCommand {
             // Release
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),
-            drivetrainSubsystem.backOffCommand(),
             // // Return to waiting position
             Commands.waitSeconds(0.3),
             elevatorSubsystem.clearIntakePositionCommand(),

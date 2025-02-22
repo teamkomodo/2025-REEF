@@ -233,6 +233,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return intakeEncoder.getVelocity();
     }
 
+    public Command ejectCommand() {
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> setIntakeDutyCycle(-0.5)),
+            Commands.waitSeconds(0.6),
+            Commands.runOnce(() -> stopIntake())
+        );
+    }
+
     public void startIntake() {
         setIntakeDutyCycle(INTAKE_SPEED);
     }

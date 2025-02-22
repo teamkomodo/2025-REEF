@@ -114,9 +114,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.9)),
             Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.3)),
-            Commands.waitSeconds(0.2),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.05)),
+            Commands.waitSeconds(0.1),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
+            Commands.waitSeconds(0.3),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
             Commands.runOnce(() -> { coralLoaded = true; })
         );
     }
@@ -125,7 +126,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
-            Commands.waitSeconds(0.7),
+            Commands.waitSeconds(0.25),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
             Commands.runOnce(() -> { coralLoaded = false; })
         );

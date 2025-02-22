@@ -89,8 +89,10 @@ public final class Constants {
   public static final double ELEVATOR_MAX_POSITION = 29.75;
   public static final double ELEVATOR_WAIT_POSITION = 14.31;
   public static final double ELEVATOR_STOW_POSITION = 3.25;
-  public static final double ELEVATOR_GRAB_POSITION = 9.7;
-  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 13.5;
+
+  
+  public static final double ELEVATOR_GRAB_POSITION = 9.5;
+  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 14.5;
   
   public static final double ELEVATOR_L1_POSITION = 7.54; // FIXME: These are not tuned!
   public static final double ELEVATOR_L2_POSITION = 9.53; // They are kind of close though.
@@ -122,7 +124,7 @@ public final class Constants {
   public static final double HELICOPTER_GRAB_WAIT_POSITION = 1.061;
   public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.6;
   public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.75;
-  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0.6;
+  public static final double HELICOPTER_WAIT_FOR_ELEVATOR_POSITION = 0.65;
   public static final double HELICOPTER_ZERO_ELEVATOR_POSITION = 0.6;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.77;
   public static final double HELICOPTER_REMOVE_ALGAE_POSITION = 0.79;

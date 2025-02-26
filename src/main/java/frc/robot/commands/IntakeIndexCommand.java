@@ -40,60 +40,46 @@ public class IntakeIndexCommand extends DynamicCommand {
     protected Command getCommand() {
         return new SequentialCommandGroup(
             // Intake
-            Commands.runOnce(() -> indexerSubsystem.allowIndexing()),
+            Commands.runOnce(indexerSubsystem::allowIndexing),
             new SequentialCommandGroup(
                 intakeSubsystem.intakePositionCommand(),
-                Commands.runOnce(() -> {
-                    new SequentialCommandGroup(
-                        Commands.waitUntil(() -> intakeSubsystem.isSafeForElevator()),
-                        elevatorSubsystem.clearIntakePositionCommand(),
-                        Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
-                        helicopterSubsystem.grabPositionCommand(),
-                        Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
-                        elevatorSubsystem.waitPositionCommand(),
-                        Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition())
-                    ).schedule();
-                }),
-                Commands.runOnce(() -> {intakeSubsystem.startIntake();  indexerSubsystem.startIndexer(); }),
-                Commands.waitUntil(() -> (intakeSubsystem.getPieceInIntake())),
-                Commands.runOnce(() -> intakeSubsystem.setDoneIntaking()),
+                new SequentialCommandGroup(
+                    Commands.waitUntil(intakeSubsystem::isSafeForElevator),
+                    elevatorSubsystem.clearIntakePositionCommand(),
+                    Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+                    helicopterSubsystem.grabPositionCommand(),
+                    Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+                    elevatorSubsystem.waitPositionCommand(),
+                    Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
+                ),
+                Commands.runOnce(intakeSubsystem::startIntake),
+                Commands.runOnce(indexerSubsystem::startIndexer),
+                Commands.waitUntil(intakeSubsystem::getPieceInIntake),
+                Commands.runOnce(intakeSubsystem::setDoneIntaking),
+                Commands.waitUntil(indexerSubsystem::getPieceIndexed)
                 // Change the lights to indicate that the robot has a coral
-                Commands.waitUntil(() -> (indexerSubsystem.getPieceIndexed()))
             ).onlyIf(() -> !indexerSubsystem.getPieceIndexed()),
-            Commands.runOnce(() -> {intakeSubsystem.stopIntake();}),
-            Commands.runOnce(() -> { intakeSubsystem.setDoneIntaking(); }),
+            Commands.runOnce(intakeSubsystem::stopIntake),
+            Commands.runOnce(intakeSubsystem::setDoneIntaking),
             intakeSubsystem.clearCoralPositionCommand(),
-            // Commands.waitSeconds(2),
             // //*/ Index
-            Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.clearIntakePositionCommand(),
             Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition() && elevatorSubsystem.atCommandedPosition()),
-            // Commands.waitSeconds(2),
             // // Grab
             helicopterSubsystem.grabPositionCommand(),
-            Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             Commands.waitSeconds(0.5),
             elevatorSubsystem.waitPositionCommand(),
             elevatorSubsystem.grabPositionCommand(),
             endEffectorSubsystem.intakeCommand(),
-            Commands.runOnce(() ->  indexerSubsystem.stopIndexer()),
+            Commands.runOnce(indexerSubsystem::stopIndexer),
             elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
             helicopterSubsystem.stowPositionCommand(),
-            Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             intakeSubsystem.stowPositionCommand(),
-            elevatorSubsystem.stowPositionCommand(),
-
-            // // Change the lights to indicate that the robot grabbed the coral and is now ready to score
-            // // Stow
-            // elevatorSubsystem.clearIntakePositionCommand(),
-            // Commands.waitUntil(() -> (elevatorSubsystem.atCommandedPosition())),
-            // helicopterSubsystem.stowPositionCommand(),
-            // Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
-            // elevatorSubsystem.stowPositionCommand()
-            //*/
-            
-            Commands.runOnce(() -> {}) // Do nothing
+            elevatorSubsystem.stowPositionCommand()
         ).onlyIf(() -> (
             elevatorSubsystem.getZeroed() &&
             intakeSubsystem.getZeroed() &&

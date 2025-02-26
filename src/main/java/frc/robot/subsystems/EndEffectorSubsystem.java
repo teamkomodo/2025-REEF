@@ -101,6 +101,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
     public void holdEndEffector() {
         setEndEffectorPosition(endEffectorEncoder.getPosition());
     }
+    
+    public void stopEndEffector() {
+        setEndEffectorDutyCycle(0);
+    }
 
     public boolean getCoralDetection(DigitalInput beamBreak) {
         return !beamBreak.get(); // This is correct!
@@ -127,7 +131,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
             Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.25),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
+            Commands.runOnce(() -> stopEndEffector()),
             Commands.runOnce(() -> { coralLoaded = false; })
         );
     }

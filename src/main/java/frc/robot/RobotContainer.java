@@ -6,6 +6,7 @@ package frc.robot;
 
 //import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
+import frc.robot.commands.IfElseCommand;
 import frc.robot.commands.IntakeIndexCommand;
 import frc.robot.commands.L1PositionCommand;
 import frc.robot.commands.L2PositionCommand;
@@ -106,66 +107,41 @@ public class RobotContainer {
     /* operatorLT | Start score, on 2nt press score */
     /* operatorRT | Intake and index */
     /* operatorPD (POV down) | Eject from intake */
-    /* operatorX  |  */
-    /* operatorY  |  */
+    /* operatorX  | L1 Position */
+    /* operatorY  | L2 Position */
     /* operatorA  | L4 Position */
     /* operatorB  | L3 Position */
 
-
-
-    // operatorLB.onTrue(new SequentialCommandGroup(
-    //   new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
-    //   intakeSubsystem.zeroHingeCommand()
-    // ));
-    operatorLB.onTrue(Commands.runOnce(() -> {
-      if (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()) {
-        new SequentialCommandGroup(
-          Commands.runOnce(() -> {
-            intakeSubsystem.stopIntake();
-            indexerSubsystem.stopIndexer();
-            endEffectorSubsystem.setEndEffectorDutyCycle(0);
-          }),
-          intakeSubsystem.stowPositionCommand(),
-          helicopterSubsystem.stowPositionCommand(),
-          Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
-          elevatorSubsystem.stowPositionCommand()
-        ).schedule();
-      } else {
-        new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem).schedule();
-        intakeSubsystem.zeroHingeCommand().schedule();
-      }
-    }));
-    // operatorLT.onTrue(Commands.runOnce(() -> {
-    //   if (scoreStarted) {
-    //     new SequentialCommandGroup(
-    //       Commands.runOnce(() -> { scoreStarted = false; }),
-    //       new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem)
-    //     ).schedule();
-    //   } else {
-    //     new SequentialCommandGroup(
-    //       new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
-    //       Commands.runOnce(() -> { scoreStarted = true; })
-    //     ).schedule();
-    //   }
-    // }));
-    operatorLT.onTrue(Commands.runOnce(() -> {
-      if (scoreStarted) {
-        new SequentialCommandGroup(
-          Commands.runOnce(() -> { scoreStarted = false; }),
-          new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
-        ).schedule();
-      } else {
-        new SequentialCommandGroup(
-          new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
-          Commands.runOnce(() -> { scoreStarted = true; })
-        ).schedule();
-      }
-    }));
-    // operatorLT.onTrue(new SequentialCommandGroup(
-    //   new StartScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem),
-    //   Commands.runOnce(() -> { scoreStarted = true; })
-    // ));
-    // FIXME: Check before comp! Use NEW unless old one works!
+    
+    operatorLB.onTrue(new IfElseCommand(
+      () -> (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()),
+      new SequentialCommandGroup(
+        Commands.runOnce(() -> {
+          intakeSubsystem.stopIntake();
+          indexerSubsystem.stopIndexer();
+          endEffectorSubsystem.stopEndEffector();
+        }),
+        intakeSubsystem.stowPositionCommand(),
+        helicopterSubsystem.stowPositionCommand(),
+        Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
+        elevatorSubsystem.stowPositionCommand()
+      ),
+      new SequentialCommandGroup(
+        new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
+        intakeSubsystem.zeroHingeCommand()
+      )));
+    operatorLT.onTrue(new IfElseCommand(
+      () -> (scoreStarted),
+      new SequentialCommandGroup(
+        Commands.runOnce(() -> { scoreStarted = false; }),
+        new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
+      ),
+      new SequentialCommandGroup(
+        new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
+        Commands.runOnce(() -> { scoreStarted = true; })
+      )
+    ));
+    // FIXME: Check before competing! Use NEW unless old one works!
     operatorRT.onTrue(new NewIntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorRB.onTrue(
       new SequentialCommandGroup(
@@ -173,38 +149,14 @@ public class RobotContainer {
         intakeSubsystem.stowPositionCommand()
       ));
     operatorPD.onTrue(intakeSubsystem.ejectCommand());
-    // operatorRB.onFalse(
-    //   new SequentialCommandGroup(
-    //     Commands.runOnce(() -> intakeSubsystem.startIntake()), 
-    //     intakeSubsystem.intakePositionCommand()
-    //   ));
-    // operatorX.onTrue(new SequentialCommandGroup(
-    //   Commands.runOnce(() -> { scoreStarted = false; }),
-    //   new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem)
-    // ));
-    
-
-    // Drivetrain commands
-    // driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
-
-    // driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-    // driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
-
-    /* OFFICIAL CONTROLS */
-    // driverLB.onTrue(new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
-    // driverRB.onTrue(new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, drivetrainSubsystem));
-    // driverLT.onTrue(new SequentialCommandGroup(
-    //   new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
-    //   intakeSubsystem.zeroHingeCommand()));
-    // driverRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorX.onTrue(new SequentialCommandGroup(
-    //   new L1PositionCommand(elevatorSubsystem, helicopterSubsystem),
-    //   Commands.runOnce(() -> { scoreStarted = false; })
-    // ));
-    // operatorY.onTrue(new SequentialCommandGroup(
-    //   new L2PositionCommand(elevatorSubsystem, helicopterSubsystem),
-    //   Commands.runOnce(() -> { scoreStarted = false; })
-    // ));
+    operatorX.onTrue(new SequentialCommandGroup(
+      new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
+    operatorY.onTrue(new SequentialCommandGroup(
+      new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
+      Commands.runOnce(() -> { scoreStarted = false; })
+    ));
     operatorB.onTrue(new SequentialCommandGroup(
       new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
       Commands.runOnce(() -> { scoreStarted = false; })

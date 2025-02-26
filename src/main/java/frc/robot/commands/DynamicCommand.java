@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-public abstract class DynamicCommand extends Command{
+public abstract class DynamicCommand extends Command {
 
     protected Command command;
 

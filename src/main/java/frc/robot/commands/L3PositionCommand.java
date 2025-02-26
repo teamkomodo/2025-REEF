@@ -28,9 +28,9 @@ public class L3PositionCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             new SequentialCommandGroup(
                 elevatorSubsystem.clearIntakePositionCommand(),
-                Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
+                Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
                 helicopterSubsystem.l3WaitPositionCommand(),
-                Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition())
+                Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 3)),
             elevatorSubsystem.l3PositionCommand()
             ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));

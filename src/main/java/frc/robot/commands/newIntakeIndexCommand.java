@@ -40,7 +40,6 @@ public class NewIntakeIndexCommand extends DynamicCommand {
     protected Command getCommand() {
         return new SequentialCommandGroup(
             // Intake
-            Commands.runOnce(() -> indexerSubsystem.allowIndexing()),
             new SequentialCommandGroup(
                 intakeSubsystem.intakePositionCommand(),
                 //Commands.runOnce(() -> {
@@ -54,7 +53,7 @@ public class NewIntakeIndexCommand extends DynamicCommand {
                         Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition())
                     ),//.schedule();
                 //}),
-                Commands.runOnce(() -> {intakeSubsystem.startIntake();  indexerSubsystem.startIndexer(); }),
+                Commands.runOnce(() -> {intakeSubsystem.startIntake(); }),
                 Commands.waitUntil(() -> (intakeSubsystem.getPieceInIntake())),
                 Commands.runOnce(() -> intakeSubsystem.setDoneIntaking()),
                 // Change the lights to indicate that the robot has a coral
@@ -64,7 +63,7 @@ public class NewIntakeIndexCommand extends DynamicCommand {
             Commands.runOnce(() -> { intakeSubsystem.setDoneIntaking(); }),
             intakeSubsystem.clearCoralPositionCommand(),
             // Commands.waitSeconds(2),
-            // //*/ Index
+            //*/ Index
             Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition())),
             elevatorSubsystem.clearIntakePositionCommand(),
             Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition() && elevatorSubsystem.atCommandedPosition()),
@@ -76,7 +75,6 @@ public class NewIntakeIndexCommand extends DynamicCommand {
             elevatorSubsystem.waitPositionCommand(),
             elevatorSubsystem.grabPositionCommand(),
             endEffectorSubsystem.intakeCommand(),
-            Commands.runOnce(() ->  indexerSubsystem.stopIndexer()),
             elevatorSubsystem.clearIntakePositionCommand(),
             Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
             helicopterSubsystem.stowPositionCommand(),

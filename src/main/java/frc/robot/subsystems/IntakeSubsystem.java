@@ -55,15 +55,12 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMaxConfig hingeMotorConfig;
     private final SoftLimitConfig hingeSoftLimitConfig;
 
-    private final SparkMax hingeMotor2;
-    private final SparkMaxConfig hingeMotorConfig2;
-
     private final RelativeEncoder hingeEncoder;
     private final SparkClosedLoopController hingeController;
 
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
-    private final PIDGains hingePIDGains = new PIDGains(0.1, 0, 0);
+    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
     private final double hingeMaxAccel = 1000;
     private final double hingeMaxVelocity = 1000;
     private final double hingeAllowedClosedLoopError = 1;
@@ -96,10 +93,6 @@ public class IntakeSubsystem extends SubsystemBase {
         hingeMotor = new SparkMax(INTAKE_HINGE_MOTOR_ID, MotorType.kBrushless);
         hingeMotorConfig = new SparkMaxConfig();
         hingeSoftLimitConfig = new SoftLimitConfig();
-
-        // Assign the second hinge motor
-        hingeMotor2 = new SparkMax(INTAKE_HINGE_MOTOR_2_ID, MotorType.kBrushless);
-        hingeMotorConfig2 = new SparkMaxConfig();
 
         // Assign sensors
         coralIntakedSensor = new DigitalInput(CORAL_INTAKE_SENSOR_CHANNEL);
@@ -192,7 +185,7 @@ public class IntakeSubsystem extends SubsystemBase {
             .reverseSoftLimitEnabled(false);
 
         hingeMotorConfig
-            .inverted(true)
+            .inverted(false)
             .smartCurrentLimit(80)
             .apply(hingeSoftLimitConfig);
 
@@ -203,12 +196,6 @@ public class IntakeSubsystem extends SubsystemBase {
             .allowedClosedLoopError(hingeAllowedClosedLoopError);
 
         hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        hingeMotorConfig2
-            .smartCurrentLimit(80)
-            .follow(hingeMotor, true);
-
-        hingeMotor2.configure(hingeMotorConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
     }
 
@@ -285,10 +272,10 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command zeroHingeCommand() { // Code uses this function
         // Activate with one press
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setHingeDutyCycle(INTAKE_HINGE_ZEROING_SPEED))
-                .onlyIf(() -> (!zeroed)), 
+            Commands.runOnce(() -> setHingeDutyCycle(INTAKE_HINGE_ZEROING_SPEED)),
             Commands.waitUntil(() -> (zeroed)),
-            Commands.runOnce(() -> { setHingeDutyCycle(0); holdHingePosition(); })
+            Commands.runOnce(() -> setHingeDutyCycle(0))//,
+            // stowPositionCommand()
         ).onlyIf(() -> (!zeroed));
     }
 

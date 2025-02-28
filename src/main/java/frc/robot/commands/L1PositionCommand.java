@@ -26,13 +26,12 @@ public class L1PositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            elevatorSubsystem.l1PositionCommand(),
             new SequentialCommandGroup(
-                elevatorSubsystem.clearIntakePositionCommand(),
-                Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+                Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
                 helicopterSubsystem.l1WaitPositionCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 1)),
-            elevatorSubsystem.l1PositionCommand()
-            ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));
+            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 1))
+        ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));
     }
 }

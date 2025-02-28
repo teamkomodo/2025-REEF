@@ -2,6 +2,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -39,47 +42,46 @@ public class IntakeIndexCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            // Intake
-            Commands.runOnce(indexerSubsystem::allowIndexing),
-            new SequentialCommandGroup(
-                intakeSubsystem.intakePositionCommand(),
+            // Intake and index
+            new ParallelCommandGroup(
+                new SequentialCommandGroup(
+                    intakeSubsystem.intakePositionCommand(),
+                    Commands.waitUntil(intakeSubsystem::atCommandedPosition),
+                    Commands.runOnce(intakeSubsystem::startIntake),
+                    Commands.waitUntil(intakeSubsystem::getPieceInIntake),
+                    Commands.waitUntil(indexerSubsystem::getPieceIndexed)
+                ).onlyIf(() -> !indexerSubsystem.getPieceIndexed()),
                 new SequentialCommandGroup(
                     Commands.waitUntil(intakeSubsystem::isSafeForElevator),
                     elevatorSubsystem.clearIntakePositionCommand(),
                     Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
                     helicopterSubsystem.grabPositionCommand(),
-                    Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-                    elevatorSubsystem.waitPositionCommand(),
-                    Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
-                ),
-                Commands.runOnce(intakeSubsystem::startIntake),
-                Commands.runOnce(indexerSubsystem::startIndexer),
-                Commands.waitUntil(intakeSubsystem::getPieceInIntake),
-                Commands.runOnce(intakeSubsystem::setDoneIntaking),
-                Commands.waitUntil(indexerSubsystem::getPieceIndexed)
-                // Change the lights to indicate that the robot has a coral
-            ).onlyIf(() -> !indexerSubsystem.getPieceIndexed()),
+                    Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
+                )
+            ),
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(intakeSubsystem::setDoneIntaking),
             intakeSubsystem.clearCoralPositionCommand(),
-            // //*/ Index
-            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-            elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition() && elevatorSubsystem.atCommandedPosition()),
-            // // Grab
-            helicopterSubsystem.grabPositionCommand(),
-            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-            Commands.waitSeconds(0.5),
-            elevatorSubsystem.waitPositionCommand(),
-            elevatorSubsystem.grabPositionCommand(),
-            endEffectorSubsystem.intakeCommand(),
-            Commands.runOnce(indexerSubsystem::stopIndexer),
+            new ParallelRaceGroup(
+                new RepeatCommand(
+                    new SequentialCommandGroup(
+                        Commands.waitUntil(indexerSubsystem::getPieceIndexed),
+                        elevatorSubsystem.grabPositionCommand(),
+                        Commands.waitUntil(() -> !indexerSubsystem.getPieceIndexed()),
+                        elevatorSubsystem.waitPositionCommand()
+                    )
+                ),
+                endEffectorSubsystem.intakeCommand() // Waits until it has the coral, at which point the other command will be interrupted
+            ),
             elevatorSubsystem.clearIntakePositionCommand(),
             Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             intakeSubsystem.stowPositionCommand(),
-            elevatorSubsystem.stowPositionCommand()
+            elevatorSubsystem.minPositionCommand(),
+            Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
+            elevatorSubsystem.zeroElevatorCommand(), //*/
+            Commands.runOnce(() -> {})
         ).onlyIf(() -> (
             elevatorSubsystem.getZeroed() &&
             intakeSubsystem.getZeroed() &&

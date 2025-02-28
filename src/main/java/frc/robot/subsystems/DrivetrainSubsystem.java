@@ -80,7 +80,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
-    public boolean brakeMode = false;
+    public boolean speedMode = !false;
+    private double brakeModeScale = 0;
 
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
@@ -258,6 +259,8 @@ public class DrivetrainSubsystem implements Subsystem {
             visionPosePeriodic();
 
         updateTelemetry();
+
+        transferBrakeMode();
 
         frontLeft.periodic();
         frontRight.periodic();
@@ -496,32 +499,44 @@ public class DrivetrainSubsystem implements Subsystem {
 
     // Commands
 
-    public Command enableSlowModeCommand() {
-        return Commands.runOnce(() -> { slowMode = true; });
-    }
-
-    public Command disableSlowModeCommand() {
-        return Commands.runOnce(() -> { slowMode = false; });
-    }
-
     public Command zeroGyroCommand() {
         return Commands.runOnce(this::zeroGyro, this);
     }
 
+    public Command enableSpeedModeCommand() {
+        return Commands.runOnce(() -> {
+            speedMode = true;
+        });
+    }
+
+    public Command disableSpeedModeCommand() {
+        return Commands.runOnce(() -> {
+            speedMode = false;
+            brakeModeScale = 0;
+        });
+    }
+
+    public void transferBrakeMode() {
+        if (speedMode && brakeModeScale < 1) {
+            // Called every 0.01 seconds
+            // When brakeModeScale is at 1 robot is commanding full speed
+            brakeModeScale = Math.min(1, brakeModeScale + 0.02);
+        }
+    }
+
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
         return Commands.run(() -> {
-            double x = xAxis.getAsDouble();
-            double y = yAxis.getAsDouble();
-            double r = rotAxis.getAsDouble();
-            if (brakeMode) {
-                double mult = 0.35;
-                x *= mult;
-                y *= mult;
-                r *= mult;
-            }
+            double oX = xAxis.getAsDouble();
+            double oY = yAxis.getAsDouble();
+            double oR = rotAxis.getAsDouble();
+
+            brakeModeScale = Math.min(1, brakeModeScale); // Leave this here!
+            double x = oX * brakeModeScale + oX * 0.35 * (1 - brakeModeScale);
+            double y = oY * brakeModeScale + oY * 0.35 * (1 - brakeModeScale);
+            double r = oR * brakeModeScale + oR * 0.50 * (1 - brakeModeScale);
+            
             ChassisSpeeds speeds = joystickAxesToChassisSpeeds(x, y, r);
             drive(speeds, true, true);
-
 
         }, this);
     }

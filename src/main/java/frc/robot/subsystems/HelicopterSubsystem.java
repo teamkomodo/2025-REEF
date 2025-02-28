@@ -29,6 +29,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final DoublePublisher armTargetAnglePublisher = helicopterTable.getDoubleTopic("armTargetAnglePublisher").publish();
     private final DoublePublisher armAbsoluteEncoderPublisher = helicopterTable.getDoubleTopic("armAbsoluteEncoderPosition").publish();
     private final BooleanPublisher atCommandedPositionPublisher = helicopterTable.getBooleanTopic("atCommandedPosition").publish();
+    private final BooleanPublisher safeForElevatorPublisher = helicopterTable.getBooleanTopic("armPositionSafeForElevator").publish();
     private final IntegerPublisher positionWaitingOnPublisher = helicopterTable.getIntegerTopic("positionWaitingOnPublisher").publish();
 
     // Are we using the absolute encoder? Just for early testing. Might be useful later.
@@ -48,7 +49,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0, 0);
     private final double helicopterMaxAccel = 3000;
     private final double helicopterMaxVelocity = 3000;
-    private final double helicopterAllowedClosedLoopError = 0.2 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement
+    private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement
 
     // Variables
     private double targetAngle = 0;
@@ -87,8 +88,10 @@ public class HelicopterSubsystem extends SubsystemBase {
         armTargetAnglePublisher.set(targetAngle);
         atCommandedPositionPublisher.set(atCommandedPosition());
         positionWaitingOnPublisher.set(positionWaitingOn);
-        if (useAbsoluteEncoder)
-        armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
+        safeForElevatorPublisher.set(isSafeForElevator());
+        if (useAbsoluteEncoder) {
+            armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
+        }
     }
 
     private void checkSensors() {
@@ -162,38 +165,45 @@ public class HelicopterSubsystem extends SubsystemBase {
         });
     }
 
-    public void waitForElevatorPosition() {
-        setHelicopterPosition(HELICOPTER_WAIT_FOR_ELEVATOR_POSITION);
+    public void waitForL4Position() {
+        setHelicopterPosition(HELICOPTER_WAIT_FOR_L4_POSITION);
+    }
+
+    public void waitForL3Position() {
+        setHelicopterPosition(HELICOPTER_WAIT_FOR_L3_POSITION);
     }
 
     public Command zeroElevatorPositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_ZERO_ELEVATOR_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(
+            HELICOPTER_MIN_SAFE_POSITION / 2 + 
+            HELICOPTER_MAX_SAFE_POSITION / 2
+        ));
     }
 
     public Command l1WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForElevatorPosition();
+            waitForL3Position();
             positionWaitingOn = 1;
         });
     }
 
     public Command l2WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForElevatorPosition();
+            waitForL3Position();
             positionWaitingOn = 2;
         });
     }
 
     public Command l3WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForElevatorPosition();
+            waitForL3Position();
             positionWaitingOn = 3;
         });
     }
 
     public Command l4WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForElevatorPosition();
+            waitForL4Position();
             positionWaitingOn = 4;
         });
     }
@@ -226,8 +236,8 @@ public class HelicopterSubsystem extends SubsystemBase {
         return Math.abs(getAbsoluteEncoderPosition() - targetAngle) < helicopterAllowedClosedLoopError;
     }
 
-    public  boolean atZeroingPosition() {
-        return Math.abs(getAbsoluteEncoderPosition() - HELICOPTER_ZERO_ELEVATOR_POSITION) < 0.1;
+    public boolean isSafeForElevator() {
+        return getAbsoluteEncoderPosition() <= HELICOPTER_MAX_SAFE_POSITION && getAbsoluteEncoderPosition() >= HELICOPTER_MIN_SAFE_POSITION;
     }
 
     public int getPositionWaitingOn() {

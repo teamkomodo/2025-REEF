@@ -15,7 +15,7 @@ import frc.robot.commands.L4PositionCommand;
 import frc.robot.commands.ScoreAndRemoveAlgaeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.StartScoreCommand;
-import frc.robot.commands.ZeroElevatorCommand;
+import frc.robot.commands.ZeroMechCommand;
 import frc.robot.commands.NewIntakeIndexCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -79,8 +79,8 @@ public class RobotContainer {
 
   boolean scoreStarted = false;
   private void configureBindings() {
+    Trigger driverRB = driverController.rightBumper();
     Trigger driverLB = driverController.leftBumper();
-    Trigger driverX = driverController.x();
 
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
@@ -95,9 +95,10 @@ public class RobotContainer {
 
     /* Driver controls */
     /*  Button  | Command */
-    /* driverX  | Zero gyro */
-    /* driverLB | Enable / disable brake mode */
-    /* driverJoysticks | Drive the robot */
+    /* driverLB  | Zero gyro */
+    /* driverRB | Disable / enable slow mode, Default is slow */
+    /* driver left joystick | Drive the robot */
+    /* driver right joysticks | Rotate the robot */
 
 
     /* Operator controls */
@@ -116,20 +117,18 @@ public class RobotContainer {
     operatorLB.onTrue(new IfElseCommand(
       () -> (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()),
       new SequentialCommandGroup(
-        Commands.runOnce(() -> {
-          intakeSubsystem.stopIntake();
-          indexerSubsystem.stopIndexer();
-          endEffectorSubsystem.stopEndEffector();
-        }),
+        Commands.runOnce(intakeSubsystem::stopIntake),
+        Commands.runOnce(endEffectorSubsystem::stopEndEffector),
         intakeSubsystem.stowPositionCommand(),
+        new SequentialCommandGroup(
+          elevatorSubsystem.clearIntakePositionCommand(),
+          Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition)
+        ).onlyIf(() -> (!helicopterSubsystem.isSafeForElevator())),
         helicopterSubsystem.stowPositionCommand(),
-        Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
+        Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
         elevatorSubsystem.stowPositionCommand()
       ),
-      new SequentialCommandGroup(
-        new ZeroElevatorCommand(elevatorSubsystem, helicopterSubsystem),
-        intakeSubsystem.zeroHingeCommand()
-      )));
+      new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)));
     operatorLT.onTrue(new IfElseCommand(
       () -> (scoreStarted),
       new SequentialCommandGroup(
@@ -141,8 +140,7 @@ public class RobotContainer {
         Commands.runOnce(() -> { scoreStarted = true; })
       )
     ));
-    // FIXME: Check before competing! Use NEW unless old one works!
-    operatorRT.onTrue(new NewIntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorRB.onTrue(
       new SequentialCommandGroup(
         Commands.runOnce(() -> intakeSubsystem.stopIntake()), 
@@ -167,9 +165,9 @@ public class RobotContainer {
     ));
 
 
-    driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
-    driverLB.onTrue(Commands.runOnce(() -> { drivetrainSubsystem.brakeMode = true; }));
-    driverLB.onFalse(Commands.runOnce(() -> { drivetrainSubsystem.brakeMode = false; }));
+    driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
+    driverRB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
+    driverRB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(

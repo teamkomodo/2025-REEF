@@ -22,6 +22,6 @@ public class IfElseCommand extends DynamicCommand {
         return Commands.runOnce(() -> {
             if (condition.getAsBoolean()) onTrue.schedule();
             else onFalse.schedule();
-          });
+        });
     }
 }

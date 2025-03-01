@@ -1,19 +1,20 @@
-package frc.robot.commands;
+package frc.robot.commands.reefPositionCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class L3PositionCommand extends DynamicCommand {
+public class L4PositionCommand extends DynamicCommand {
 
     private final ElevatorSubsystem elevatorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final EndEffectorSubsystem endEffectorSubsystem;
 
-    public L3PositionCommand(ElevatorSubsystem elevatorSubsystem, HelicopterSubsystem helicopterSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+    public L4PositionCommand(ElevatorSubsystem elevatorSubsystem, HelicopterSubsystem helicopterSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.endEffectorSubsystem = endEffectorSubsystem;
@@ -26,12 +27,14 @@ public class L3PositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            elevatorSubsystem.l3PositionCommand(),
+            helicopterSubsystem.stowPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            elevatorSubsystem.l4PositionCommand(),
             new SequentialCommandGroup(
                 Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
-                helicopterSubsystem.l3WaitPositionCommand(),
+                helicopterSubsystem.l4WaitPositionCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 3))
+            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 4))
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));
     }
 }     

@@ -70,7 +70,7 @@ public final class Constants {
     // Intake hinge positions
   public static final double INTAKE_HINGE_MIN_POSITION = 0;
   public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
-  public static final double INTAKE_HINGE_STOW_POSITION = 1.2;
+  public static final double INTAKE_HINGE_STOW_POSITION = 1.1;
   public static final double INTAKE_HINGE_CLEAR_CORAL_POSITION = 3.4;
   public static final double INTAKE_HINGE_SAFE_ELEVATOR_POSITION  = 2;
   public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
@@ -87,14 +87,14 @@ public final class Constants {
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
   public static final double ELEVATOR_MAX_POSITION = 29.75;
   public static final double ELEVATOR_WAIT_POSITION = 14.5; // Was 14.31
-  public static final double ELEVATOR_STOW_POSITION = 3.25;
+  public static final double ELEVATOR_STOW_POSITION = 10;
 
   
   public static final double ELEVATOR_GRAB_POSITION = 9.8;
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 14.5;
   
-  public static final double ELEVATOR_L1_POSITION = 7.54; // FIXME: These are not tuned!
-  public static final double ELEVATOR_L2_POSITION = 9.3; // They are kind of close though.
+  public static final double ELEVATOR_L1_POSITION = 7.54;
+  public static final double ELEVATOR_L2_POSITION = 9.1;
   public static final double ELEVATOR_L3_POSITION = 16.896;
   public static final double ELEVATOR_L4_POSITION = 29.75;
 
@@ -122,7 +122,7 @@ public final class Constants {
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.667;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.8;
   public static final double HELICOPTER_REMOVE_ALGAE_POSITION = 0.79;
-  public static final double HELICOPTER_L1_POSITION = 0.8;
+  public static final double HELICOPTER_L1_POSITION = 0.73;
   public static final double HELICOPTER_L2_L3_POSITION = 0.718;
   public static final double HELICOPTER_L4_POSITION = 0.76;
 

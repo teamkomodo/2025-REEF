@@ -47,8 +47,8 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     // PID Constants
     private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0, 0);
-    private final double helicopterMaxAccel = 3000;
-    private final double helicopterMaxVelocity = 3000;
+    private final double helicopterMaxAccel = 6000;
+    private final double helicopterMaxVelocity = 6000;
     private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement
 
     // Variables

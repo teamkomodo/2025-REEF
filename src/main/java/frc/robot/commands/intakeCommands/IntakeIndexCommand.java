@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.intakeCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
@@ -82,9 +83,8 @@ public class IntakeIndexCommand extends DynamicCommand {
             Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
             elevatorSubsystem.zeroElevatorCommand(), //*/
             Commands.runOnce(() -> {})
-        ).onlyIf(() -> (
-            elevatorSubsystem.getZeroed() &&
-            intakeSubsystem.getZeroed() &&
-            !endEffectorSubsystem.getCoralLoaded()));
+        ).onlyIf(() -> (elevatorSubsystem.getZeroed() &&
+                intakeSubsystem.getZeroed() &&
+                !endEffectorSubsystem.getCoralLoaded()));
     }
 }     

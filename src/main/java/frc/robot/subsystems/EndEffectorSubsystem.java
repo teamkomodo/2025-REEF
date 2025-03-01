@@ -121,7 +121,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
             Commands.waitSeconds(0.3),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.2)),
             Commands.runOnce(() -> { coralLoaded = true; })
         );
     }

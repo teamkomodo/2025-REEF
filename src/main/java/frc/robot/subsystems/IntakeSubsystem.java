@@ -61,9 +61,9 @@ public class IntakeSubsystem extends SubsystemBase {
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
     private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
-    private final double hingeMaxAccel = 1000;
-    private final double hingeMaxVelocity = 1000;
-    private final double hingeAllowedClosedLoopError = 1;
+    private final double hingeMaxAccel = 3000;
+    private final double hingeMaxVelocity = 3000;
+    private final double hingeAllowedClosedLoopError = 0.5;
 
     // Sensors
     public final DigitalInput coralIntakedSensor;
@@ -230,6 +230,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void startIntake() {
         setIntakeDutyCycle(INTAKE_SPEED);
+    }
+
+    public void reverseIntake() {
+        setIntakeDutyCycle(-INTAKE_SPEED);
     }
 
     public void stopIntake() {

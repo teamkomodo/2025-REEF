@@ -175,4 +175,23 @@ public final class Constants {
     }
     return false;
   };
+
+  public static final int LED_CHANNEL = 0;
+
+
+  // Vision
+	public static final double LIMELIGHT_TO_APRILTAG_Y_DISTANCE = 0.6604;
+	public static final double LIMELIGHT_ROBOT_X_OFFSET = 0;
+	public static final double ROBOT_ALIGNMENT_SPEED = 1.0;
+	public static final double ALIGN_LINEAR_SPEED_FACTOR = 1.1;
+	public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
+
+	public static final double APRILTAG_HEIGHT = 0.5715;
+	public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254;
+	public static final double LIMELIGHT_HEIGHT = 0.1778;
+	public static final double LIMELIGHT_ANGLE_OFFSET = 28.3; // degrees
+	public static final double TY_ALIGN_THRESHOLD = -3;
+
+
+  
 }

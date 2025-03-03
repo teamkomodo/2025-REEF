@@ -29,19 +29,19 @@ public class ScoreAndRemoveAlgaeCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),
-
+            Commands.waitSeconds(0.1),
             new SequentialCommandGroup(
                 helicopterSubsystem.removeAlgaePositionCommand(),
-                endEffectorSubsystem.removeAlgaeCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-                endEffectorSubsystem.removeAlgaeCommand()
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() >= 3)),
-            
-            elevatorSubsystem.clearIntakePositionCommand(),
-            helicopterSubsystem.grabPositionCommand(),
-            elevatorSubsystem.waitPositionCommand()
-        ).onlyIf(elevatorSubsystem::getZeroed);
+                Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1))
+            ),
+            elevatorSubsystem.waitPositionCommand(),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+            Commands.runOnce(() -> endEffectorSubsystem.stopEndEffector()),
+            helicopterSubsystem.waitPositionCommand()
+        ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() >= 3));
     }
 }

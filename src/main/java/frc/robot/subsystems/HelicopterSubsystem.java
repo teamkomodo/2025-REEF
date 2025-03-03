@@ -32,7 +32,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final BooleanPublisher safeForElevatorPublisher = helicopterTable.getBooleanTopic("armPositionSafeForElevator").publish();
     private final IntegerPublisher positionWaitingOnPublisher = helicopterTable.getIntegerTopic("positionWaitingOnPublisher").publish();
 
-    // Are we using the absolute encoder? Just for early testing. Might be useful later.
+    // Are we using the absolute encoder? The false option is only for early testing. Might be useful later.
     private final boolean useAbsoluteEncoder = true;
 
     // Motors
@@ -46,7 +46,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkAbsoluteEncoder helicopterAbsoluteEncoder;
 
     // PID Constants
-    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0, 0);
+    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0, 0.001);
     private final double helicopterMaxAccel = 6000;
     private final double helicopterMaxVelocity = 6000;
     private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement
@@ -143,24 +143,28 @@ public class HelicopterSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_STOW_POSITION));
     }
     
+    public Command waitPositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_POSITION));
+    }
+    
     public Command grabPositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_WAIT_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_POSITION));
     }
 
     public Command lowAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_REMOVE_ALGAE_POSITION));
     }
 
     public Command highAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_REMOVE_ALGAE_POSITION));
     }
     
     public Command removeAlgaePositionCommand() {
         return Commands.runOnce(() -> {
             if (positionWaitingOn == 3) {
-                setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION);
+                setHelicopterPosition(HELICOPTER_LOW_REMOVE_ALGAE_POSITION);
             } else if (positionWaitingOn == 4) {
-                setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION);
+                setHelicopterPosition(HELICOPTER_HIGH_REMOVE_ALGAE_POSITION);
             }
         });
     }
@@ -173,7 +177,7 @@ public class HelicopterSubsystem extends SubsystemBase {
         setHelicopterPosition(HELICOPTER_WAIT_FOR_L3_POSITION);
     }
 
-    public Command zeroElevatorPositionCommand() {
+    public Command safeElevatorPositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(
             HELICOPTER_MIN_SAFE_POSITION / 2 + 
             HELICOPTER_MAX_SAFE_POSITION / 2

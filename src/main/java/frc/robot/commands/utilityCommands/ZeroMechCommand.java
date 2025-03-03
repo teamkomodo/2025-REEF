@@ -1,6 +1,7 @@
 package frc.robot.commands.utilityCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
@@ -25,6 +26,8 @@ public class ZeroMechCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            helicopterSubsystem.safeElevatorPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             intakeSubsystem.zeroHingeCommand(),
             elevatorSubsystem.zeroElevatorCommand().onlyIf(() -> !elevatorSubsystem.getZeroed())
         ).onlyIf(helicopterSubsystem::isSafeForElevator);

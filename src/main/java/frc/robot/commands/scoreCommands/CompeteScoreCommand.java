@@ -1,20 +1,19 @@
 package frc.robot.commands.scoreCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class ScoreCommand extends DynamicCommand {
+public class CompeteScoreCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
 
-    public ScoreCommand(
+    public CompeteScoreCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
                 ElevatorSubsystem elevatorSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
@@ -29,15 +28,8 @@ public class ScoreCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            // Release
-            endEffectorSubsystem.ejectCommand(),
-            helicopterSubsystem.releaseCoralPositionCommand(),
-            // // Return to waiting position
-            Commands.waitSeconds(0.1),
-            elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
-            helicopterSubsystem.waitPositionCommand(),
-            elevatorSubsystem.waitPositionCommand()
-        ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() != 0));
+            new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
+            new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
+        ).onlyIf(elevatorSubsystem::getZeroed);
     }
 }

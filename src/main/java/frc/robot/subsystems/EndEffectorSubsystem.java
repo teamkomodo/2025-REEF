@@ -75,7 +75,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     private void configMotors() {
         endEffectorMotorConfig
             .inverted(false)
-            .smartCurrentLimit(50); //FIXME: set current limit
+            .smartCurrentLimit(40);
 
         endEffectorMotorConfig.closedLoop
             .pid(endEffectorPIDGains.p, endEffectorPIDGains.i, endEffectorPIDGains.d);
@@ -101,6 +101,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
     public void holdEndEffector() {
         setEndEffectorPosition(endEffectorEncoder.getPosition());
     }
+
+    public Command startEndEffectorIntaking() {
+        return Commands.runOnce(() -> setEndEffectorDutyCycle(1));
+    }
     
     public void stopEndEffector() {
         setEndEffectorDutyCycle(0);
@@ -116,19 +120,19 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command intakeCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.9)),
+            startEndEffectorIntaking(),
             Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
             Commands.waitSeconds(0.3),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.2)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
             Commands.runOnce(() -> { coralLoaded = true; })
         );
     }
 
     public Command ejectCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.5)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.8)),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.3),
             Commands.runOnce(() -> stopEndEffector()),
@@ -147,7 +151,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
 
     public Command removeAlgaeCommand() {
-        return Commands.runOnce(() -> runEndEffectorRotations(4));
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.7)),
+            Commands.waitSeconds(1.0),
+            Commands.runOnce(() -> stopEndEffector()));
     }
     
 }

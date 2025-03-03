@@ -44,17 +44,22 @@ public class IntakeIndexCommand extends DynamicCommand {
     protected Command getCommand() {
         return new SequentialCommandGroup(
             // Intake and index
+            intakeSubsystem.clearArmPositionCommand(),
             new ParallelCommandGroup(
                 new SequentialCommandGroup(
                     intakeSubsystem.intakePositionCommand(),
+                    Commands.runOnce(intakeSubsystem::setDoneIntaking),
                     Commands.waitUntil(intakeSubsystem::atCommandedPosition),
-                    Commands.runOnce(intakeSubsystem::startIntake),
+                    Commands.runOnce(() -> intakeSubsystem.startIntake()),
                     Commands.waitUntil(intakeSubsystem::getPieceInIntake),
-                    Commands.waitUntil(indexerSubsystem::getPieceIndexed)
+                    intakeSubsystem.feedCoralPositionCommand(),
+                    Commands.runOnce(intakeSubsystem::runSlow),
+                    Commands.waitUntil(indexerSubsystem::getPieceIndexed),
+                    Commands.runOnce(intakeSubsystem::setDoneIntaking)
                 ).onlyIf(() -> !indexerSubsystem.getPieceIndexed()),
                 new SequentialCommandGroup(
                     Commands.waitUntil(intakeSubsystem::isSafeForElevator),
-                    elevatorSubsystem.clearIntakePositionCommand(),
+                    elevatorSubsystem.waitPositionCommand(),
                     Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
                     helicopterSubsystem.grabPositionCommand(),
                     Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
@@ -62,7 +67,6 @@ public class IntakeIndexCommand extends DynamicCommand {
             ),
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(intakeSubsystem::setDoneIntaking),
-            intakeSubsystem.clearCoralPositionCommand(),
             new ParallelRaceGroup(
                 new RepeatCommand(
                     new SequentialCommandGroup(
@@ -75,16 +79,20 @@ public class IntakeIndexCommand extends DynamicCommand {
                 endEffectorSubsystem.intakeCommand() // Waits until it has the coral, at which point the other command will be interrupted
             ),
             elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+            Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
             helicopterSubsystem.stowPositionCommand(),
-            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            Commands.runOnce(intakeSubsystem::setDoneIntaking),
+            intakeSubsystem.feedCoralPositionCommand(),
+            Commands.waitUntil(() -> (helicopterSubsystem.atCommandedPosition() || helicopterSubsystem.isSafeForElevator())),
             intakeSubsystem.stowPositionCommand(),
-            elevatorSubsystem.minPositionCommand(),
-            Commands.waitUntil(() -> elevatorSubsystem.atCommandedPosition()),
-            elevatorSubsystem.zeroElevatorCommand(), //*/
+            new SequentialCommandGroup(
+                endEffectorSubsystem.startEndEffectorIntaking(),
+                Commands.waitUntil(endEffectorSubsystem::getCoralLoaded),
+                Commands.runOnce(endEffectorSubsystem::stopEndEffector)
+            ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded()),
             Commands.runOnce(() -> {})
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() &&
                 intakeSubsystem.getZeroed() &&
                 !endEffectorSubsystem.getCoralLoaded()));
     }
-}     
+}

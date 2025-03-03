@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
         // Motor publishers
     private final DoublePublisher hingeMotorPositionPublisher = intakeTable.getDoubleTopic("hingeMotorPosition").publish();
     private final DoublePublisher hingeMotorSupposedPositionPublisher = intakeTable.getDoubleTopic("hingeMotorSupposedPosition").publish();
-    private final DoublePublisher hingeMotorDutyCyclePublisher = intakeTable.getDoubleTopic("motorDutyCycle").publish();
+    private final DoublePublisher hingeMotorDutyCyclePublisher = intakeTable.getDoubleTopic("hingeMotorDutyCycle").publish();
     private final DoublePublisher intakeVelocityPublisher = intakeTable.getDoubleTopic("intakeDutyCycle").publish();
         // Variable publishers
     private final BooleanPublisher pieceIntakedPublisher = intakeTable.getBooleanTopic("pieceInIntake").publish();
@@ -63,7 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
     private final double hingeMaxAccel = 3000;
     private final double hingeMaxVelocity = 3000;
-    private final double hingeAllowedClosedLoopError = 0.5;
+    private final double hingeAllowedClosedLoopError = 0.3;
 
     // Sensors
     public final DigitalInput coralIntakedSensor;
@@ -143,7 +143,7 @@ public class IntakeSubsystem extends SubsystemBase {
         pieceIntakedSensorPublisher.set(getCoralDetection(coralIntakedSensor));
         pieceIntakedSensor2Publisher.set(getCoralDetection(coralIntakedSensor2));
         // Intake publishing
-        intakeVelocityPublisher.set(intakeMotor.getOutputCurrent());
+        intakeVelocityPublisher.set(intakeEncoder.getVelocity());
         // Hinge publishing
         hingeMotorPositionPublisher.set(hingeEncoder.getPosition());
         hingeMotorSupposedPositionPublisher.set(hingeSupposedPosition);
@@ -232,6 +232,10 @@ public class IntakeSubsystem extends SubsystemBase {
         setIntakeDutyCycle(INTAKE_SPEED);
     }
 
+    public void runSlow() {
+        setIntakeDutyCycle(SLOW_INTAKE_SPEED);
+    }
+
     public void reverseIntake() {
         setIntakeDutyCycle(-INTAKE_SPEED);
     }
@@ -261,12 +265,12 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION));
     }
 
-    public Command clearCoralPositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_CORAL_POSITION));
+    public Command feedCoralPositionCommand() {
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_FEED_CORAL_POSITION));
     }
 
-    public Command stationIntakePositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STATION_INTAKE_POSITION));
+    public Command clearArmPositionCommand() {
+        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_ARM_POSITION));
     }
 
     public Command intakePositionCommand() {

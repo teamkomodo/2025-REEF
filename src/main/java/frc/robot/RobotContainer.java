@@ -9,10 +9,12 @@ import frc.robot.commands.reefPositionCommands.L1PositionCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
+import frc.robot.commands.scoreCommands.CompeteScoreCommand;
 import frc.robot.commands.scoreCommands.ScoreAndRemoveAlgaeCommand;
 import frc.robot.commands.scoreCommands.ScoreCommand;
 import frc.robot.commands.scoreCommands.StartScoreCommand;
 import frc.robot.commands.utilityCommands.IfElseCommand;
+import frc.robot.commands.utilityCommands.ResetRobotCommand;
 import frc.robot.commands.utilityCommands.ZeroMechCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -79,6 +81,8 @@ public class RobotContainer {
     Trigger operatorRT = operatorController.rightTrigger();
     Trigger operatorPD = operatorController.povDown();
     Trigger operatorPU = operatorController.povUp();
+    Trigger operatorPL = operatorController.povLeft();
+    Trigger operatorPR = operatorController.povRight();
 
     Trigger operatorLB = operatorController.leftBumper();
     Trigger operatorRB = operatorController.rightBumper();
@@ -97,12 +101,12 @@ public class RobotContainer {
 
     /* Operator controls */
     /*   Button   | Command */
-    /* operatorLB | Zero elevator and intake, or reset robot mechs*/
-    /* operatorRB | Intake up */
-    /* operatorLT | Start score, on 2nt press score */
+    /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
+    /* operatorRB | Score and remove algae */
+    /* operatorLT | Score */
     /* operatorRT | Intake and index */
     /* operatorPD (POV down) | Eject from intake */
-    /* operatorPU (POV up) | Zero elevator??? */
+    /* operatorPU (POV up) | Intake up */
     /* operatorX  | L1 Position */
     /* operatorY  | L2 Position */
     /* operatorA  | L4 Position */
@@ -111,36 +115,29 @@ public class RobotContainer {
     
     operatorLB.onTrue(new IfElseCommand(
       () -> (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()),
-      new SequentialCommandGroup(
-        Commands.runOnce(intakeSubsystem::stopIntake),
-        Commands.runOnce(endEffectorSubsystem::stopEndEffector),
-        intakeSubsystem.stowPositionCommand(),
-        new SequentialCommandGroup(
-          elevatorSubsystem.clearIntakePositionCommand(),
-          Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition)
-        ).onlyIf(() -> (!helicopterSubsystem.isSafeForElevator())),
-        helicopterSubsystem.stowPositionCommand(),
-        Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-        elevatorSubsystem.stowPositionCommand()
-      ),
+      new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
     ));
 
-    operatorLT.onTrue(new IfElseCommand(
-      () -> (scoreStarted),
-      new SequentialCommandGroup(
-        Commands.runOnce(() -> { scoreStarted = false; }),
-        new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
-      ),
-      new SequentialCommandGroup(
-        new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
-        Commands.runOnce(() -> { scoreStarted = true; })
-      )
-    ));
+    operatorLT.onTrue(new CompeteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+
+    // operatorPU.onTrue(new IfElseCommand(
+    //   () -> (scoreStarted),
+    //   new SequentialCommandGroup(
+    //     Commands.runOnce(() -> { scoreStarted = false; }),
+    //     new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
+    //   ),
+    //   new SequentialCommandGroup(
+    //     new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
+    //     Commands.runOnce(() -> { scoreStarted = true; })
+    //   )
+    // ));
+
+    operatorRB.onTrue(new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorRB.onTrue(
+    operatorPU.onTrue(
       new SequentialCommandGroup(
         Commands.runOnce(() -> intakeSubsystem.stopIntake()), 
         intakeSubsystem.stowPositionCommand()
@@ -148,9 +145,13 @@ public class RobotContainer {
     
     operatorPD.onTrue(new SequentialCommandGroup(
       Commands.runOnce(() -> intakeSubsystem.reverseIntake()),
+      Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-0.7)),
       Commands.waitSeconds(0.6),
-      Commands.runOnce(intakeSubsystem::stopIntake)
+      Commands.runOnce(intakeSubsystem::stopIntake),
+      Commands.runOnce(endEffectorSubsystem::stopEndEffector)
     ));
+
+    
 
     operatorX.onTrue(new SequentialCommandGroup(
       new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),

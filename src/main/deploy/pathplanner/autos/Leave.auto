@@ -7,19 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2C A"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2C B"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2C C"
+            "pathName": "Leave"
           }
         }
       ]

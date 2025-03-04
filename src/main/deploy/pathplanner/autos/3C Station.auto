@@ -7,31 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2C A"
+            "pathName": "2C Station A"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "2C B"
+            "pathName": "2C Station B"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "2C C"
+            "pathName": "2C Station C"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3C D"
+            "pathName": "3C Station D"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3C E"
+            "pathName": "3C Station E"
           }
         }
       ]

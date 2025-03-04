@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.974,
-        "y": 2.76
+        "x": 1.777,
+        "y": 0.835
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.116157076147677,
-        "y": 2.158806351706136
+        "x": 1.9673392834567869,
+        "y": 1.0128779733200783
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.79,
-        "y": 0.8346518987341756
+        "x": 3.9493670886104333,
+        "y": 2.7723101265748245
       },
       "prevControl": {
-        "x": 1.5400014749361168,
-        "y": 0.8337931403962686
+        "x": 2.4848421606107993,
+        "y": 1.4404666546052405
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.7,
-      "rotationDegrees": -124.8676593430575
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -129.2894068625003
+    "rotation": -120.96375653107546
   },
   "reversed": false,
-  "folder": "2C",
+  "folder": "2C Station",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -61.78142830462425
+    "rotation": -127.95485828353554
   },
   "useDefaultConstraints": true
 }

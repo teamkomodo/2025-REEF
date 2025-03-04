@@ -3,7 +3,11 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "2C"
+    "1C",
+    "2C Station",
+    "3C Station",
+    "Leave",
+    "2C Lollipop"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

@@ -37,7 +37,9 @@ public class ScoreCommand extends DynamicCommand {
             elevatorSubsystem.clearIntakePositionCommand(),
             Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
             helicopterSubsystem.waitPositionCommand(),
-            elevatorSubsystem.waitPositionCommand()
+            elevatorSubsystem.waitPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() != 0));
     }
 }

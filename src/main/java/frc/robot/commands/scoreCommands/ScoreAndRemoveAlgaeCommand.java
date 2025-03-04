@@ -41,7 +41,8 @@ public class ScoreAndRemoveAlgaeCommand extends DynamicCommand {
             elevatorSubsystem.waitPositionCommand(),
             Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
             Commands.runOnce(() -> endEffectorSubsystem.stopEndEffector()),
-            helicopterSubsystem.waitPositionCommand()
+            helicopterSubsystem.waitPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() >= 3));
     }
 }

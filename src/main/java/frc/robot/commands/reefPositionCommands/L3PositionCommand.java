@@ -34,7 +34,8 @@ public class L3PositionCommand extends DynamicCommand {
                 Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
                 helicopterSubsystem.l3WaitPositionCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 3))
+            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 3)),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));
     }
 }     

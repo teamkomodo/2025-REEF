@@ -9,7 +9,7 @@ import frc.robot.commands.reefPositionCommands.L1PositionCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
-import frc.robot.commands.scoreCommands.CompeteScoreCommand;
+import frc.robot.commands.scoreCommands.CompleteScoreCommand;
 import frc.robot.commands.scoreCommands.ScoreAndRemoveAlgaeCommand;
 import frc.robot.commands.scoreCommands.ScoreCommand;
 import frc.robot.commands.scoreCommands.StartScoreCommand;
@@ -119,7 +119,7 @@ public class RobotContainer {
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
     ));
 
-    operatorLT.onTrue(new CompeteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorLT.onTrue(new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // operatorPU.onTrue(new IfElseCommand(
     //   () -> (scoreStarted),

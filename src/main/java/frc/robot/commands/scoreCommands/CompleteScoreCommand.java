@@ -7,13 +7,13 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class CompeteScoreCommand extends DynamicCommand {
+public class CompleteScoreCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
 
-    public CompeteScoreCommand(
+    public CompleteScoreCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
                 ElevatorSubsystem elevatorSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;

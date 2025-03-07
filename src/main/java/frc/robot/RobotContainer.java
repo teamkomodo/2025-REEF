@@ -74,6 +74,10 @@ public class RobotContainer {
   private void configureBindings() {
     Trigger driverRB = driverController.rightBumper();
     Trigger driverLB = driverController.leftBumper();
+    Trigger driverY = driverController.y();
+    Trigger driverX = driverController.x();
+    Trigger driverLT = driverController.leftTrigger();
+    Trigger driverRT = driverController.rightTrigger();
 
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
@@ -146,9 +150,6 @@ public class RobotContainer {
       Commands.runOnce(intakeSubsystem::stopIntake),
       Commands.runOnce(endEffectorSubsystem::stopEndEffector)
     ));
-
-    
-
     operatorX.onTrue(new SequentialCommandGroup(
       new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
       Commands.runOnce(() -> { scoreStarted = false; })
@@ -170,9 +171,16 @@ public class RobotContainer {
     ));
 
 
-    driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
-    driverRB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
-    driverRB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+    driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
+    driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
+    driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+
+    //driverY.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    driverX.whileTrue(drivetrainSubsystem.parallelCommand());
+    driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
+    driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
+    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(

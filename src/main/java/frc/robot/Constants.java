@@ -194,6 +194,7 @@ public final class Constants {
   public static final double ROBOT_ALIGNMENT_SPEED = 1.0; 
   public static final double ALIGN_LINEAR_SPEED_FACTOR = 1.1;
   public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
+  public static final double ALIGN_TURN_CONSTANT = 0.3;
 
   public static final double APRILTAG_HEIGHT = 0.5715;
   public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254; //UPDATE BEFORE SCRIMMAGE

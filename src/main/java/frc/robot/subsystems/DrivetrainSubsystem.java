@@ -46,6 +46,7 @@ import frc.robot.LimelightHelpers;
 import java.io.Console;
 import java.io.IOException;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -54,9 +55,6 @@ import java.io.File;
 import java.io.IOException;
 
 import com.kauailabs.navx.frc.AHRS;
-
-
-
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -71,7 +69,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import com.pathplanner.lib.util.FileVersionException;
 
 public class DrivetrainSubsystem implements Subsystem {
-
     /*
      * Robot Coordinate System
      * See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html#robot-coordinate-system
@@ -87,6 +84,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public boolean speedMode = !false;
     private double brakeModeScale = 0;
+    public boolean atReef = false;
 
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
@@ -281,6 +279,11 @@ public class DrivetrainSubsystem implements Subsystem {
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
+
+        atReef = false;
+        if(LimelightHelpers.getTA("limelight") > 16.0 && Math.abs(LimelightHelpers.getTX("limelight")) < 1)
+            atReef = true;
+        System.out.println(LimelightHelpers.getTA("limelight"));
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
@@ -730,18 +733,15 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command goToBranch(boolean right){
         return Commands.runOnce(() -> {
-            if(LimelightHelpers.getTV("limelight")) {
+            if(LimelightHelpers.getTV("limelight") && atReef) {
                 double alignDriveTime = Math.abs(calculateAlignTime(right));
                 double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
-                timedDriveCommand(1.10, robotAlignmentSpeed, 0, ALIGNMENT_DRIVE, alignDriveTime);
+                timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
                 //doTheThing(robotAlignmentSpeed, alignDriveTime);
                 System.out.println("DO SOMETHING");
-            }
-                        
-                    
+            }      
         }, this);
     }
-
 
     // public void doTheThing(double robotAlignmentSpeed, double alignDriveTime){
     //     new SequentialCommandGroup(
@@ -772,6 +772,13 @@ public class DrivetrainSubsystem implements Subsystem {
         ).schedule();
     }
 
+    // public void visionControlledDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
+    //     new SequentialCommandGroup(
+    //         Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).until(aligned),
+    //         Commands.runOnce(() -> stopMotion())
+    //     ).schedule();
+    // }
+
     public Command limelightCenterCommand(){
         return Commands.run(() -> {
 
@@ -800,8 +807,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command parallelCommand(){        
         return Commands.run(() -> {
-            
-            drive(0, 0, -limelightZ(), false);
+            drive(0, 0, limelightZ(), false);
 
             System.out.println(limelightZ());
                 
@@ -809,13 +815,13 @@ public class DrivetrainSubsystem implements Subsystem {
         
     }
 
-
     public Command limelightAlignCommand(){
-       return Commands.run(() -> {
-        drive(limelightY(), limelightX(), limelightZ(),  false);
-       }, this);
-            
-        
+        return Commands.run(() -> {
+            if(!atReef)
+                drive(limelightX(), -limelightY(), ALIGN_TURN_CONSTANT*limelightZ(),  false);
+            else
+                stopMotion();
+        }, this); // .while(); 
     }
 }
 

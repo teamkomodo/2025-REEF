@@ -14,7 +14,6 @@ import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
 import frc.robot.commands.scoreCommands.CompleteScoreCommand;
-import frc.robot.commands.scoreCommands.ScoreCommand;
 import frc.robot.commands.utilityCommands.EjectCommand;
 import frc.robot.commands.utilityCommands.IfElseCommand;
 import frc.robot.commands.utilityCommands.ResetRobotCommand;
@@ -80,10 +79,10 @@ public class RobotContainer {
   private void configureBindings() {
     Trigger driverRB = driverController.rightBumper();
     Trigger driverLB = driverController.leftBumper();
-    Trigger driverY = driverController.y();
-    Trigger driverX = driverController.x();
     Trigger driverLT = driverController.leftTrigger();
     Trigger driverRT = driverController.rightTrigger();
+    Trigger driverY = driverController.y();
+    Trigger driverX = driverController.x();
 
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
@@ -101,8 +100,12 @@ public class RobotContainer {
 
     /* Driver controls */
     /*  Button  | Command */
-    /* driverLB  | Zero gyro */
-    /* driverRB | Disable / enable slow mode, Default is slow */
+    /* driverLB | Zero gyro */
+    /* driverRB | Enable / disable slow mode, Default is fast mode */
+    /* driverX  | Zero gyro */
+    /* driverY  | Parallel command */
+    /* driverLT | Go to left branch */
+    /* driverRT | Go to right branch */
     /* driver left joystick | Drive the robot */
     /* driver right joysticks | Rotate the robot */
 
@@ -152,7 +155,7 @@ public class RobotContainer {
     operatorPL.onTrue(new GrabLowAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
     operatorPU.onTrue(new GrabHighAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
     operatorPR.onTrue(new GrabFloorAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorLB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
@@ -195,8 +198,7 @@ public class RobotContainer {
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
 
-    //driverY.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-    driverX.whileTrue(drivetrainSubsystem.parallelCommand());
+    driverY.whileTrue(drivetrainSubsystem.parallelCommand());
     driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());

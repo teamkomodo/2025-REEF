@@ -95,9 +95,9 @@ public final class Constants {
   public static final double ELEVATOR_WAIT_POSITION = 13.0; // Was 14.31
   public static final double ELEVATOR_STOW_POSITION = 13;
 
-  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 13;
-  public static final double ELEVATOR_LOW_ALGAE_POSITION = 16;
-  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 27;
+  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 11;
+  public static final double ELEVATOR_LOW_ALGAE_POSITION = 10;
+  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 17.5;
   public static final double ELEVATOR_GRAB_POSITION = 7.902;
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 12.477;
   

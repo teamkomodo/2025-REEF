@@ -8,14 +8,14 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class ResetRobotCommand extends DynamicCommand {
+public class EjectCommand extends DynamicCommand {
 
     private final IntakeSubsystem intakeSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final EndEffectorSubsystem endEffectorSubsystem;
 
-    public ResetRobotCommand(
+    public EjectCommand(
             IntakeSubsystem intakeSubsystem, 
             ElevatorSubsystem elevatorSubsystem, 
             HelicopterSubsystem helicopterSubsystem, 
@@ -47,6 +47,6 @@ public class ResetRobotCommand extends DynamicCommand {
             elevatorSubsystem.stowPositionCommand(),
             elevatorSubsystem.zeroElevatorCommand(),
             elevatorSubsystem.minPositionCommand()
-          );
+        );
     }
-}     
+}

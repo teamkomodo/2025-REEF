@@ -31,7 +31,7 @@ public class L1PositionCommand extends DynamicCommand {
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.l1PositionCommand(),
             new SequentialCommandGroup(
-                Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
+                Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
                 helicopterSubsystem.l1WaitPositionCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 1)),

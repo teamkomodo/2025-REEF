@@ -1,4 +1,4 @@
-package frc.robot.commands.scoreCommands;
+package frc.robot.commands.algaeCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -8,13 +8,13 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class ScoreCommand extends DynamicCommand {
+public class ScoreAlgaeCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
 
-    public ScoreCommand(
+    public ScoreAlgaeCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
                 ElevatorSubsystem elevatorSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
@@ -29,18 +29,21 @@ public class ScoreCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> System.out.println("Scoring!??!")),
-            // Release
-            endEffectorSubsystem.ejectCommand(),
-            helicopterSubsystem.releaseCoralPositionCommand(),
-            // // Return to waiting position
-            Commands.waitSeconds(0.1),
             elevatorSubsystem.clearIndexerPositionCommand(),
             Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
-            helicopterSubsystem.waitPositionCommand(),
-            elevatorSubsystem.waitPositionCommand(),
+            helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            elevatorSubsystem.scoreAlgaePositionCommand(),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+            helicopterSubsystem.scoreAlgaePositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+
+            endEffectorSubsystem.scoreAlgaeCommand(),
+
+            helicopterSubsystem.stowPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            elevatorSubsystem.stowPositionCommand(),
             Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
-        ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() != 0));
+        ).onlyIf(elevatorSubsystem::getZeroed);
     }
 }

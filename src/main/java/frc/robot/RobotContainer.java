@@ -4,12 +4,18 @@
 
 package frc.robot;
 
+import frc.robot.commands.algaeCommands.GrabFloorAlgaeCommand;
+import frc.robot.commands.algaeCommands.GrabHighAlgaeCommand;
+import frc.robot.commands.algaeCommands.GrabLowAlgaeCommand;
+import frc.robot.commands.algaeCommands.ScoreAlgaeCommand;
 import frc.robot.commands.intakeCommands.IntakeIndexCommand;
 import frc.robot.commands.reefPositionCommands.L1PositionCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
 import frc.robot.commands.scoreCommands.CompleteScoreCommand;
+import frc.robot.commands.scoreCommands.ScoreCommand;
+import frc.robot.commands.utilityCommands.EjectCommand;
 import frc.robot.commands.utilityCommands.IfElseCommand;
 import frc.robot.commands.utilityCommands.ResetRobotCommand;
 import frc.robot.commands.utilityCommands.ZeroMechCommand;
@@ -103,12 +109,14 @@ public class RobotContainer {
 
     /* Operator controls */
     /*   Button   | Command */
-    /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
-    /* operatorRB | Empty!!! */
-    /* operatorLT | Score */
+    /* operatorLT | Score coral */
     /* operatorRT | Intake and index */
+    /* operatorRB | Score algae */
+    /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
     /* operatorPD (POV down) | Eject from intake */
-    /* operatorPU (POV up) | Intake up */
+    /* operatorPL (POV left) | Grab low algae */
+    /* operatorPU (POV up) | Grab high algae */
+    /* operatorPR (POV right) | Grab ground algae */
     /* operatorX  | L1 Position */
     /* operatorY  | L2 Position */
     /* operatorA  | L4 Position */
@@ -123,6 +131,11 @@ public class RobotContainer {
 
     operatorLT.onTrue(new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
+    operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+
+    operatorPD.onTrue(new EjectCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+
+      // Old two part score command
     // operatorPU.onTrue(new IfElseCommand(
     //   () -> (scoreStarted),
     //   new SequentialCommandGroup(
@@ -135,6 +148,13 @@ public class RobotContainer {
     //   )
     // ));
 
+    // Algae commands
+    operatorPL.onTrue(new GrabLowAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorPU.onTrue(new GrabHighAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorPR.onTrue(new GrabFloorAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorLB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+
+    // Level position commands
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
     operatorPU.onTrue(

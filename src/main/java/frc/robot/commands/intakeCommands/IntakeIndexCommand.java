@@ -82,8 +82,8 @@ public class IntakeIndexCommand extends DynamicCommand {
                 ),
                 endEffectorSubsystem.intakeCommand() // Waits until it has the coral, at which point the other command will be interrupted
             ),
-            elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
+            elevatorSubsystem.clearIndexerPositionCommand(),
+            Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
             helicopterSubsystem.stowPositionCommand(),
             Commands.runOnce(intakeSubsystem::setDoneIntaking),
             intakeSubsystem.feedCoralPositionCommand(),

@@ -95,10 +95,13 @@ public final class Constants {
   public static final double ELEVATOR_WAIT_POSITION = 13.0; // Was 14.31
   public static final double ELEVATOR_STOW_POSITION = 13;
 
-  
-  public static final double ELEVATOR_GRAB_POSITION = 7.902; // FIXME: tune; was 9.8 with old indexer
+  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 13;
+  public static final double ELEVATOR_LOW_ALGAE_POSITION = 16;
+  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 27;
+  public static final double ELEVATOR_GRAB_POSITION = 7.902;
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 12.477;
   
+  public static final double ELEVATOR_SCORE_ALGAE_POSITION = 29;
   public static final double ELEVATOR_L1_POSITION = 7.54;
   public static final double ELEVATOR_L2_POSITION = 9.1;
   public static final double ELEVATOR_L3_POSITION = 16.896;
@@ -119,16 +122,17 @@ public final class Constants {
   public static final double HELICOPTER_MAX_POSITION = 1.09;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
-  public static final double HELICOPTER_GRAB_POSITION = 1.104; // FIXME: tune; was 1.061 with old indexer
+  public static final double HELICOPTER_GRAB_POSITION = 1.104;
   public static final double HELICOPTER_WAIT_POSITION = 0.98;
-  public static final double HELICOPTER_LOW_REMOVE_ALGAE_POSITION = 0.8;
-  public static final double HELICOPTER_HIGH_REMOVE_ALGAE_POSITION = 0.75;
+  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.8;
+  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.75;
+  public static final double HELICOPTER_FLOOR_ALGAE_POSITION = 0.9;
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;
   public static final double HELICOPTER_WAIT_FOR_L3_POSITION = 0.688;
   public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.77;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.8;
-  public static final double HELICOPTER_REMOVE_ALGAE_POSITION = 0.79;
+  public static final double HELICOPTER_SCORE_ALGAE_POSITION = 0.6; // FIXME: TUNE ME
   public static final double HELICOPTER_L1_POSITION = 0.73;
   public static final double HELICOPTER_L2_L3_POSITION = 0.718;
   public static final double HELICOPTER_L4_POSITION = 0.76;

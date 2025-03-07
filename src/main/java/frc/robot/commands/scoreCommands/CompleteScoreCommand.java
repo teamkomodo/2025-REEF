@@ -40,8 +40,8 @@ public class CompleteScoreCommand extends DynamicCommand {
             helicopterSubsystem.releaseCoralPositionCommand(),
             // // Return to waiting position
             Commands.waitSeconds(0.1),
-            elevatorSubsystem.clearIntakePositionCommand(),
-            Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
+            elevatorSubsystem.clearIndexerPositionCommand(),
+            Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
             helicopterSubsystem.waitPositionCommand(),
             elevatorSubsystem.waitPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),

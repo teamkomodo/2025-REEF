@@ -168,6 +168,22 @@ public class ElevatorSubsystem extends SubsystemBase {
         setElevatorSupposedPosition(elevatorEncoder.getPosition());
     }
 
+    public Command floorAlgaePositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_FLOOR_ALGAE_POSITION));
+    }
+
+    public Command lowAlgaePositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_LOW_ALGAE_POSITION));
+    }
+
+    public Command highAlgaePositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_HIGH_ALGAE_POSITION));
+    }
+    
+    public Command scoreAlgaePositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_SCORE_ALGAE_POSITION));
+    }
+
     public Command stowPositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_STOW_POSITION));
     }
@@ -200,7 +216,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L4_POSITION));
     }
 
-    public Command clearIntakePositionCommand() {
+    public Command clearIndexerPositionCommand() {
         return this.runOnce(() -> {
             if (elevatorEncoder.getPosition() < ELEVATOR_CLEAR_INTAKE_POSITION - elevatorAllowedClosedLoopError) {
                 setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
@@ -223,7 +239,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Math.abs(elevatorEncoder.getPosition() - elevatorSupposedPosition) < elevatorAllowedClosedLoopError;
     }
 
-    public boolean aboveClearIntakePosition() {
+    public boolean aboveCommandedPosition() {
         return elevatorEncoder.getPosition() >= elevatorSupposedPosition - elevatorAllowedClosedLoopError;
     }
 

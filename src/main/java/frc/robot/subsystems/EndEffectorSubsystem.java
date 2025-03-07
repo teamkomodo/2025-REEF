@@ -24,10 +24,11 @@ import static frc.robot.Constants.*;
 public class EndEffectorSubsystem extends SubsystemBase {
     // NetworkTable publishers
     private final NetworkTable endEffectorTable = NetworkTableInstance.getDefault().getTable("endEffector");
-    private final DoublePublisher motorVelocityPublisher = endEffectorTable.getDoubleTopic("intakeDutyCycle").publish();
+    private final DoublePublisher motorVelocityPublisher = endEffectorTable.getDoubleTopic("endEffectorDutyCycle").publish();
+    private final DoublePublisher filteredCurrentPublisher = endEffectorTable.getDoubleTopic("filteredCurrent").publish();
     private final BooleanPublisher pieceLoadedSensorPublisher = endEffectorTable.getBooleanTopic("pieceLoadedSensor").publish();
-    private final BooleanPublisher pieceLoadedPublisher = endEffectorTable.getBooleanTopic("pieceLoaded").publish();
-
+    private final BooleanPublisher coralLoadedPublisher = endEffectorTable.getBooleanTopic("coralLoaded").publish();
+    private final BooleanPublisher algaeLoadedPublisher = endEffectorTable.getBooleanTopic("algaeLoaded").publish();
 
     private final SparkMax endEffectorMotor;
     private final SparkMaxConfig endEffectorMotorConfig;
@@ -71,8 +72,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     private void updateTelemetry() {
         motorVelocityPublisher.set(endEffectorMotor.getOutputCurrent());
+        filteredCurrentPublisher.set(filteredCurrent);
         pieceLoadedSensorPublisher.set(getCoralDetection(coralLoadedSensor));
-        pieceLoadedPublisher.set(coralLoaded);
+        coralLoadedPublisher.set(coralLoaded);
+        algaeLoadedPublisher.set(algaeLoaded);
     }
 
     private void checkSensors() {
@@ -144,11 +147,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command intakeAlgaeCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
-            Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
-            Commands.waitSeconds(0.1),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
-            Commands.waitSeconds(0.3),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.4)),
+            Commands.waitUntil(() -> (filteredCurrent > 30)),
+            Commands.waitSeconds(0.2),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
             Commands.runOnce(() -> { algaeLoaded = true; })
         );
@@ -170,21 +171,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command ejectFastCommand() {
+    public Command scoreAlgaeCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),
-            Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
-            Commands.waitSeconds(0.25),
+            Commands.waitSeconds(1),
             Commands.runOnce(() -> stopEndEffector()),
             Commands.runOnce(() -> { coralLoaded = false; algaeLoaded = false; })
         );
-    }
-
-    public Command removeAlgaeCommand() {
-        return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.7)),
-            Commands.waitSeconds(1.0),
-            Commands.runOnce(() -> stopEndEffector()));
     }
     
 }

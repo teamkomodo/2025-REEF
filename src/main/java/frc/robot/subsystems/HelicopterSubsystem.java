@@ -152,19 +152,27 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
 
     public Command lowAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_REMOVE_ALGAE_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
     }
 
     public Command highAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_REMOVE_ALGAE_POSITION));
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
+    }
+
+    public Command floorAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_FLOOR_ALGAE_POSITION));
+    }
+
+    public Command scoreAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_SCORE_ALGAE_POSITION));
     }
     
     public Command removeAlgaePositionCommand() {
         return Commands.runOnce(() -> {
             if (positionWaitingOn == 3) {
-                setHelicopterPosition(HELICOPTER_LOW_REMOVE_ALGAE_POSITION);
+                setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION);
             } else if (positionWaitingOn == 4) {
-                setHelicopterPosition(HELICOPTER_HIGH_REMOVE_ALGAE_POSITION);
+                setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION);
             }
         });
     }

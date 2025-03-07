@@ -29,6 +29,7 @@ public class ScoreCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> System.out.println("Scoring!??!")),
             // Release
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),

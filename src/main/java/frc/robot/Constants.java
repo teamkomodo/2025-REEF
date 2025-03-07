@@ -66,21 +66,21 @@ public final class Constants {
   public static final int INTAKE_HINGE_MOTOR_ID = 12;
     // Intake and hinge sensor channels
   public static final int CORAL_INTAKE_SENSOR_CHANNEL = 0;
-  public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 1;
+  public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 2;
   public static final int INTAKE_HINGE_ZERO_SWITCH_CHANNEL = 7;
     // Intake speed and gear ratio
   public static final double INTAKE_SPEED = 0.55;
-  public static final double SLOW_INTAKE_SPEED = 0.30;
+  public static final double SLOW_INTAKE_SPEED = 0.40;
   public static final double INTAKE_HINGE_GEAR_RATIO = 45;
   public static final double INTAKE_HINGE_ZEROING_SPEED = -0.2;
     // Intake hinge positions
   public static final double INTAKE_HINGE_MIN_POSITION = 0;
   public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
   public static final double INTAKE_HINGE_STOW_POSITION = 1.5;
-  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 10.0; // This is for when there is a coral in the intake and we want to help feed it through
+  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 9.0; // This is for when there is a coral in the intake and we want to help feed it through
   public static final double INTAKE_HINGE_SAFE_ELEVATOR_POSITION  = 2;
   public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
-  public static final double INTAKE_HINGE_CLEAR_ARM_POSITION = 4.0;
+  public static final double INTAKE_HINGE_CLEAR_ARM_POSITION = 6.0;
   public static final double INTAKE_HINGE_INTAKE_POSITION = 13.547; // This is flat on the ground
   
   // Elevator
@@ -88,7 +88,7 @@ public final class Constants {
   public static final int ELEVATOR_MOTOR_ID = 40;
   public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 5;
     // Zeroing speed
-  public static final double ELEVATOR_ZEROING_SPEED = -0.2;
+  public static final double ELEVATOR_ZEROING_SPEED = -0.1;
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
   public static final double ELEVATOR_MAX_POSITION = 29.75;
@@ -107,7 +107,7 @@ public final class Constants {
   // Indexer
     // Indexer sensor channels
   public static final int INDEXER_END_SENSOR_CHANNEL = 3;
-  public static final int INDEXER_START_SENSOR_CHANNEL = 2;
+  public static final int INDEXER_START_SENSOR_CHANNEL = 1;
 
   // Helicopter
     // Motor IDs
@@ -116,11 +116,11 @@ public final class Constants {
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
   public static final double HELICOPTER_OFFSET = 0.1171;
   public static final double HELICOPTER_MIN_POSITION = 0.60;
-  public static final double HELICOPTER_MAX_POSITION = 1.085;
+  public static final double HELICOPTER_MAX_POSITION = 1.09;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
   public static final double HELICOPTER_GRAB_POSITION = 1.104; // FIXME: tune; was 1.061 with old indexer
-  public static final double HELICOPTER_WAIT_POSITION = 0.998;
+  public static final double HELICOPTER_WAIT_POSITION = 0.98;
   public static final double HELICOPTER_LOW_REMOVE_ALGAE_POSITION = 0.8;
   public static final double HELICOPTER_HIGH_REMOVE_ALGAE_POSITION = 0.75;
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;

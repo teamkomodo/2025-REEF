@@ -39,7 +39,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
     private final DigitalInput coralLoadedSensor;
 
     private boolean coralLoaded = false;
-
+    private boolean algaeLoaded = false;
+    private double filteredCurrent = 0;
+    private double currentFilterConstant = 0.1;
 
     public EndEffectorSubsystem() { // CONSTRUCTION
         endEffectorMotor = new SparkMax(ENDEFFECTOR_MOTOR_ID, SparkMax.MotorType.kBrushless);
@@ -58,13 +60,18 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        filterCurrent();
         checkSensors();
         updateTelemetry();
     }
 
+    private void filterCurrent() {
+        filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + endEffectorMotor.getOutputCurrent() * currentFilterConstant;
+    }
+
     private void updateTelemetry() {
         motorVelocityPublisher.set(endEffectorMotor.getOutputCurrent());
-        pieceLoadedSensorPublisher.set(coralLoadedSensor.get());
+        pieceLoadedSensorPublisher.set(getCoralDetection(coralLoadedSensor));
         pieceLoadedPublisher.set(coralLoaded);
     }
 
@@ -102,7 +109,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
         setEndEffectorPosition(endEffectorEncoder.getPosition());
     }
 
-    public Command startEndEffectorIntaking() {
+    public Command startEndEffectorIntakingCommand() {
         return Commands.runOnce(() -> setEndEffectorDutyCycle(1));
     }
     
@@ -118,9 +125,14 @@ public class EndEffectorSubsystem extends SubsystemBase {
         return coralLoaded;
     }
 
+    int currentScoreLevel = 0;
+    public void setLevel(int level) {
+        currentScoreLevel = level;
+    }
+
     public Command intakeCommand() {
         return new SequentialCommandGroup(
-            startEndEffectorIntaking(),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
             Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
@@ -130,13 +142,31 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
+    public Command intakeAlgaeCommand() {
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
+            Commands.waitUntil(() -> getCoralDetection(coralLoadedSensor)),
+            Commands.waitSeconds(0.1),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.5)),
+            Commands.waitSeconds(0.3),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
+            Commands.runOnce(() -> { algaeLoaded = true; })
+        );
+    }
+
     public Command ejectCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.8)),
+            Commands.runOnce(() -> {
+                if (currentScoreLevel == 1) {
+                    setEndEffectorDutyCycle(-0.2);
+                } else {
+                    setEndEffectorDutyCycle(-0.8);
+                }
+            }),
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.3),
             Commands.runOnce(() -> stopEndEffector()),
-            Commands.runOnce(() -> { coralLoaded = false; })
+            Commands.runOnce(() -> { coralLoaded = false; algaeLoaded = false; })
         );
     }
 
@@ -146,7 +176,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
             Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.25),
             Commands.runOnce(() -> stopEndEffector()),
-            Commands.runOnce(() -> { coralLoaded = false; })
+            Commands.runOnce(() -> { coralLoaded = false; algaeLoaded = false; })
         );
     }
 

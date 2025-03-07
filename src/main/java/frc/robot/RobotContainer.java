@@ -10,9 +10,6 @@ import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
 import frc.robot.commands.scoreCommands.CompleteScoreCommand;
-import frc.robot.commands.scoreCommands.ScoreAndRemoveAlgaeCommand;
-import frc.robot.commands.scoreCommands.ScoreCommand;
-import frc.robot.commands.scoreCommands.StartScoreCommand;
 import frc.robot.commands.utilityCommands.IfElseCommand;
 import frc.robot.commands.utilityCommands.ResetRobotCommand;
 import frc.robot.commands.utilityCommands.ZeroMechCommand;
@@ -66,6 +63,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureBindings();
+    registerNamedCommands();
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -102,7 +100,7 @@ public class RobotContainer {
     /* Operator controls */
     /*   Button   | Command */
     /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
-    /* operatorRB | Score and remove algae */
+    /* operatorRB | Empty!!! */
     /* operatorLT | Score */
     /* operatorRT | Intake and index */
     /* operatorPD (POV down) | Eject from intake */
@@ -132,8 +130,6 @@ public class RobotContainer {
     //     Commands.runOnce(() -> { scoreStarted = true; })
     //   )
     // ));
-
-    operatorRB.onTrue(new ScoreAndRemoveAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
@@ -192,6 +188,11 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
+  private void registerNamedCommands() {
+    NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    NamedCommands.registerCommand("Score", new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+  }
   public Command getAutonomousCommand() {
     // // An example command will be run in autonomous
     // if(autoChooser != null){
@@ -201,8 +202,8 @@ public class RobotContainer {
 
     // return null;
 
-    return autoChooser.getSelected();
-    // return new PathPlannerAuto("Test Path");
+    //return autoChooser.getSelected();
+    return new PathPlannerAuto("1C");
 
   
   }

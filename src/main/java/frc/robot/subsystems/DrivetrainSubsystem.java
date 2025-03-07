@@ -606,6 +606,8 @@ public class DrivetrainSubsystem implements Subsystem {
         ); 
     }
 
+    // FIXME: Don't fixme. Start of limelight code.
+    
     private void detectAprilTag(CommandXboxController controller){
         boolean tv = LimelightHelpers.getTV("limelight");
 

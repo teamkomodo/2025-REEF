@@ -35,6 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final DoublePublisher elevatorMotorDutyCyclePublisher = elevatorTable.getDoubleTopic("motorDutyCycle").publish();
         // Sensor publisher
     private final BooleanPublisher atLimitSwitchPublisher = elevatorTable.getBooleanTopic("atLimitSwitch").publish();
+    private final BooleanPublisher atCommandedPositionPublisher = elevatorTable.getBooleanTopic("atCommandedPosition").publish();
     private final BooleanPublisher zeroedPublisher = elevatorTable.getBooleanTopic("zeroed").publish();
 
     // Intake motors
@@ -45,10 +46,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SoftLimitConfig softLimitConfig;
 
     // PID constants
-    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00001, 0.002, 0.00);
+    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00003, 0.002, 0.00);
     private final double elevatorMaxAccel = 3000;
     private final double elevatorMaxVelocity = 3000;
-    private final double elevatorAllowedClosedLoopError = 0.2;
+    private final double elevatorAllowedClosedLoopError = 0.4;
 
     // Sensors
     private final DigitalInput limitSwitch;
@@ -100,6 +101,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotorDutyCyclePublisher.set(elevatorEncoder.getVelocity());
         // Sensor publishing
         atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
+        atCommandedPositionPublisher.set(atCommandedPosition());
         zeroedPublisher.set(getZeroed());
     }
 

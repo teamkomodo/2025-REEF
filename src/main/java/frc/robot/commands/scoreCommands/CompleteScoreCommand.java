@@ -1,6 +1,7 @@
 package frc.robot.commands.scoreCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -28,8 +29,23 @@ public class CompleteScoreCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
-            new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
-        ).onlyIf(elevatorSubsystem::getZeroed);
+            Commands.runOnce(() -> endEffectorSubsystem.setLevel(helicopterSubsystem.getPositionWaitingOn())),
+            
+            // Score and release
+            helicopterSubsystem.scoreCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            
+            // Release
+            endEffectorSubsystem.ejectCommand(),
+            helicopterSubsystem.releaseCoralPositionCommand(),
+            // // Return to waiting position
+            Commands.waitSeconds(0.1),
+            elevatorSubsystem.clearIntakePositionCommand(),
+            Commands.waitUntil(elevatorSubsystem::aboveClearIntakePosition),
+            helicopterSubsystem.waitPositionCommand(),
+            elevatorSubsystem.waitPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
+        ).onlyIf(() -> (elevatorSubsystem.getZeroed() && helicopterSubsystem.getPositionWaitingOn() != 0));
     }
 }

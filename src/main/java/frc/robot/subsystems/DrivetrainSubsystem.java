@@ -153,7 +153,7 @@ public class DrivetrainSubsystem implements Subsystem {
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
         rotationController);
-    
+
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
     //private final RobotConfig robotConfig     
@@ -504,7 +504,6 @@ public class DrivetrainSubsystem implements Subsystem {
         rotationOffsetRadians = -getRotation().getRadians() + rotation.getRadians();
     }
 
-
     /**
      * Converts raw joystick values to speeds for the drivetrain
      * <p>
@@ -622,14 +621,13 @@ public class DrivetrainSubsystem implements Subsystem {
         ); 
     }
 
-    // FIXME: Don't fixme. Start of limelight code.
+    // XXX: Start of limelight code.
     
-    private void detectAprilTag(CommandXboxController controller){
+    private void detectAprilTag(CommandXboxController controller){ // Rumble
         boolean tv = LimelightHelpers.getTV("limelight");
 
         if(tv){
             controller.setRumble(RumbleType.kRightRumble, 1);
-            //System.out.println("RUMBBLEEE");
         } else {
             controller.setRumble(RumbleType.kRightRumble, 0);
         }
@@ -638,7 +636,6 @@ public class DrivetrainSubsystem implements Subsystem {
     double limelightY(){
         double yP = .04;
         double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * yP;
-        //targetingForwardSpeed *= 1;
         targetingForwardSpeed *= -3;
         
         if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.5){
@@ -647,15 +644,6 @@ public class DrivetrainSubsystem implements Subsystem {
         return 0;
 
     }
-
-
-    // double limelightRot(){
-    //     double aimP = .01;
-    //     double targetingAngularVelocity = LimelightHelpers.getTX("limelight") *aimP;
-    //     targetingAngularVelocity *= 3 * Math.PI;
-    //     targetingAngularVelocity *= 3.5;
-    //     return targetingAngularVelocity;
-    // }
 
     double limelightX(){
         double xP = 0.014;
@@ -669,17 +657,10 @@ public class DrivetrainSubsystem implements Subsystem {
         return 0;
     }
 
-
-
-    
-
-
     double limelightZ(){
         double zP = 0.4;
         double targetingZ = NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
-        targetingZ *= 0.8;
-        //if(targetingZ = 0)
-        //spin in place
+        targetingZ *= ALIGN_TURN_CONSTANT;
         
         //System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]);
         if(Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
@@ -688,7 +669,6 @@ public class DrivetrainSubsystem implements Subsystem {
         return 0;
         
     }
-
 
     public double calculateAlignDistance(boolean right) {
         double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
@@ -792,44 +772,16 @@ public class DrivetrainSubsystem implements Subsystem {
     //     ).schedule();
     // }
 
-    public Command limelightCenterCommand(){
-        return Commands.run(() -> {
-
-            
-            drive(0, limelightX(), 0, false);
-        
-            
-        }, this);
-    }
-
-    // public Command limelightPointCommand(){
+    // public Command parallelCommand(){        
     //     return Commands.run(() -> {
-    //         drive(0, 0, limelightRot(), false);
-    //     }, this);
+    //         drive(0, 0, limelightZ(), false);
+    //     }, this).until(() -> (Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) < 0.5));
     // }
-
-
-    // public Command limelightCenterandDriveCommand(){
-    //     return Commands.run(() -> {
-    //         drive(limelightY(), limelightX(), -limelightZ(),  false);
-    //     }, this);
-    // }
-
-
-
-
-    public Command parallelCommand(){        
-        return Commands.run(() -> {
-            drive(0, 0, limelightZ(), false);
-                
-        }, this).until(() -> (Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) < 0.5));
-        
-    }
 
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
             if(!atReef)
-                drive(limelightX(), -limelightY(), ALIGN_TURN_CONSTANT*limelightZ(),  false);
+                drive(limelightX(), -limelightY(), limelightZ(),  false);
             else
                 stopMotion();
         }, this); // .while(); 

@@ -191,8 +191,7 @@ public final class Constants {
   // FRC Field
   public static final double FIELD_WIDTH = 8.21; // approximation: Field Length is 26ft. 11 1/8 in wide
   public static final double FIELD_LENGTH = 16.54;
-  public static final double APRILTAG_TO_BRANCH_X_DISTANCE = 0.1651; // horizontal distance from april tag to branch in
-                                                                     // meters
+  public static final double APRILTAG_TO_BRANCH_X_DISTANCE = 0.1651; // horizontal distance from april tag to branch in meters
 
   // Vision
   public static final double LIMELIGHT_TO_APRILTAG_Y_DISTANCE = 0.6604; //UPDATE BEFORE SCRIMMAGE
@@ -200,7 +199,7 @@ public final class Constants {
   public static final double ROBOT_ALIGNMENT_SPEED = 1.0; 
   public static final double ALIGN_LINEAR_SPEED_FACTOR = 1.1;
   public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
-  public static final double ALIGN_TURN_CONSTANT = 0.3;
+  public static final double ALIGN_TURN_CONSTANT = 0.24;
 
   public static final double APRILTAG_HEIGHT = 0.5715;
   public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254; //UPDATE BEFORE SCRIMMAGE
@@ -215,9 +214,4 @@ public final class Constants {
     }
     return false;
   };
-
- 
-
-
-  
 }

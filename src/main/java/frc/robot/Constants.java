@@ -178,7 +178,7 @@ public final class Constants {
   public static final double TALON_FX_TICKS_PER_ROTATION = 2048.0;
 
   public static final PIDConstants DRIVE_PID = new PIDConstants(2, 0, 0);
-  public static final PIDConstants STEER_PID = new PIDConstants(0.1, 0, 0);
+  public static final PIDConstants STEER_PID = new PIDConstants(0.1, 0, 0.0002);
 
   public static PPHolonomicDriveController HOLONOMIC_PATH_FOLLOWER_CONFIG = new PPHolonomicDriveController(
       DRIVE_PID, // Translation Constants

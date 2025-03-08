@@ -77,14 +77,22 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    Trigger driverRB = driverController.rightBumper();
-    Trigger driverLB = driverController.leftBumper();
+//Driver
     Trigger driverLT = driverController.leftTrigger();
     Trigger driverRT = driverController.rightTrigger();
-    Trigger driverY = driverController.y();
-    Trigger driverX = driverController.x();
-    Trigger driverB = driverController.b();
+    Trigger driverPD = driverController.povDown();
+    Trigger driverPU = driverController.povUp();
+    Trigger driverPL = driverController.povLeft();
+    Trigger driverPR = driverController.povRight();
 
+    Trigger driverLB = driverController.leftBumper();
+    Trigger driverRB = driverController.rightBumper();
+    Trigger driverA = driverController.a();
+    Trigger driverB = driverController.b();
+    Trigger driverX = driverController.x();
+    Trigger driverY = driverController.y();
+
+//Operator
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
     Trigger operatorPD = operatorController.povDown();
@@ -101,10 +109,10 @@ public class RobotContainer {
 
     /* Driver controls */
     /*  Button  | Command */
-    /* driverLB | Zero gyro */
+    /* driverLB | Enable / Disable Speed Mode  */
     /* driverRB | Enable / disable slow mode, Default is fast mode */
     /* driverX  | Zero gyro */
-    /* driverY  | Parallel align command */
+    /* driverY  | EMPTY */
     /* driverB  | Reset robot */
     /* driverLT | Go to left branch */
     /* driverRT | Go to right branch */
@@ -162,7 +170,6 @@ public class RobotContainer {
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
 
-    driverY.whileTrue(drivetrainSubsystem.parallelCommand());
     driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());

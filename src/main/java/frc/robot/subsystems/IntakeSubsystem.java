@@ -117,6 +117,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void teleopInit() {
         setIntakeDutyCycle(0);
         setHingeDutyCycle(0);
+        holdHingePosition();
     }
 
     @Override

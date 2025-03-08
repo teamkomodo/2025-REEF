@@ -43,10 +43,12 @@ public class ResetRobotCommand extends DynamicCommand {
             ).onlyIf(() -> (!helicopterSubsystem.isSafeForElevator())),
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-            intakeSubsystem.stowPositionCommand(),
+            intakeSubsystem.intakePositionCommand(), // FIXME; stow position
             elevatorSubsystem.stowPositionCommand(),
             elevatorSubsystem.zeroElevatorCommand(),
-            elevatorSubsystem.minPositionCommand()
+            elevatorSubsystem.minPositionCommand(),
+            Commands.waitUntil(intakeSubsystem::atCommandedPosition),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
           );
     }
 }     

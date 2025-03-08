@@ -31,6 +31,7 @@ import static frc.robot.Constants.OPERATOR_XBOX_PORT;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -82,6 +83,7 @@ public class RobotContainer {
     Trigger driverRT = driverController.rightTrigger();
     Trigger driverY = driverController.y();
     Trigger driverX = driverController.x();
+    Trigger driverB = driverController.b();
 
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
@@ -103,6 +105,7 @@ public class RobotContainer {
     /* driverRB | Enable / disable slow mode, Default is fast mode */
     /* driverX  | Zero gyro */
     /* driverY  | Parallel align command */
+    /* driverB  | Reset robot */
     /* driverLT | Go to left branch */
     /* driverRT | Go to right branch */
     /* driver left joystick | Drive the robot */
@@ -163,6 +166,7 @@ public class RobotContainer {
     driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    driverB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
@@ -181,20 +185,20 @@ public class RobotContainer {
    */
 
   private void registerNamedCommands() {
+    NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("Score", new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
   }
   public Command getAutonomousCommand() {
     // // An example command will be run in autonomous
-    // if(autoChooser != null){
-    //   return autoChooser.getSelected();
-    //   System.out.println("got an auto");
-    // }
+    if(autoChooser != null){
+      return autoChooser.getSelected();
+    }
 
-    // return null;
-
+    return null;
     //return autoChooser.getSelected();
-    return new PathPlannerAuto("1C");
+    //return AutoBuilder.buildAuto("Leave");//(PathPlannerPath.fromPathFile("Leave.path"));//new PathPlannerAuto("Leave");
 
   
   }

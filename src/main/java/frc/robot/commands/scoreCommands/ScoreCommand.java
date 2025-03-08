@@ -7,34 +7,39 @@ import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class ScoreCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
+    private final IntakeSubsystem intakeSubsystem;
 
     public ScoreCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
-                ElevatorSubsystem elevatorSubsystem) {
+                ElevatorSubsystem elevatorSubsystem, IntakeSubsystem intakeSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
+        this.intakeSubsystem = intakeSubsystem;
 
         addRequirements(endEffectorSubsystem);
         addRequirements(helicopterSubsystem);
         addRequirements(elevatorSubsystem);
+        addRequirements(intakeSubsystem);
     }
 
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> System.out.println("Scoring!??!")),
             // Release
+            intakeSubsystem.clearArmPositionCommand(),
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),
             // // Return to waiting position
             Commands.waitSeconds(0.1),
+            Commands.waitUntil(intakeSubsystem::atCommandedPosition),
             elevatorSubsystem.clearIndexerPositionCommand(),
             Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
             helicopterSubsystem.waitPositionCommand(),

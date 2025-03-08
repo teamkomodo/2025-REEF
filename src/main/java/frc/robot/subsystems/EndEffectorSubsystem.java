@@ -59,6 +59,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     }
 
+    public void teleopInit() {
+        setEndEffectorDutyCycle(0);
+        holdEndEffector();
+    }
+
     @Override
     public void periodic() {
         filterCurrent();

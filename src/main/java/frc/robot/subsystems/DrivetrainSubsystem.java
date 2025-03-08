@@ -174,16 +174,18 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public DrivetrainSubsystem() {
 
-        // AutoBuilder.configure(
-        //     this::getPose,
-        //     this::resetPose,
-        //     this::getChassisSpeeds,
-        //     this::robotRelativeDrive,
-        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
-        //     null,//Gonna fix this if needed its probably important but idfk
-        //     ON_RED_ALLIANCE,
-        //     this
-        // );
+        setupPathPlanner();
+        
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            config,//Gonna fix this if needed its probably important but idfk
+            ON_RED_ALLIANCE,
+            this
+        );
 
         //only tracks specific apriltags depending on alliance
         if(ON_RED_ALLIANCE.getAsBoolean() == false){
@@ -257,7 +259,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
         resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79))); //x = 10
         zeroGyro();
-        setupPathPlanner();
     }
 
     @Override
@@ -283,7 +284,6 @@ public class DrivetrainSubsystem implements Subsystem {
         atReef = false;
         if(LimelightHelpers.getTA("limelight") > 16.0 && Math.abs(LimelightHelpers.getTX("limelight")) < 1)
             atReef = true;
-        System.out.println(LimelightHelpers.getTA("limelight"));
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
@@ -412,7 +412,11 @@ public class DrivetrainSubsystem implements Subsystem {
     public void zeroGyro() {
         rotationOffsetRadians = -getRotation().getRadians() - Math.PI/2;
         resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+    }
 
+    public void zeroAutoGyro() {
+        rotationOffsetRadians = -getRotation().getRadians() -3 * Math.PI/2;
+        resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
     public void runDriveVolts(double voltage) {
@@ -526,6 +530,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command zeroGyroCommand() {
         return Commands.runOnce(this::zeroGyro, this);
+    }
+
+    public Command zeroAutoGyroCommand() {
+        return Commands.runOnce(this::zeroAutoGyro, this);
     }
 
     public Command enableSpeedModeCommand() {
@@ -808,8 +816,6 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command parallelCommand(){        
         return Commands.run(() -> {
             drive(0, 0, limelightZ(), false);
-
-            System.out.println(limelightZ());
                 
         }, this).until(() -> (Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) < 0.5));
         

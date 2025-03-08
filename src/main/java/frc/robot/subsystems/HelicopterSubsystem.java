@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -77,6 +78,10 @@ public class HelicopterSubsystem extends SubsystemBase {
         configMotors();
     }
 
+    public void teleopInit() {
+        
+    }
+
     @Override
     public void periodic() {
         checkSensors();
@@ -129,6 +134,10 @@ public class HelicopterSubsystem extends SubsystemBase {
         if (useAbsoluteEncoder) {
             helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
         }
+    }
+
+    public void holdMotorPosition() {
+        setHelicopterPosition(getAbsoluteEncoderPosition());
     }
 
     public void setMotorPosition(double position) {

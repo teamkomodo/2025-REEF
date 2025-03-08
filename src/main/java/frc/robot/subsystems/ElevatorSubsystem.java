@@ -81,6 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void teleopInit() {
         setElevatorDutyCycle(0);
+        holdElevatorPosition();
     }
 
     @Override

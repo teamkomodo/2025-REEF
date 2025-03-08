@@ -40,6 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final BooleanPublisher pieceIntakedSensorPublisher = intakeTable.getBooleanTopic("pieceIntakedSensor").publish();
     private final BooleanPublisher pieceIntakedSensor2Publisher = intakeTable.getBooleanTopic("pieceIntakedSensor2").publish();
     private final BooleanPublisher atLimitSwitchPublisher = intakeTable.getBooleanTopic("atLimitSwitch").publish();
+    private final BooleanPublisher atCommandedPositionPublisher = intakeTable.getBooleanTopic("atCommandedPosition").publish();
     private final BooleanPublisher zeroedPublisher = intakeTable.getBooleanTopic("zeroed").publish();
 
 
@@ -150,6 +151,7 @@ public class IntakeSubsystem extends SubsystemBase {
         hingeMotorSupposedPositionPublisher.set(hingeSupposedPosition);
         hingeMotorDutyCyclePublisher.set(hingeEncoder.getVelocity());
         atLimitSwitchPublisher.set(getLimitSwitchAtCurrentCheck());
+        atCommandedPositionPublisher.set(atCommandedPosition());
         zeroedPublisher.set(zeroed);
     }
 

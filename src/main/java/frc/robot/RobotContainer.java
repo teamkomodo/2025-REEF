@@ -84,6 +84,7 @@ public class RobotContainer {
     Trigger driverY = driverController.y();
     Trigger driverX = driverController.x();
     Trigger driverB = driverController.b();
+    Trigger driverA = driverController.a();
 
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
@@ -133,11 +134,8 @@ public class RobotContainer {
       new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
     ));
-
     operatorLT.onTrue(new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
     operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem));
 
     // Algae commands
@@ -147,14 +145,9 @@ public class RobotContainer {
     operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
-    operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
     operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
 
@@ -166,7 +159,9 @@ public class RobotContainer {
     driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    // FIXME: Remove this, it is just for convenience during auto testing
     driverB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(

@@ -117,7 +117,7 @@ public final class Constants {
   public static final int HELICOPTER_MOTOR_ID = 41;
     // Gear ratio and offset
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
-  public static final double HELICOPTER_OFFSET = 0.1171;
+  public static final double HELICOPTER_OFFSET = 0.1171; // - 0.16666666667 after changing encoder
   public static final double HELICOPTER_MIN_POSITION = 0.60;
   public static final double HELICOPTER_MAX_POSITION = 1.09;
     // Helicopter positions
@@ -177,8 +177,8 @@ public final class Constants {
   public static final double FALCON_500_NOMINAL_VOLTAGE = 12.0;
   public static final double TALON_FX_TICKS_PER_ROTATION = 2048.0;
 
-  public static final PIDConstants DRIVE_PID = new PIDConstants(5, 0, 0);
-  public static final PIDConstants STEER_PID = new PIDConstants(5, 0, 0);
+  public static final PIDConstants DRIVE_PID = new PIDConstants(2, 0, 0);
+  public static final PIDConstants STEER_PID = new PIDConstants(0.1, 0, 0);
 
   public static PPHolonomicDriveController HOLONOMIC_PATH_FOLLOWER_CONFIG = new PPHolonomicDriveController(
       DRIVE_PID, // Translation Constants

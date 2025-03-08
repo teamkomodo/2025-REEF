@@ -293,14 +293,14 @@ public class DrivetrainSubsystem implements Subsystem {
         try {
             config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getChassisSpeeds,
-            this::robotRelativeDrive,
-            HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            config,
-            ON_RED_ALLIANCE,
-            this
+                this::getPose,
+                this::resetPose,
+                this::getChassisSpeeds,
+                this::robotRelativeDrive,
+                HOLONOMIC_PATH_FOLLOWER_CONFIG,
+                config,
+                ON_RED_ALLIANCE,
+                this
              );
         } catch (Exception e){
             e.printStackTrace();

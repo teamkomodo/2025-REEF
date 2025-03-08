@@ -5,8 +5,8 @@
 package frc.robot;
 
 import frc.robot.commands.algaeCommands.GrabFloorAlgaeCommand;
-import frc.robot.commands.algaeCommands.GrabHighAlgaeCommand;
-import frc.robot.commands.algaeCommands.GrabLowAlgaeCommand;
+import frc.robot.commands.algaeCommands.KnockOutHighAlgaeCommand;
+import frc.robot.commands.algaeCommands.KnockOutLowAlgaeCommand;
 import frc.robot.commands.algaeCommands.ScoreAlgaeCommand;
 import frc.robot.commands.intakeCommands.IntakeIndexCommand;
 import frc.robot.commands.reefPositionCommands.L1PositionCommand;
@@ -75,7 +75,6 @@ public class RobotContainer {
     
   }
 
-  boolean scoreStarted = false;
   private void configureBindings() {
     Trigger driverRB = driverController.rightBumper();
     Trigger driverLB = driverController.leftBumper();
@@ -103,7 +102,7 @@ public class RobotContainer {
     /* driverLB | Zero gyro */
     /* driverRB | Enable / disable slow mode, Default is fast mode */
     /* driverX  | Zero gyro */
-    /* driverY  | Parallel command */
+    /* driverY  | Parallel align command */
     /* driverLT | Go to left branch */
     /* driverRT | Go to right branch */
     /* driver left joystick | Drive the robot */
@@ -117,9 +116,9 @@ public class RobotContainer {
     /* operatorRB | Score algae */
     /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
     /* operatorPD (POV down) | Eject from intake */
-    /* operatorPL (POV left) | Grab low algae */
-    /* operatorPU (POV up) | Grab high algae */
-    /* operatorPR (POV right) | Grab ground algae */
+    /* operatorPL (POV left) | Knock out low algae */
+    /* operatorPU (POV up) | Knock out high algae */
+    /* operatorPR (POV right) | _Grab_ ground algae */
     /* operatorX  | L1 Position */
     /* operatorY  | L2 Position */
     /* operatorA  | L4 Position */
@@ -136,62 +135,24 @@ public class RobotContainer {
 
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorPD.onTrue(new EjectCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
-      // Old two part score command
-    // operatorPU.onTrue(new IfElseCommand(
-    //   () -> (scoreStarted),
-    //   new SequentialCommandGroup(
-    //     Commands.runOnce(() -> { scoreStarted = false; }),
-    //     new ScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem)
-    //   ),
-    //   new SequentialCommandGroup(
-    //     new StartScoreCommand(helicopterSubsystem, elevatorSubsystem),
-    //     Commands.runOnce(() -> { scoreStarted = true; })
-    //   )
-    // ));
+    operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem));
 
     // Algae commands
-    operatorPL.onTrue(new GrabLowAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorPU.onTrue(new GrabHighAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorPL.onTrue(new KnockOutLowAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorPU.onTrue(new KnockOutHighAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
     operatorPR.onTrue(new GrabFloorAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
     operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
     operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorPU.onTrue(
-      new SequentialCommandGroup(
-        Commands.runOnce(() -> intakeSubsystem.stopIntake()), 
-        intakeSubsystem.stowPositionCommand()
-    ));
-    
-    operatorPD.onTrue(new SequentialCommandGroup(
-      Commands.runOnce(() -> intakeSubsystem.reverseIntake()),
-      Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-0.7)),
-      Commands.waitSeconds(0.6),
-      Commands.runOnce(intakeSubsystem::stopIntake),
-      Commands.runOnce(endEffectorSubsystem::stopEndEffector)
-    ));
-    operatorX.onTrue(new SequentialCommandGroup(
-      new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
-      Commands.runOnce(() -> { scoreStarted = false; })
-    ));
+    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorY.onTrue(new SequentialCommandGroup(
-      new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
-      Commands.runOnce(() -> { scoreStarted = false; })
-    ));
+    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorB.onTrue(new SequentialCommandGroup(
-      new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
-      Commands.runOnce(() -> { scoreStarted = false; })
-    ));
+    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    operatorA.onTrue(new SequentialCommandGroup(
-      new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
-      Commands.runOnce(() -> { scoreStarted = false; })
-    ));
+    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());

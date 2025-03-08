@@ -95,9 +95,9 @@ public final class Constants {
   public static final double ELEVATOR_WAIT_POSITION = 13.0; // Was 14.31
   public static final double ELEVATOR_STOW_POSITION = 13;
 
-  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 11;
-  public static final double ELEVATOR_LOW_ALGAE_POSITION = 10;
-  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 17.5;
+  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 0.5;
+  public static final double ELEVATOR_LOW_ALGAE_POSITION = 16.896;
+  public static final double ELEVATOR_HIGH_ALGAE_POSITION = 29;
   public static final double ELEVATOR_GRAB_POSITION = 7.902;
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 12.477;
   
@@ -125,8 +125,8 @@ public final class Constants {
   public static final double HELICOPTER_GRAB_POSITION = 1.104;
   public static final double HELICOPTER_WAIT_POSITION = 0.98;
   public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.8;
-  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.75;
-  public static final double HELICOPTER_FLOOR_ALGAE_POSITION = 0.9;
+  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.9;
+  public static final double HELICOPTER_FLOOR_ALGAE_POSITION = 0.807;
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;
   public static final double HELICOPTER_WAIT_FOR_L3_POSITION = 0.688;
   public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
@@ -182,8 +182,10 @@ public final class Constants {
 
   public static PPHolonomicDriveController HOLONOMIC_PATH_FOLLOWER_CONFIG = new PPHolonomicDriveController(
       DRIVE_PID, // Translation Constants
-      STEER_PID, // Steering Constants
-      Math.sqrt(DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) / 2);
+      STEER_PID // Steering Constants
+      // ,
+      // Math.sqrt(DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) / 2
+      );
   public static final int LED_CHANNEL = 0;
 
   // FRC Field

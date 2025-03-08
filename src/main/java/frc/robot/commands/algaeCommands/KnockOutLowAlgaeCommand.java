@@ -8,13 +8,13 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 
-public class GrabLowAlgaeCommand extends DynamicCommand {
+public class KnockOutLowAlgaeCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
 
-    public GrabLowAlgaeCommand(
+    public KnockOutLowAlgaeCommand(
                 EndEffectorSubsystem endEffectorSubsystem, HelicopterSubsystem helicopterSubsystem, 
                 ElevatorSubsystem elevatorSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
@@ -31,11 +31,11 @@ public class GrabLowAlgaeCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             elevatorSubsystem.clearIndexerPositionCommand(),
             Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
-            helicopterSubsystem.lowAlgaePositionCommand(),
+            helicopterSubsystem.highAlgaePositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-            elevatorSubsystem.lowAlgaePositionCommand(),
+            elevatorSubsystem.highAlgaePositionCommand(),
 
-            endEffectorSubsystem.intakeAlgaeCommand(),
+            endEffectorSubsystem.dealgaeifyCommand(),
 
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),

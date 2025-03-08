@@ -35,7 +35,7 @@ public class GrabFloorAlgaeCommand extends DynamicCommand {
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.floorAlgaePositionCommand(),
 
-            endEffectorSubsystem.intakeAlgaeCommand(),
+            endEffectorSubsystem.dealgaeifyCommand(),
 
             helicopterSubsystem.stowPositionCommand(),
             elevatorSubsystem.stowPositionCommand()

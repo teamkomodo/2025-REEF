@@ -145,13 +145,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command intakeAlgaeCommand() {
+    public Command dealgaeifyCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.4)),
-            Commands.waitUntil(() -> (filteredCurrent > 30)),
-            Commands.waitSeconds(0.2),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0.1)),
-            Commands.runOnce(() -> { algaeLoaded = true; })
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.9))
         );
     }
 

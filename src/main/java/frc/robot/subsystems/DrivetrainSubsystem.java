@@ -177,54 +177,7 @@ public class DrivetrainSubsystem implements Subsystem {
         setupPathPlanner();
         
         
-        
-        AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getChassisSpeeds,
-            this::robotRelativeDrive,
-            HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            config,//Gonna fix this if needed its probably important but idfk
-            ON_RED_ALLIANCE,
-            this
-        );
-
-
-        // AutoBuilder.configure(
-        //     this::getPose,
-        //     this::resetPose,
-        //     this::getChassisSpeeds,
-        //     this::robotRelativeDrive,
-        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
-        //     config,//Gonna fix this if needed its probably important but idfk
-        //     ON_RED_ALLIANCE,
-        //     this
-        // );
-
-
-        AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getChassisSpeeds,
-            this::robotRelativeDrive,
-            HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            config,//Gonna fix this if needed its probably important but idfk
-            ON_RED_ALLIANCE,
-            this
-        );
-
-
-        // AutoBuilder.configure(
-        //     this::getPose,
-        //     this::resetPose,
-        //     this::getChassisSpeeds,
-        //     this::robotRelativeDrive,
-        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
-        //     config,//Gonna fix this if needed its probably important but idfk
-        //     ON_RED_ALLIANCE,
-        //     this
-        // );
-
+    
         //only tracks specific apriltags depending on alliance
         if(ON_RED_ALLIANCE.getAsBoolean() == false){
             LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{22,21,20,19,18,17});
@@ -287,9 +240,20 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-                resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79))); //x = 10
+
+                 resetPose(new Pose2d(
+                    new Translation2d(10, 0),
+                    Rotation2d.fromDegrees(179.79)));//x = 10
                 // zeroGyro();
     }
+
+    void resetAutoPose(Pose2d pose){
+        poseEstimator.resetPosition(getRotation(),
+         getSwervePositions(),
+          new Pose2d(new Translation2d(10, 0),
+           Rotation2d.fromDegrees(179.79)));
+    }
+
 
     @Override
     public void periodic() {
@@ -526,7 +490,10 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void newAutoResetPose(Pose2d pose) {
-        poseEstimator.resetPosition(getRotation(), getSwervePositions(), new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79)));
+        poseEstimator.resetPosition(getRotation(),
+         getSwervePositions(),
+         new Pose2d(new Translation2d(0, 0),
+         Rotation2d.fromDegrees(179.79)));
     }
 
     public void setGyro(Rotation2d rotation) {

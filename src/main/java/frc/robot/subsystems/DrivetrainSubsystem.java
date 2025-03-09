@@ -168,13 +168,13 @@ public class DrivetrainSubsystem implements Subsystem {
     //     null, 
     //     null);
     private boolean slowMode = false;
-    private double rotationOffsetRadians = 0.0;
+    private double rotationOffsetRadians = 0;
 
     private ChassisSpeeds lastCommandedChassisSpeeds = new ChassisSpeeds();
 
     public DrivetrainSubsystem() {
 
-        setupPathPlanner();
+        
         
         
     
@@ -239,12 +239,9 @@ public class DrivetrainSubsystem implements Subsystem {
                         backRight.getPosition()
                 }, 
                 new Pose2d());
-
-
-                 resetPose(new Pose2d(
-                    new Translation2d(10, 0),
-                    Rotation2d.fromDegrees(179.79)));//x = 10
-                // zeroGyro();
+                resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(-90)));
+                zeroGyro();
+                setupPathPlanner();
     }
 
     void resetAutoPose(Pose2d pose){
@@ -406,7 +403,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
     public void zeroGyro() {
         rotationOffsetRadians = -getRotation().getRadians() - Math.PI/2;
-        resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+       // resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
     // public void zeroAutoGyro() {

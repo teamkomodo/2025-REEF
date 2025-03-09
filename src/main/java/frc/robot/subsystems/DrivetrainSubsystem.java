@@ -177,6 +177,31 @@ public class DrivetrainSubsystem implements Subsystem {
         setupPathPlanner();
         
         
+        
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            config,//Gonna fix this if needed its probably important but idfk
+            ON_RED_ALLIANCE,
+            this
+        );
+
+
+        // AutoBuilder.configure(
+        //     this::getPose,
+        //     this::resetPose,
+        //     this::getChassisSpeeds,
+        //     this::robotRelativeDrive,
+        //     HOLONOMIC_PATH_FOLLOWER_CONFIG,
+        //     config,//Gonna fix this if needed its probably important but idfk
+        //     ON_RED_ALLIANCE,
+        //     this
+        // );
+
+
         AutoBuilder.configure(
             this::getPose,
             this::resetPose,
@@ -263,7 +288,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 new Pose2d());
 
                 resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79))); //x = 10
-                zeroGyro();
+                // zeroGyro();
     }
 
     @Override
@@ -292,15 +317,15 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
-        ChassisSpeeds otherChassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
-        drive(otherChassisSpeeds, false);
+        ChassisSpeeds realAutoChassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, -chassisSpeeds.omegaRadiansPerSecond);
+        drive(realAutoChassisSpeeds, false);
     }
     private void setupPathPlanner(){
         try {
             config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
                 this::getPose,
-                this::resetPose,
+                this::newAutoResetPose,
                 this::getChassisSpeeds,
                 this::robotRelativeDrive,
                 HOLONOMIC_PATH_FOLLOWER_CONFIG,
@@ -420,10 +445,10 @@ public class DrivetrainSubsystem implements Subsystem {
         resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
-    public void zeroAutoGyro() {
-        rotationOffsetRadians = -getRotation().getRadians() -3 * Math.PI/2;
-        resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
-    }
+    // public void zeroAutoGyro() {
+    //     rotationOffsetRadians = -getRotation().getRadians() - 3 * Math.PI/2 + Math.PI/2;
+    //     resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+    // }
 
     public void runDriveVolts(double voltage) {
         frontLeft.runForward(voltage);
@@ -469,7 +494,7 @@ public class DrivetrainSubsystem implements Subsystem {
      * @return a rotation2d object representing the robot's zeored heading, with 0 degrees being the direction the robot will drive forward in
      */
     public Rotation2d getAdjustedRotation() {
-        return getRotation().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+        return getRotation().plus(Rotation2d.fromRadians(rotationOffsetRadians + Math.PI));
     }
 
     /**
@@ -498,6 +523,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getRotation(), getSwervePositions(), pose);
+    }
+
+    public void newAutoResetPose(Pose2d pose) {
+        poseEstimator.resetPosition(getRotation(), getSwervePositions(), new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(179.79)));
     }
 
     public void setGyro(Rotation2d rotation) {
@@ -536,9 +565,9 @@ public class DrivetrainSubsystem implements Subsystem {
         return Commands.runOnce(this::zeroGyro, this);
     }
 
-    public Command zeroAutoGyroCommand() {
-        return Commands.runOnce(this::zeroAutoGyro, this);
-    }
+    // public Command zeroAutoGyroCommand() {
+    //     return Commands.runOnce(this::zeroAutoGyro, this);
+    // }
 
     public Command enableSpeedModeCommand() {
         return Commands.runOnce(() -> {

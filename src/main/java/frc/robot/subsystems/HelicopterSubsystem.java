@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -40,13 +41,15 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkMaxConfig helicopterMotorConfig;
     private final SoftLimitConfig softLimitConfig;
 
+    private double helicopterOffestDifference = 0;
+
     private final RelativeEncoder helicopterMotorEncoder;
     private final SparkClosedLoopController helicopterController;
 
     private final SparkAbsoluteEncoder helicopterAbsoluteEncoder;
 
     // PID Constants
-    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0.000001, 0.001);
+    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0.000005  , 0.2, 0.0);
     private final double helicopterMaxAccel = 6000;
     private final double helicopterMaxVelocity = 6000;
     private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
@@ -108,7 +111,7 @@ public class HelicopterSubsystem extends SubsystemBase {
             .smartCurrentLimit(50); //FIXME: set current limit
 
         helicopterMotorConfig.closedLoop
-            .pid(helicopterPIDGains.p, helicopterPIDGains.i, helicopterPIDGains.d)
+            .pidf(helicopterPIDGains.p, helicopterPIDGains.i, helicopterPIDGains.d, helicopterPIDGains.FF)
             .maxMotion.maxAcceleration(helicopterMaxAccel)
             .maxVelocity(helicopterMaxVelocity)
             .allowedClosedLoopError(helicopterAllowedClosedLoopError);
@@ -124,6 +127,7 @@ public class HelicopterSubsystem extends SubsystemBase {
         helicopterMotor
             .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
     }
 
     public void setHelicopterPosition(double position) {
@@ -131,7 +135,8 @@ public class HelicopterSubsystem extends SubsystemBase {
         positionWaitingOn = 0;
         setMotorPosition(targetAngle * HELICOPTER_GEAR_RATIO);
         if (useAbsoluteEncoder) {
-            helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
+            //helicopterOffestDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+            //helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
         }
     }
 

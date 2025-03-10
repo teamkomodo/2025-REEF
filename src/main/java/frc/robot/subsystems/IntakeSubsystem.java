@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
-    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0);
+    private final PIDGains hingePIDGains = new PIDGains(1, 0.0e-15, 0.6);
     private final double hingeMaxAccel = 3000;
     private final double hingeMaxVelocity = 3000;
     private final double hingeAllowedClosedLoopError = 0.3;
@@ -142,8 +142,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public void updateTelemetry() {
         // Coral status publishing
         pieceIntakedPublisher.set(coralInIntake);
-        pieceIntakedSensorPublisher.set(getCoralDetection(coralIntakedSensor));
-        pieceIntakedSensor2Publisher.set(getCoralDetection(coralIntakedSensor2));
+        pieceIntakedSensorPublisher.set(!coralIntakedSensor.get());
+        pieceIntakedSensor2Publisher.set(!coralIntakedSensor2.get());
         // Intake publishing
         intakeVelocityPublisher.set(intakeEncoder.getVelocity());
         // Hinge publishing
@@ -179,7 +179,6 @@ public class IntakeSubsystem extends SubsystemBase {
             .pid(intakePIDGains.p, intakePIDGains.i, intakePIDGains.d);
         
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
         // Hinge motors
         hingeSoftLimitConfig
             .forwardSoftLimit(INTAKE_HINGE_MAX_POSITION)
@@ -200,6 +199,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
         hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
+    }
+
+    public void configurePidMotors(double p, double i, double d) {
+        hingeMotorConfig.closedLoop.pid(p, i, d);
+        hingeMotor.configure(hingeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void checkLimitSwitch() {
@@ -265,19 +269,31 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command stowPositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION));
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
+            Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION))
+        );
     }
 
     public Command feedCoralPositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_FEED_CORAL_POSITION));
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> configurePidMotors(1, 0.001, 0.6)),
+            Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_FEED_CORAL_POSITION))
+        );
     }
 
     public Command clearArmPositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_ARM_POSITION));
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
+            Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_ARM_POSITION))
+        );
     }
 
     public Command intakePositionCommand() {
-        return this.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION));
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> configurePidMotors(1, 0.0, 0.9)),
+            Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION))
+        );
     }
 
     public Command zeroHingeCommand() { // Code uses this function

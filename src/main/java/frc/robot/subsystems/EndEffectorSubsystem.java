@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.util.PIDGains;
 
 import static frc.robot.Constants.*;
@@ -165,10 +166,17 @@ public class EndEffectorSubsystem extends SubsystemBase {
                     setEndEffectorDutyCycle(-0.8);
                 }
             }),
-            Commands.waitUntil(() -> !getCoralDetection(coralLoadedSensor)),
             Commands.waitSeconds(0.3),
             Commands.runOnce(() -> stopEndEffector()),
             Commands.runOnce(() -> { coralLoaded = false; algaeLoaded = false; })
+        );
+    }
+
+    public Command securePiece() {
+        return new SequentialCommandGroup(
+            Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
+            new WaitCommand(0.2),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0))
         );
     }
 

@@ -46,7 +46,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SoftLimitConfig softLimitConfig;
 
     // PID constants
-    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00003, 0.002, 0.00);
+    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00002, 0.02, 0.0);//0.2, 0.00005, 0.03, 0.0
     private final double elevatorMaxAccel = 3000;
     private final double elevatorMaxVelocity = 3000;
     private final double elevatorAllowedClosedLoopError = 0.4;
@@ -200,6 +200,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command waitPositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_WAIT_POSITION));
     }
+
+    public Command preStowPositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_STOW_POSITION));
+    }
     
     public Command l1PositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L1_POSITION));
@@ -215,6 +219,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command l4PositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L4_POSITION));
+    }
+
+    public Command prePickupPositionCommand() {
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_PICKUP_POSITION));
     }
 
     public Command clearIndexerPositionCommand() {

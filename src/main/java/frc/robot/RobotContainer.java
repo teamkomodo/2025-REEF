@@ -9,11 +9,13 @@ import frc.robot.commands.algaeCommands.KnockOutHighAlgaeCommand;
 import frc.robot.commands.algaeCommands.KnockOutLowAlgaeCommand;
 import frc.robot.commands.algaeCommands.ScoreAlgaeCommand;
 import frc.robot.commands.intakeCommands.IntakeIndexCommand;
+import frc.robot.commands.intakeCommands.IntakeToStowCommand;
 import frc.robot.commands.reefPositionCommands.L1PositionCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
 import frc.robot.commands.scoreCommands.CompleteScoreCommand;
+import frc.robot.commands.scoreCommands.ScoreToStowCommand;
 import frc.robot.commands.utilityCommands.EjectCommand;
 import frc.robot.commands.utilityCommands.IfElseCommand;
 import frc.robot.commands.utilityCommands.ResetRobotCommand;
@@ -134,15 +136,15 @@ public class RobotContainer {
     /* operatorY  | L2 Position */
     /* operatorA  | L4 Position */
     /* operatorB  | L3 Position */
-
     
     operatorLB.onTrue(new IfElseCommand(
       () -> (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()),
       new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
     ));
-    operatorLT.onTrue(new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorRT.onTrue(new IntakeIndexCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+
+    operatorLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem));
 
     // Algae commands
@@ -152,11 +154,14 @@ public class RobotContainer {
     operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
-    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
+    // operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorA.onTrue(helicopterSubsystem.l4WaitPositionCommand());
+    operatorB.onTrue(helicopterSubsystem.l1WaitPositionCommand());
+    operatorX.onTrue(helicopterSubsystem.grabPositionCommand());
+    operatorY.onTrue(elevatorSubsystem.l3PositionCommand());
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());

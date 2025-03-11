@@ -143,7 +143,7 @@ public class RobotContainer {
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
     ));
 
-    operatorLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
     operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem));
 
@@ -154,14 +154,14 @@ public class RobotContainer {
     operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
-    // operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorA.onTrue(helicopterSubsystem.l4WaitPositionCommand());
-    operatorB.onTrue(helicopterSubsystem.l1WaitPositionCommand());
-    operatorX.onTrue(helicopterSubsystem.grabPositionCommand());
-    operatorY.onTrue(elevatorSubsystem.l3PositionCommand());
+    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorA.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorB.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorX.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // operatorY.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
@@ -171,14 +171,14 @@ public class RobotContainer {
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
     // FIXME: Remove this, it is just for convenience during auto testing
-    driverB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    //driverB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(
-        () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-        () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+        () -> ( driverController.getLeftY() ), // -Y on left joystick is +X for robot
+        () -> ( driverController.getLeftX() ), // -X on left joystick is +Y for robot
         () -> ( driverController.getRightX() ) // -X on right joystick is +Z for robot
       )
     );
@@ -193,8 +193,9 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    NamedCommands.registerCommand("Score", new CompleteScoreCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
+    NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
   }
   public Command getAutonomousCommand() {
     // // An example command will be run in autonomous

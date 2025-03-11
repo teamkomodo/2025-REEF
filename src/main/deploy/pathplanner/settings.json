@@ -10,7 +10,7 @@
     "2C Lollipop"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 3.0,
+  "defaultMaxVel": 5.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 90.0,
   "defaultMaxAngAccel": 45.0,

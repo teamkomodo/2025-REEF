@@ -16,24 +16,29 @@ public class ScoreToStowCommand extends DynamicCommand {
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
+    private final IntakeSubsystem intakeSubsystem;
 
     public ScoreToStowCommand(
         EndEffectorSubsystem endEffectorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
-        ElevatorSubsystem elevatorSubsystem) {
+        ElevatorSubsystem elevatorSubsystem,
+        IntakeSubsystem intakeSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
+        this.intakeSubsystem = intakeSubsystem;
 
         addRequirements(endEffectorSubsystem);
         addRequirements(helicopterSubsystem);
         addRequirements(elevatorSubsystem);
+        addRequirements(intakeSubsystem);
     }
 
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
             helicopterSubsystem.scoreCommand(),
+            intakeSubsystem.clearArmPositionCommand(),
             new WaitCommand(0.25),
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),

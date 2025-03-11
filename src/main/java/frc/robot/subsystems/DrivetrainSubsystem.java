@@ -286,7 +286,7 @@ public class DrivetrainSubsystem implements Subsystem {
             config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
                 this::getPose,
-                this::newAutoResetPose,
+                this::resetPose,
                 this::getChassisSpeeds,
                 this::robotRelativeDrive,
                 HOLONOMIC_PATH_FOLLOWER_CONFIG,
@@ -476,10 +476,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     // Setters
     public void setModuleStates(SwerveModuleState[] moduleStates) {
-        frontLeft.setDesiredState(moduleStates[0]);
-        frontRight.setDesiredState(moduleStates[1]);
-        backLeft.setDesiredState(moduleStates[2]);
-        backRight.setDesiredState(moduleStates[3]);
+        frontLeft.setDesiredState(moduleStates[0]);//0
+        frontRight.setDesiredState(moduleStates[1]);//1
+        backLeft.setDesiredState(moduleStates[2]);//2
+        backRight.setDesiredState(moduleStates[3]);//3
     }
 
     public void resetPose(Pose2d pose) {
@@ -489,7 +489,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public void newAutoResetPose(Pose2d pose) {
         poseEstimator.resetPosition(getRotation(),
          getSwervePositions(),
-         new Pose2d(new Translation2d(0, 0),
+         new Pose2d(new Translation2d(pose.getX(), pose.getY()),
          Rotation2d.fromDegrees(179.79)));
     }
 

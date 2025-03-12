@@ -154,10 +154,10 @@ public class RobotContainer {
     operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     // Level position commands
-    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorX.onTrue(helicopterSubsystem.l4WaitPositionCommand());
+    operatorY.onTrue(helicopterSubsystem.waitPositionCommand());
+    operatorB.onTrue(helicopterSubsystem.grabPositionCommand());
+    operatorA.onTrue(elevatorSubsystem.l4PositionCommand());
     // operatorA.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     // operatorB.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     // operatorX.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
@@ -195,6 +195,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
+    NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
   }
   public Command getAutonomousCommand() {

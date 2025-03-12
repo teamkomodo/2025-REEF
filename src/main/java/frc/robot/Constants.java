@@ -77,7 +77,7 @@ public final class Constants {
   public static final double INTAKE_HINGE_MIN_POSITION = 0;
   public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
   public static final double INTAKE_HINGE_STOW_POSITION = 1.5;
-  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 7.0; // This is for when there is a coral in the intake and we want to help feed it through
+  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 7.0;// new 9.381 // This is for when there is a coral in the intake and we want to help feed it through
   public static final double INTAKE_HINGE_SAFE_ELEVATOR_POSITION  = 3;
   public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
   public static final double INTAKE_HINGE_CLEAR_ARM_POSITION = 6.0;
@@ -92,14 +92,14 @@ public final class Constants {
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
   public static final double ELEVATOR_MAX_POSITION = 29.75;
-  public static final double ELEVATOR_WAIT_POSITION = 14.0; // Was 14.31
+  public static final double ELEVATOR_WAIT_POSITION = 12.550; // NEW 12.550 old 14.0
   public static final double ELEVATOR_STOW_POSITION = 1.5;
 
   public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 0.5;
   public static final double ELEVATOR_LOW_ALGAE_POSITION = 16.896;
   public static final double ELEVATOR_HIGH_ALGAE_POSITION = 29;
-  public static final double ELEVATOR_GRAB_POSITION = 7.424;
-  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 12.477;
+  public static final double ELEVATOR_GRAB_POSITION = 8.194; // NEW 8.194 old 7.424
+  public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 13.820;//NEW 13.820 old 12.477
   public static final double ELEVATOR_PRE_STOW_POSITION = 14;
   public static final double ELEVATOR_PRE_PICKUP_POSITION = 12.5;
   
@@ -119,13 +119,13 @@ public final class Constants {
   public static final int HELICOPTER_MOTOR_ID = 41;
     // Gear ratio and offset
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
-  public static final double HELICOPTER_OFFSET = 0.1171; // - 0.16666666667 after changing encoder
+  public static final double HELICOPTER_OFFSET = 0.1171 + 0.16666666667; // - 0.16666666667 after changing encoder
   public static final double HELICOPTER_MIN_POSITION = 0.60;
-  public static final double HELICOPTER_MAX_POSITION = 1.09;
+  public static final double HELICOPTER_MAX_POSITION = 1.24;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
-  public static final double HELICOPTER_GRAB_POSITION = 1.27;
-  public static final double HELICOPTER_WAIT_POSITION = 0.80;//0.98;
+  public static final double HELICOPTER_GRAB_POSITION = 1.092;
+  public static final double HELICOPTER_WAIT_POSITION = 1.053;// new 1.062 old 0.80
   public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.8;
   public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.9;
   public static final double HELICOPTER_FLOOR_ALGAE_POSITION = 0.807;

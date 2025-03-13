@@ -37,7 +37,7 @@ public class ResetRobotCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
-            intakeSubsystem.clearArmPositionCommand(),
+            intakeSubsystem.intakePositionCommand(),
             new IfElseCommand(() -> (helicopterSubsystem.isSafeForElevator()), 
               new SequentialCommandGroup(
                 elevatorSubsystem.clearIndexerPositionCommand(),

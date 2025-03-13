@@ -1,6 +1,7 @@
 package frc.robot.commands.intakeCommands;
 
 import static frc.robot.Constants.INTAKE_HINGE_INTAKE_POSITION;
+import static frc.robot.Constants.SLOW_INTAKE_SPEED;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -13,6 +14,8 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+
 
 public class IntakeToStowCommand extends DynamicCommand{
     
@@ -21,23 +24,29 @@ public class IntakeToStowCommand extends DynamicCommand{
     private final ElevatorSubsystem elevatorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final EndEffectorSubsystem endEffectorSubsystem;
+    private final LEDSubsystem ledSubsystem;
+   
 
     public IntakeToStowCommand(
         IntakeSubsystem intakeSubsystem, IndexerSubsystem indexerSubsystem, 
         ElevatorSubsystem elevatorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
-        EndEffectorSubsystem endEffectorSubsystem) {
+        EndEffectorSubsystem endEffectorSubsystem,
+        LEDSubsystem ledSubsystem) {
             this.intakeSubsystem = intakeSubsystem;
             this.indexerSubsystem = indexerSubsystem;
             this.elevatorSubsystem = elevatorSubsystem;
             this.helicopterSubsystem = helicopterSubsystem;
             this.endEffectorSubsystem = endEffectorSubsystem;
+            this.ledSubsystem = ledSubsystem;
+           
 
             addRequirements(intakeSubsystem);
             addRequirements(indexerSubsystem);
             addRequirements(elevatorSubsystem);
             addRequirements(helicopterSubsystem);
             addRequirements(endEffectorSubsystem);
+            //addRequirements(ledSubsystem);
     }
 
     @Override
@@ -53,8 +62,10 @@ public class IntakeToStowCommand extends DynamicCommand{
             new WaitCommand(0.1),
             helicopterSubsystem.waitPositionCommand(),
             Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get()),
-            intakeSubsystem.feedCoralPositionCommand(),
-            elevatorSubsystem.waitPositionCommand(),
+            new ParallelCommandGroup(
+                intakeSubsystem.feedCoralPositionCommand(),
+                ledSubsystem.flashGreenCommand(),
+                elevatorSubsystem.waitPositionCommand()),
             Commands.waitUntil(indexerSubsystem::getPieceInIndexer),
             Commands.runOnce(intakeSubsystem::runSlow),
             Commands.waitUntil(indexerSubsystem::getPieceIndexed),

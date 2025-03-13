@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.BlinkinPattern;
 
@@ -25,4 +26,32 @@ public class LEDSubsystem extends SubsystemBase {
     public Command setFramePatternCommand(double pattern) {
         return Commands.runOnce(() -> { setFramePattern(pattern); framePattern = pattern;});
     }
+
+    public Command flashGreenCommand() {
+        return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_GREEN)),
+        Commands.waitSeconds(0.1),
+        Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_GREEN)),
+        setTempFramePatternCommand(IDLE_PATTERN));
+    }
+
+    public Command flashOrangeCommand() {
+        return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_ORANGE)),
+        Commands.waitSeconds(0.1),
+        Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_ORANGE)),
+        setTempFramePatternCommand(IDLE_PATTERN));
+    }
+
+    public Command flashPinkCommand() {
+        return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_HOT_PINK)),
+        Commands.waitSeconds(0.1),
+        Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_HOT_PINK)),
+        setTempFramePatternCommand(IDLE_PATTERN));
+    }
+    
+
+
+    
+
+
+   
 }

@@ -3,6 +3,7 @@ package frc.robot.commands.utilityCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -37,10 +38,17 @@ public class ResetRobotCommand extends DynamicCommand {
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             intakeSubsystem.clearArmPositionCommand(),
-            new SequentialCommandGroup(
-              elevatorSubsystem.clearIndexerPositionCommand(),
-              Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition)
-            ).onlyIf(() -> (!helicopterSubsystem.isSafeForElevator())),
+            new IfElseCommand(() -> (helicopterSubsystem.isSafeForElevator()), 
+              new SequentialCommandGroup(
+                elevatorSubsystem.clearIndexerPositionCommand(),
+                Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition)
+              ),
+              new SequentialCommandGroup(
+                Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0.3)),
+                new WaitCommand(0.4),
+                Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0))
+              )
+            ),
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             intakeSubsystem.stowPositionCommand(), // FIXME; stow position

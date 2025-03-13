@@ -132,7 +132,7 @@ public final class Constants {
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;
   public static final double HELICOPTER_WAIT_FOR_L3_POSITION = 0.688;
   public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
-  public static final double HELICOPTER_MAX_SAFE_POSITION = 0.77;
+  public static final double HELICOPTER_MAX_SAFE_POSITION = 0.9;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.8;
   public static final double HELICOPTER_SCORE_ALGAE_POSITION = 0.6; // FIXME: TUNE ME
   public static final double HELICOPTER_L1_POSITION = 0.73;

@@ -171,6 +171,14 @@ public class HelicopterSubsystem extends SubsystemBase {
     public Command highAlgaePositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
     }
+    
+    public Command whacklowAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
+    }
+
+    public Command whackhighAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
+    }
 
     public Command floorAlgaePositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_FLOOR_ALGAE_POSITION));

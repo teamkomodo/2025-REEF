@@ -34,9 +34,7 @@ public class WhackOutHighAlgaeCommand extends DynamicCommand {
             helicopterSubsystem.highAlgaePositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.highAlgaePositionCommand(),
-
             endEffectorSubsystem.dealgaeifyCommand(),
-
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.stowPositionCommand()

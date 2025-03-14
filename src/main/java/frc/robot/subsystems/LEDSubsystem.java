@@ -34,6 +34,13 @@ public class LEDSubsystem extends SubsystemBase {
         setTempFramePatternCommand(IDLE_PATTERN));
     }
 
+    public Command flashRedCommand() {
+        return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_RED)),
+        Commands.waitSeconds(0.1),
+        Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_RED)),
+        setTempFramePatternCommand(IDLE_PATTERN));
+    }
+
     public Command flashOrangeCommand() {
         return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_ORANGE)),
         Commands.waitSeconds(0.1),
@@ -41,7 +48,14 @@ public class LEDSubsystem extends SubsystemBase {
         setTempFramePatternCommand(IDLE_PATTERN));
     }
 
-    public Command flashPinkCommand() {
+    public Command flashBlueVioletCommand() {
+        return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_BLUE_VIOLET)),
+        Commands.waitSeconds(0.1),
+        Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_BLUE_VIOLET)),
+        setTempFramePatternCommand(IDLE_PATTERN));
+    }
+
+    public Command flashHotPinkCommand() {
         return new SequentialCommandGroup(Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_HOT_PINK)),
         Commands.waitSeconds(0.1),
         Commands.runOnce(() -> setFramePattern(BlinkinPattern.SOLID_COLORS_HOT_PINK)),

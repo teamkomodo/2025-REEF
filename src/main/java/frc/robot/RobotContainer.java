@@ -77,7 +77,11 @@ public class RobotContainer {
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    
+
+    //PID Tuning for Heli
+    SmartDashboard.putNumber("Heli P-Gain,", helicopterSubsystem.heliP);
+    SmartDashboard.putNumber("Heli I-Gain,", helicopterSubsystem.heliI);
+    SmartDashboard.putNumber("Heli D-Gain,", helicopterSubsystem.heliD);
   }
 
   private void configureBindings() {

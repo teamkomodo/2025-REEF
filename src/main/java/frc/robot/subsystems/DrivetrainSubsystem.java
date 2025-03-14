@@ -179,15 +179,9 @@ public class DrivetrainSubsystem implements Subsystem {
     public DrivetrainSubsystem(LEDSubsystem ledSubsystem) {
 
         this.ledSubsystem = ledSubsystem;
+
+        LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{22,21,20,19,18,17,11,10,9,8,7,6});
         
-        
-    
-        //only tracks specific apriltags depending on alliance
-        if(ON_RED_ALLIANCE.getAsBoolean() == false){
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{22,21,20,19,18,17});
-        } else{
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{11,10,9,8,7,6});
-        }
         // Drive FFGain updated AM 03/07
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,

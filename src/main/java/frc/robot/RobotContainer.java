@@ -72,14 +72,33 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-//Driver
+
+    /*           Driver | Control
+     *        Joysticks | Drive
+     *         X Button | Zero Gyro
+     *      Left Bumper | Slow Mode
+     *     Right Bumper | Reef Align
+     *          Trigger | Branch Align & Score
+     * 
+     *         Operator | Control
+     *     Right Bumper | Zero Robot
+     *      Left Bumper | Stop & Stow Robot
+     *    Right Trigger | Intake
+     *         A Button | L4 Position
+     *         B Button | L3 Position
+     *         Y Button | L2 Position
+     *         X Button | L1 Position
+     *     Left Trigger | Score
+     *         POV Down | Eject
+     */
+
     Trigger driverLT = driverController.leftTrigger();
     Trigger driverRT = driverController.rightTrigger();
 
     Trigger driverLB = driverController.leftBumper();
     Trigger driverRB = driverController.rightBumper();
     Trigger driverX = driverController.x();
-//Operator
+
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
     Trigger operatorPD = operatorController.povDown();
@@ -107,12 +126,10 @@ public class RobotContainer {
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
 
-   // driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
-   // driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
 
-    driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true));
-    driverRT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false));
+    driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
+    driverRT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
     
     
     // deadband and curves are applied in command
@@ -139,8 +156,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
     NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    NamedCommands.registerCommand("AlignLeft", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false));
-    NamedCommands.registerCommand("AlignRight", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true));
+    NamedCommands.registerCommand("AlignLeft", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
+    NamedCommands.registerCommand("AlignRight", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
   }
 
   public void teleopInit() {
@@ -153,10 +170,6 @@ public class RobotContainer {
       return autoChooser.getSelected();
     return null;
   }
-
-
-
-  
   }
 
 

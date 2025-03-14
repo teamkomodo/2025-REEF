@@ -14,7 +14,7 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
+
 
 
 public class IntakeToStowCommand extends DynamicCommand{
@@ -24,21 +24,20 @@ public class IntakeToStowCommand extends DynamicCommand{
     private final ElevatorSubsystem elevatorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
     private final EndEffectorSubsystem endEffectorSubsystem;
-    private final LEDSubsystem ledSubsystem;
+  
    
 
     public IntakeToStowCommand(
         IntakeSubsystem intakeSubsystem, IndexerSubsystem indexerSubsystem, 
         ElevatorSubsystem elevatorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
-        EndEffectorSubsystem endEffectorSubsystem,
-        LEDSubsystem ledSubsystem) {
+        EndEffectorSubsystem endEffectorSubsystem) {
             this.intakeSubsystem = intakeSubsystem;
             this.indexerSubsystem = indexerSubsystem;
             this.elevatorSubsystem = elevatorSubsystem;
             this.helicopterSubsystem = helicopterSubsystem;
             this.endEffectorSubsystem = endEffectorSubsystem;
-            this.ledSubsystem = ledSubsystem;
+         
            
 
             addRequirements(intakeSubsystem);

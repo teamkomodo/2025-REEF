@@ -18,25 +18,24 @@ public class ScoreToStowCommand extends DynamicCommand {
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
     private final IntakeSubsystem intakeSubsystem;
-    private final LEDSubsystem ledSubsystem;
+    //private final LEDSubsystem ledSubsystem;
 
     public ScoreToStowCommand(
         EndEffectorSubsystem endEffectorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
         ElevatorSubsystem elevatorSubsystem,
-        IntakeSubsystem intakeSubsystem,
-        LEDSubsystem ledSubsystem) {
+        IntakeSubsystem intakeSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
         this.intakeSubsystem = intakeSubsystem;
-        this.ledSubsystem = ledSubsystem;
+       // this.ledSubsystem = ledSubsystem;
 
         addRequirements(endEffectorSubsystem);
         addRequirements(helicopterSubsystem);
         addRequirements(elevatorSubsystem);
         addRequirements(intakeSubsystem);
-        addRequirements(ledSubsystem);
+        
     }
 
     @Override
@@ -47,12 +46,11 @@ public class ScoreToStowCommand extends DynamicCommand {
             new WaitCommand(0.25),
             endEffectorSubsystem.ejectCommand(),
             new ParallelCommandGroup(helicopterSubsystem.releaseCoralPositionCommand(),
-                ledSubsystem.flashOrangeCommand()),
             new WaitCommand(0.1),
             elevatorSubsystem.stowPositionCommand(),
             intakeSubsystem.stowPositionCommand(),
             new WaitCommand(0.2),
             helicopterSubsystem.stowPositionCommand()
-        );
+        ));
     }
 }

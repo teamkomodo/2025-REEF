@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,7 +42,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkMaxConfig helicopterMotorConfig;
     private final SoftLimitConfig softLimitConfig;
 
-    private double helicopterOffestDifference = 0;
+    // private double helicopterOffsetDifference = 0;
 
     private final RelativeEncoder helicopterMotorEncoder;
     private final SparkClosedLoopController helicopterController;
@@ -49,7 +50,11 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkAbsoluteEncoder helicopterAbsoluteEncoder;
 
     // PID Constants
-    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0.0, 0.3, 0.0); //0.1, 0.0000001  , 0.05, 0.0
+    public double heliP = 0.1;
+    public double heliI = 0.0;
+    public double heliD = 0.3;
+
+    public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
     private final double helicopterMaxAccel = 6000;
     private final double helicopterMaxVelocity = 6000;
     private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
@@ -88,6 +93,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     public void periodic() {
         checkSensors();
         updateTelemetry();
+        updatePID();
     }
 
     private void updateTelemetry() {
@@ -99,6 +105,16 @@ public class HelicopterSubsystem extends SubsystemBase {
         if (useAbsoluteEncoder) {
             armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
         }
+    }
+
+    private void updatePID() //XXX: Debug only. NOT FOR COMP!
+    {
+        heliP = SmartDashboard.getNumber("Heli P-Gain,", 0.1);
+        heliI = SmartDashboard.getNumber("Heli I-Gain,", 0.0);
+        heliD = SmartDashboard.getNumber("Heli D-Gain,", 0.3);
+        helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
+        configMotors();
+
     }
 
     private void checkSensors() {
@@ -135,7 +151,7 @@ public class HelicopterSubsystem extends SubsystemBase {
         positionWaitingOn = 0;
         setMotorPosition(targetAngle * HELICOPTER_GEAR_RATIO);
         if (useAbsoluteEncoder) {
-            //helicopterOffestDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+            //helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
             //helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
         }
     }
@@ -169,6 +185,14 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
 
     public Command highAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
+    }
+    
+    public Command whacklowAlgaePositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
+    }
+
+    public Command whackhighAlgaePositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
     }
 

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -63,7 +62,6 @@ import com.pathplanner.lib.config.RobotConfig;
 // import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
-//import frc.robot.subsystems.LEDSubsystem;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -75,9 +73,6 @@ public class DrivetrainSubsystem implements Subsystem {
      * See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html#robot-coordinate-system
      * Forward is x+, Left is y+, counterclockwise is theta+
      */
-
-
-     //private final LEDSubsystem ledSubsystem;
 
     // Limelight
     private static boolean useVision = false;
@@ -177,8 +172,6 @@ public class DrivetrainSubsystem implements Subsystem {
     private ChassisSpeeds lastCommandedChassisSpeeds = new ChassisSpeeds();
 
     public DrivetrainSubsystem() {
-
-       // this.ledSubsystem = ledSubsystem;
         
         
     
@@ -773,7 +766,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
-            //ledSubsystem.flashPinkCommand();
             if(!atReef)
                 drive(limelightX(), -limelightY(), limelightZ(),  false);
             else

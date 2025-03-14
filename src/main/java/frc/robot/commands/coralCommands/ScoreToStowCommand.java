@@ -1,4 +1,4 @@
-package frc.robot.commands.scoreCommands;
+package frc.robot.commands.coralCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -10,7 +10,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-//import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 public class ScoreToStowCommand extends DynamicCommand {
 
@@ -18,24 +18,25 @@ public class ScoreToStowCommand extends DynamicCommand {
     private final HelicopterSubsystem helicopterSubsystem;
     private final ElevatorSubsystem elevatorSubsystem;
     private final IntakeSubsystem intakeSubsystem;
-    //private final LEDSubsystem ledSubsystem;
+    private final LEDSubsystem ledSubsystem;
 
     public ScoreToStowCommand(
         EndEffectorSubsystem endEffectorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
         ElevatorSubsystem elevatorSubsystem,
-        IntakeSubsystem intakeSubsystem) {
+        IntakeSubsystem intakeSubsystem,
+        LEDSubsystem ledSubsystem) {
         this.endEffectorSubsystem = endEffectorSubsystem;
         this.helicopterSubsystem = helicopterSubsystem;
         this.elevatorSubsystem = elevatorSubsystem;
         this.intakeSubsystem = intakeSubsystem;
-       // this.ledSubsystem = ledSubsystem;
+        this.ledSubsystem = ledSubsystem;
 
         addRequirements(endEffectorSubsystem);
         addRequirements(helicopterSubsystem);
         addRequirements(elevatorSubsystem);
         addRequirements(intakeSubsystem);
-        
+        addRequirements(ledSubsystem);
     }
 
     @Override
@@ -46,11 +47,12 @@ public class ScoreToStowCommand extends DynamicCommand {
             new WaitCommand(0.25),
             endEffectorSubsystem.ejectCommand(),
             new ParallelCommandGroup(helicopterSubsystem.releaseCoralPositionCommand(),
+            ledSubsystem.flashRedCommand()),
             new WaitCommand(0.1),
             elevatorSubsystem.stowPositionCommand(),
             intakeSubsystem.stowPositionCommand(),
             new WaitCommand(0.2),
             helicopterSubsystem.stowPositionCommand()
-        ));
+        );
     }
 }

@@ -1,4 +1,4 @@
-package frc.robot.commands.scoreCommands;
+package frc.robot.commands.coralCommands;
 
 import java.util.function.BooleanSupplier;
 
@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.utilityCommands.DynamicCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.commands.scoreCommands.ScoreCommand;
+//import frc.robot.commands.scoreCommands.ScoreCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;

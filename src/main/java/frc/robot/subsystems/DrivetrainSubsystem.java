@@ -85,6 +85,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private double brakeModeScale = 0;
     public boolean atReef = false;
 
+    public boolean relative = false;
+
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
@@ -514,6 +516,10 @@ public class DrivetrainSubsystem implements Subsystem {
         }
 
         return new ChassisSpeeds(xVelocity, yVelocity, rotVelocity);
+    }
+
+    public Command setFieldRelative(boolean robotFieldRelative) {
+        return Commands.runOnce(() -> relative = robotFieldRelative);
     }
 
     // Commands

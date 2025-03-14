@@ -236,11 +236,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void startIntake() {
-        setIntakeDutyCycle(INTAKE_SPEED);
+        setIntakeDutyCycle(1.0);
     }
 
     public void runSlow() {
-        setIntakeDutyCycle(SLOW_INTAKE_SPEED);
+        setIntakeDutyCycle(0.25);
     }
 
     public void reverseIntake() {

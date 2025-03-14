@@ -53,19 +53,18 @@ public class IntakeToStowCommand extends DynamicCommand{
     protected Command getCommand() {
         // TODO Auto-generated method stub
         return new SequentialCommandGroup(
-
-            elevatorSubsystem.preStowPositionCommand(),
             Commands.runOnce(() -> intakeSubsystem.setHingePosition(INTAKE_HINGE_INTAKE_POSITION)),
-            Commands.runOnce(() -> {intakeSubsystem.startIntake();}),
+            elevatorSubsystem.preStowPositionCommand(),
+            Commands.runOnce(() -> {intakeSubsystem.setIntakeDutyCycle(0.8);}),
             new WaitCommand(0.1),
             elevatorSubsystem.clearIndexerPositionCommand(),
-            new WaitCommand(0.1),
             helicopterSubsystem.waitPositionCommand(),
             Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get() || indexerSubsystem.getPieceInIndexer()),
-            new ParallelCommandGroup(elevatorSubsystem.waitPositionCommand(),
-                ledSubsystem.flashGreenCommand()),
-            Commands.waitUntil(indexerSubsystem::getPieceInIndexer),
-            Commands.runOnce(intakeSubsystem::runSlow),
+            //new ParallelCommandGroup(elevatorSubsystem.waitPositionCommand(),
+            //ledSubsystem.flashGreenCommand()),
+            Commands.waitUntil(() -> !indexerSubsystem.coralInIndexerSensor.get()),
+            //intakeSubsystem.feedCoralPositionCommand(),
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.45)),
             Commands.waitUntil(indexerSubsystem::getPieceIndexed),
             intakeSubsystem.intakePositionCommand(),
             Commands.runOnce(intakeSubsystem::stopIntake),
@@ -75,16 +74,17 @@ public class IntakeToStowCommand extends DynamicCommand{
                 helicopterSubsystem.grabPositionCommand()),
             new WaitCommand(0.3),
             elevatorSubsystem.grabPositionCommand(),
-            new WaitCommand(0.3),
+            Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             new ParallelCommandGroup(
                 elevatorSubsystem.preStowPositionCommand(),
                 endEffectorSubsystem.securePiece()),
-            new WaitCommand(0.45),
+            new WaitCommand(0.25),
+            helicopterSubsystem.stowPositionCommand(),
+            new WaitCommand(0.5),
             new ParallelCommandGroup(
-                ledSubsystem.flashBlueVioletCommand(),
+                //ledSubsystem.flashBlueVioletCommand(),
                 endEffectorSubsystem.securePiece(),
-                helicopterSubsystem.stowPositionCommand(),
                 new SequentialCommandGroup(
                     new WaitCommand(0.2),
                     elevatorSubsystem.stowPositionCommand(),

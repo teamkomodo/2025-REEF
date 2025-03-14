@@ -11,7 +11,7 @@ import frc.robot.commands.reefPositionCommands.L1PositionCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
-import frc.robot.commands.coralCommands.AlignToBranchCommand;
+//import frc.robot.commands.coralCommands.AlignToBranchCommand;
 import frc.robot.commands.resetCommands.ResetRobotCommand;
 import frc.robot.commands.resetCommands.ZeroMechCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -106,35 +106,37 @@ public class RobotContainer {
     Trigger operatorLB = operatorController.leftBumper();
     Trigger operatorRB = operatorController.rightBumper();
     Trigger operatorA = operatorController.a();
+
     Trigger operatorB = operatorController.b();
     Trigger operatorX = operatorController.x();
     Trigger operatorY = operatorController.y();
 
     operatorLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem, ledSubsystem));
+    operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem, ledSubsystem, helicopterSubsystem, elevatorSubsystem));
 
     operatorRB.onTrue(new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem));
     operatorLB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
 
-    // operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-
-    operatorA.onTrue(elevatorSubsystem.l4PositionCommand());
-    operatorB.onTrue(helicopterSubsystem.grabPositionCommand());
-    operatorY.onTrue(helicopterSubsystem.l4WaitPositionCommand());
-    operatorX.onTrue(Commands.runOnce(() -> helicopterSubsystem.updatePID()));
+    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    //operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorY.onTrue(intakeSubsystem.feedCoralPositionCommand());
+    // operatorA.onTrue(elevatorSubsystem.l4PositionCommand());
+    // operatorB.onTrue(helicopterSubsystem.grabPositionCommand());
+    // operatorY.onTrue(helicopterSubsystem.l4WaitPositionCommand());
+    // operatorX.onTrue(Commands.runOnce(() -> helicopterSubsystem.updatePID()));
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
-
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-
-    driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
-    driverRT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
+    driverRT.onTrue(drivetrainSubsystem.setFieldRelative(false));
+    driverRT.onFalse(drivetrainSubsystem.setFieldRelative(true));
+;
+    //driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
+    //driverRT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
     
     
     // deadband and curves are applied in command
@@ -161,11 +163,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
     NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    NamedCommands.registerCommand("AlignLeft", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
-    NamedCommands.registerCommand("AlignRight", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
+    //NamedCommands.registerCommand("AlignLeft", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, false, ledSubsystem));
+    //NamedCommands.registerCommand("AlignRight", new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
   }
 
-  public void teleopInit() {
+  public void teleopInit
+  () {
     new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem).schedule();
   }
 

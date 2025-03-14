@@ -163,7 +163,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
                 if (currentScoreLevel == 1) {
                     setEndEffectorDutyCycle(-0.2);
                 } else {
-                    setEndEffectorDutyCycle(-0.8);
+                    setEndEffectorDutyCycle(-0.3);
                 }
             }),
             Commands.waitSeconds(0.3),

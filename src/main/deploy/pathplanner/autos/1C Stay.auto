@@ -9,15 +9,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "L4"
+                  "pathName": "1C Stay"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "1C Starting Position"
+                  "name": "L4"
                 }
               }
             ]
@@ -26,7 +26,13 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Reset"
           }
         }
       ]

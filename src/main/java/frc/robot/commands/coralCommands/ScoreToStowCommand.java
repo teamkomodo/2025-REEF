@@ -44,13 +44,14 @@ public class ScoreToStowCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             helicopterSubsystem.scoreCommand(),
             intakeSubsystem.clearArmPositionCommand(),
-            new WaitCommand(0.25),
+            new WaitCommand(0.2),
+            helicopterSubsystem.releaseCoralPositionCommand(),
+            new WaitCommand(0.1),
             endEffectorSubsystem.ejectCommand(),
-            new ParallelCommandGroup(helicopterSubsystem.releaseCoralPositionCommand(),
-            ledSubsystem.flashRedCommand()),
+            intakeSubsystem.stowPositionCommand(),
+            //ledSubsystem.flashRedCommand()),
             new WaitCommand(0.1),
             elevatorSubsystem.stowPositionCommand(),
-            intakeSubsystem.stowPositionCommand(),
             new WaitCommand(0.2),
             helicopterSubsystem.stowPositionCommand()
         );

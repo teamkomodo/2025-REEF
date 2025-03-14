@@ -28,6 +28,12 @@
           "data": {
             "name": "Score"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Reset"
+          }
         }
       ]
     }

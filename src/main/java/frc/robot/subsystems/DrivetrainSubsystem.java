@@ -63,7 +63,7 @@ import com.pathplanner.lib.config.RobotConfig;
 // import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
-import frc.robot.subsystems.LEDSubsystem;
+//import frc.robot.subsystems.LEDSubsystem;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -77,7 +77,7 @@ public class DrivetrainSubsystem implements Subsystem {
      */
 
 
-     private final LEDSubsystem ledSubsystem;
+     //private final LEDSubsystem ledSubsystem;
 
     // Limelight
     private static boolean useVision = false;
@@ -176,18 +176,14 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private ChassisSpeeds lastCommandedChassisSpeeds = new ChassisSpeeds();
 
-    public DrivetrainSubsystem(LEDSubsystem ledSubsystem) {
+    public DrivetrainSubsystem() {
 
-        this.ledSubsystem = ledSubsystem;
+       // this.ledSubsystem = ledSubsystem;
         
         
     
         //only tracks specific apriltags depending on alliance
-        if(ON_RED_ALLIANCE.getAsBoolean() == false){
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{22,21,20,19,18,17});
-        } else{
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{11,10,9,8,7,6});
-        }
+        LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{11,10,9,8,7,6, 22,21,20,19,18,17});
         // Drive FFGain updated AM 03/07
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
@@ -777,7 +773,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
-            ledSubsystem.flashPinkCommand();
+            //ledSubsystem.flashPinkCommand();
             if(!atReef)
                 drive(limelightX(), -limelightY(), limelightZ(),  false);
             else

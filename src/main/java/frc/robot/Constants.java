@@ -208,7 +208,7 @@ public final class Constants {
   public static final double LIMELIGHT_HEIGHT = 0.1778; //UPDATE BEFORE SCRIMMAGE
   public static final double LIMELIGHT_ANGLE_OFFSET = 28.3; //UPDATE BEFORE SCRIMMAGE (degrees)
   public static final double TY_ALIGN_THRESHOLD = -3; 
-
+  public static final double LIMELIGHT_REEF_TA = 16.0; //FIXME: TUNE ME
   public static final BooleanSupplier ON_RED_ALLIANCE = () -> {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {

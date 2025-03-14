@@ -26,6 +26,7 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 import static frc.robot.Constants.DRIVER_XBOX_PORT;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
@@ -59,12 +60,13 @@ public class RobotContainer {
   private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_XBOX_PORT);
 
   //Subsystems
-  private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+  private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(new LEDSubsystem());
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final HelicopterSubsystem helicopterSubsystem = new HelicopterSubsystem();
   private final EndEffectorSubsystem endEffectorSubsystem = new EndEffectorSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   
 
@@ -137,7 +139,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
+    NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());

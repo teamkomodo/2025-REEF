@@ -57,7 +57,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
     private final double helicopterMaxAccel = 1500;
     private final double helicopterMaxVelocity = 6000;
-    private double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
+    private double helicopterAllowedClosedLoopError = 0.15; // / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
     
         // Variables
         private double targetAngle = 0;
@@ -160,11 +160,12 @@ public class HelicopterSubsystem extends SubsystemBase {
     public void setHelicopterPosition(double position) {
         targetAngle = position;
         positionWaitingOn = 0;
+        // if (useAbsoluteEncoder) {
+            // double helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
+            // + helicopterOffsetDifference * HELICOPTER_GEAR_RATIO);
+        // }
         setMotorPosition(targetAngle * HELICOPTER_GEAR_RATIO);
-        if (useAbsoluteEncoder) {
-            //helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-            //helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
-        }
     }
 
     public void holdMotorPosition() {
@@ -292,8 +293,12 @@ public class HelicopterSubsystem extends SubsystemBase {
         return helicopterAbsoluteEncoder.getPosition() + HELICOPTER_OFFSET;
     }
 
+    // public boolean atCommandedPosition() {
+    //     return Math.abs(getAbsoluteEncoderPosition() - targetAngle) < helicopterAllowedClosedLoopError * 3; // FIXME
+    // }
+
     public boolean atCommandedPosition() {
-        return Math.abs(getAbsoluteEncoderPosition() - targetAngle) < helicopterAllowedClosedLoopError * 3; // FIXME
+        return Math.abs(helicopterMotorEncoder.getPosition() - targetAngle * HELICOPTER_GEAR_RATIO) < helicopterAllowedClosedLoopError; // FIXME
     }
 
     public boolean isSafeForElevator() {

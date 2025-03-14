@@ -121,8 +121,8 @@ public class RobotContainer {
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    //operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorY.onTrue(intakeSubsystem.feedCoralPositionCommand());
+    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    //operatorY.onTrue(intakeSubsystem.feedCoralPositionCommand());
     // operatorA.onTrue(elevatorSubsystem.l4PositionCommand());
     // operatorB.onTrue(helicopterSubsystem.grabPositionCommand());
     // operatorY.onTrue(helicopterSubsystem.l4WaitPositionCommand());

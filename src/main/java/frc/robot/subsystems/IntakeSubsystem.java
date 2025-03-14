@@ -270,28 +270,28 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command stowPositionCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
+            //Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
             Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_STOW_POSITION))
         );
     }
 
     public Command feedCoralPositionCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> configurePidMotors(1, 0.001, 0.6)),
+            //Commands.runOnce(() -> configurePidMotors(1, 0.001, 0.6)),
             Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_FEED_CORAL_POSITION))
         );
     }
 
     public Command clearArmPositionCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
+            //Commands.runOnce(() -> configurePidMotors(1, 0.0e-15, 0.6)),
             Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_CLEAR_ARM_POSITION))
         );
     }
 
     public Command intakePositionCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> configurePidMotors(1, 0.0, 0.9)),
+            //Commands.runOnce(() -> configurePidMotors(1, 0.0, 0.9)),
             Commands.runOnce(() -> setHingePosition(INTAKE_HINGE_INTAKE_POSITION))
         );
     }
@@ -299,7 +299,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command zeroHingeCommand() { // Code uses this function
         // Activate with one press
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setHingeDutyCycle(-0.3)),
+            Commands.runOnce(() -> setHingeDutyCycle(-0.2)),
             Commands.waitUntil(() -> (zeroed)),
             Commands.runOnce(() -> setHingeDutyCycle(0)),
             Commands.runOnce(() -> holdHingePosition())

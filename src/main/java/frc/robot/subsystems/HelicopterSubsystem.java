@@ -55,66 +55,77 @@ public class HelicopterSubsystem extends SubsystemBase {
     public double heliD = 0.3;
 
     public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
-    private final double helicopterMaxAccel = 6000;
-    private final double helicopterMaxVelocity = 6000;
-    private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
-
-    // Variables
-    private double targetAngle = 0;
-    private int positionWaitingOn = 0;
-
-
-    public HelicopterSubsystem() { // CONSTRUCTION
-        helicopterMotor = new SparkMax(HELICOPTER_MOTOR_ID, SparkMax.MotorType.kBrushless);
-        helicopterMotorConfig = new SparkMaxConfig();
-        softLimitConfig = new SoftLimitConfig();
-
-        helicopterMotorEncoder = helicopterMotor.getEncoder();
-        helicopterMotorEncoder.setPosition(0);
-
-        // Sensor
-        if (useAbsoluteEncoder) {
-            helicopterAbsoluteEncoder = helicopterMotor.getAbsoluteEncoder();
-        } else {
-            helicopterAbsoluteEncoder = null;
+    private final double helicopterMaxAccel = 1500;
+    private final double helicopterMaxVelocity = 4000;
+    private double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
+    
+        // Variables
+        private double targetAngle = 0;
+        private int positionWaitingOn = 0;
+    
+    
+        public HelicopterSubsystem() { // CONSTRUCTION
+            helicopterMotor = new SparkMax(HELICOPTER_MOTOR_ID, SparkMax.MotorType.kBrushless);
+            helicopterMotorConfig = new SparkMaxConfig();
+            softLimitConfig = new SoftLimitConfig();
+    
+            helicopterMotorEncoder = helicopterMotor.getEncoder();
+            helicopterMotorEncoder.setPosition(0);
+    
+            // Sensor
+            if (useAbsoluteEncoder) {
+                helicopterAbsoluteEncoder = helicopterMotor.getAbsoluteEncoder();
+            } else {
+                helicopterAbsoluteEncoder = null;
+            }
+    
+            // PID controller
+            helicopterController = helicopterMotor.getClosedLoopController();
+    
+            configMotors();
+            startPID();
         }
-
-        // PID controller
-        helicopterController = helicopterMotor.getClosedLoopController();
-
-        configMotors();
-    }
-
-    public void teleopInit() {
-        setHelicopterPosition(HELICOPTER_STOW_POSITION);
-    }
-
-    @Override
-    public void periodic() {
-        checkSensors();
-        updateTelemetry();
-        updatePID();
-    }
-
-    private void updateTelemetry() {
-        armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-        armTargetAnglePublisher.set(targetAngle);
-        atCommandedPositionPublisher.set(atCommandedPosition());
-        positionWaitingOnPublisher.set(positionWaitingOn);
-        safeForElevatorPublisher.set(isSafeForElevator());
-        if (useAbsoluteEncoder) {
-            armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
+    
+        public void teleopInit() {
+            setHelicopterPosition(HELICOPTER_STOW_POSITION);
         }
-    }
-
-    private void updatePID() //XXX: Debug only. NOT FOR COMP!
-    {
-        heliP = SmartDashboard.getNumber("Heli P-Gain,", 0.1);
-        heliI = SmartDashboard.getNumber("Heli I-Gain,", 0.0);
-        heliD = SmartDashboard.getNumber("Heli D-Gain,", 0.3);
-        helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
-        configMotors();
-
+    
+        @Override
+        public void periodic() {
+            checkSensors();
+            updateTelemetry();
+            //updatePID();
+        }
+    
+        private void updateTelemetry() {
+            armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+            armTargetAnglePublisher.set(targetAngle);
+            atCommandedPositionPublisher.set(atCommandedPosition());
+            positionWaitingOnPublisher.set(positionWaitingOn);
+            safeForElevatorPublisher.set(isSafeForElevator());
+            if (useAbsoluteEncoder) {
+                armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
+            }
+        }
+    
+        private void startPID() //XXX: Debug only. NOT FOR COMP!
+        {
+            helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
+            configMotors();
+            SmartDashboard.putNumber("P", heliP);
+            SmartDashboard.putNumber("I", heliI);
+            SmartDashboard.putNumber("D", heliD);
+            SmartDashboard.putNumber("CL", helicopterAllowedClosedLoopError);
+        }
+    
+        public void updatePID() {
+            heliP = SmartDashboard.getNumber("P", 0.1);
+            heliI = SmartDashboard.getNumber("I", 0);
+            heliD = SmartDashboard.getNumber("D", 0);
+            helicopterAllowedClosedLoopError = SmartDashboard.getNumber("CL", 0.4 / HELICOPTER_GEAR_RATIO);
+        helicopterMotorConfig.closedLoop.pidf(heliP, heliI, heliP, 0.0);
+        helicopterMotor
+            .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     private void checkSensors() {

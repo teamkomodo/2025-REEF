@@ -44,16 +44,15 @@ public class IntakeToStowCommand extends DynamicCommand{
     protected Command getCommand() {
         // TODO Auto-generated method stub
         return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                elevatorSubsystem.preStowPositionCommand(),
-                Commands.runOnce(() -> intakeSubsystem.setHingePosition(INTAKE_HINGE_INTAKE_POSITION)),
-                Commands.runOnce(() -> {intakeSubsystem.startIntake();})),
+
+            elevatorSubsystem.preStowPositionCommand(),
+            Commands.runOnce(() -> intakeSubsystem.setHingePosition(INTAKE_HINGE_INTAKE_POSITION)),
+            Commands.runOnce(() -> {intakeSubsystem.startIntake();}),
             new WaitCommand(0.1),
             elevatorSubsystem.clearIndexerPositionCommand(),
             new WaitCommand(0.1),
             helicopterSubsystem.waitPositionCommand(),
-            Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get()),
-            intakeSubsystem.feedCoralPositionCommand(),
+            Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get() || indexerSubsystem.getPieceInIndexer()),
             elevatorSubsystem.waitPositionCommand(),
             Commands.waitUntil(indexerSubsystem::getPieceInIndexer),
             Commands.runOnce(intakeSubsystem::runSlow),
@@ -62,18 +61,17 @@ public class IntakeToStowCommand extends DynamicCommand{
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(intakeSubsystem::setDoneIntaking),
             new ParallelCommandGroup(
-                endEffectorSubsystem.startEndEffectorIntakingCommand(),
-                new SequentialCommandGroup(
-                    new WaitCommand(0.3),
-                    elevatorSubsystem.grabPositionCommand()),
+                Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(1)),
                 helicopterSubsystem.grabPositionCommand()),
-            Commands.waitUntil(endEffectorSubsystem::getCoralLoaded),
+            new WaitCommand(0.3),
+            elevatorSubsystem.grabPositionCommand(),
+            new WaitCommand(0.3),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             new ParallelCommandGroup(
                 elevatorSubsystem.preStowPositionCommand(),
                 endEffectorSubsystem.securePiece()
             ),
-            new WaitCommand(0.4),
+            new WaitCommand(0.45),
             new ParallelCommandGroup(
                 endEffectorSubsystem.securePiece(),
                 helicopterSubsystem.stowPositionCommand(),
@@ -84,9 +82,7 @@ public class IntakeToStowCommand extends DynamicCommand{
                 ),
                 intakeSubsystem.stowPositionCommand()
             )
-        ).onlyIf(() -> (elevatorSubsystem.getZeroed() &&
-        intakeSubsystem.getZeroed() &&
-        !endEffectorSubsystem.getCoralLoaded()));
+        ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());
 
         //throw new UnsupportedOperationException("Unimplemented method 'getCommand'");
     }

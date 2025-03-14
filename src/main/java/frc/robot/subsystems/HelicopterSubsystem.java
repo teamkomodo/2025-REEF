@@ -49,7 +49,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkAbsoluteEncoder helicopterAbsoluteEncoder;
 
     // PID Constants
-    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0.0000001  , 0.05, 0.0);
+    private final PIDGains helicopterPIDGains = new PIDGains(0.1, 0.0, 0.3, 0.0); //0.1, 0.0000001  , 0.05, 0.0
     private final double helicopterMaxAccel = 6000;
     private final double helicopterMaxVelocity = 6000;
     private final double helicopterAllowedClosedLoopError = 0.4 / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
@@ -81,7 +81,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
 
     public void teleopInit() {
-        
+        setHelicopterPosition(HELICOPTER_STOW_POSITION);
     }
 
     @Override

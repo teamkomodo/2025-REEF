@@ -36,9 +36,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     private final RelativeEncoder endEffectorEncoder;
     private final SparkClosedLoopController endEffectorController;
-    private final PIDGains endEffectorPIDGains = new PIDGains(0.1, 0, 0);
+    private final PIDGains endEffectorPIDGains = new PIDGains(1.0, 0, 0);
 
-    private final DigitalInput coralLoadedSensor;
+    public final DigitalInput coralLoadedSensor;
 
     private boolean coralLoaded = false;
     private boolean algaeLoaded = false;

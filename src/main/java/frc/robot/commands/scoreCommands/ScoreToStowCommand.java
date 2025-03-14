@@ -43,10 +43,10 @@ public class ScoreToStowCommand extends DynamicCommand {
             endEffectorSubsystem.ejectCommand(),
             helicopterSubsystem.releaseCoralPositionCommand(),
             new WaitCommand(0.1),
-            new ParallelCommandGroup(
-                elevatorSubsystem.stowPositionCommand(),
-                helicopterSubsystem.stowPositionCommand()
-            )
+            elevatorSubsystem.stowPositionCommand(),
+            intakeSubsystem.stowPositionCommand(),
+            new WaitCommand(0.2),
+            helicopterSubsystem.stowPositionCommand()
         );
     }
 }

@@ -299,11 +299,11 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command zeroHingeCommand() { // Code uses this function
         // Activate with one press
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setHingeDutyCycle(INTAKE_HINGE_ZEROING_SPEED)),
+            Commands.runOnce(() -> setHingeDutyCycle(-0.3)),
             Commands.waitUntil(() -> (zeroed)),
-            Commands.runOnce(() -> setHingeDutyCycle(0))//,
-            // stowPositionCommand()
-        ).onlyIf(() -> (!zeroed));
+            Commands.runOnce(() -> setHingeDutyCycle(0)),
+            Commands.runOnce(() -> holdHingePosition())
+        );
     }
 
     public boolean getLimitSwitchAtCurrentCheck() {

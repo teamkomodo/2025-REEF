@@ -227,11 +227,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command clearIndexerPositionCommand() {
         return this.runOnce(() -> {
-            if (elevatorEncoder.getPosition() < ELEVATOR_CLEAR_INTAKE_POSITION - elevatorAllowedClosedLoopError) {
-                setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
-            } else {
-                holdElevatorPosition();
-            }
+            setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
         });
     }
 

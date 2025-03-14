@@ -3,6 +3,7 @@ package frc.robot.commands.utilityCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -34,21 +35,16 @@ public class ResetRobotCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(intakeSubsystem::stopIntake),
-            Commands.runOnce(endEffectorSubsystem::stopEndEffector),
-            intakeSubsystem.intakePositionCommand(),
-            new SequentialCommandGroup(
-              elevatorSubsystem.clearIndexerPositionCommand(),
-              Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition)
-            ).onlyIf(() -> (!helicopterSubsystem.isSafeForElevator())),
-            helicopterSubsystem.stowPositionCommand(),
-            Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
-            intakeSubsystem.stowPositionCommand(), // FIXME; stow position
-            elevatorSubsystem.stowPositionCommand(),
-            elevatorSubsystem.zeroElevatorCommand(),
-            elevatorSubsystem.minPositionCommand(),
-            Commands.waitUntil(intakeSubsystem::atCommandedPosition),
-            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
-          );
+          Commands.runOnce(intakeSubsystem::stopIntake),
+          Commands.runOnce(endEffectorSubsystem::stopEndEffector),
+          new SequentialCommandGroup(
+            elevatorSubsystem.clearIndexerPositionCommand(),
+            new WaitCommand(0.6)
+          ).onlyIf(() -> !helicopterSubsystem.isSafeForElevator()),
+          helicopterSubsystem.stowPositionCommand(),
+          intakeSubsystem.stowPositionCommand(),
+          elevatorSubsystem.zeroElevatorCommand(),
+          elevatorSubsystem.minPositionCommand()
+        ).onlyIf(() -> elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed());
     }
-}     
+}

@@ -82,25 +82,14 @@ public class RobotContainer {
 //Driver
     Trigger driverLT = driverController.leftTrigger();
     Trigger driverRT = driverController.rightTrigger();
-    Trigger driverPD = driverController.povDown();
-    Trigger driverPU = driverController.povUp();
-    Trigger driverPL = driverController.povLeft();
-    Trigger driverPR = driverController.povRight();
 
     Trigger driverLB = driverController.leftBumper();
     Trigger driverRB = driverController.rightBumper();
-    Trigger driverA = driverController.a();
-    Trigger driverB = driverController.b();
     Trigger driverX = driverController.x();
-    Trigger driverY = driverController.y();
-
 //Operator
     Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorRT = operatorController.rightTrigger();
     Trigger operatorPD = operatorController.povDown();
-    Trigger operatorPU = operatorController.povUp();
-    Trigger operatorPL = operatorController.povLeft();
-    Trigger operatorPR = operatorController.povRight();
 
     Trigger operatorLB = operatorController.leftBumper();
     Trigger operatorRB = operatorController.rightBumper();
@@ -109,59 +98,17 @@ public class RobotContainer {
     Trigger operatorX = operatorController.x();
     Trigger operatorY = operatorController.y();
 
-    /* Driver controls */
-    /*  Button  | Command */
-    /* driverLB | Enable / Disable Speed Mode  */
-    /* driverRB | Enable / disable slow mode, Default is fast mode */
-    /* driverX  | Zero gyro */
-    /* driverY  | EMPTY */
-    /* driverB  | Reset robot */
-    /* driverLT | Go to left branch */
-    /* driverRT | Go to right branch */
-    /* driver left joystick | Drive the robot */
-    /* driver right joysticks | Rotate the robot */
-
-
-    /* Operator controls */
-    /*   Button   | Command */
-    /* operatorLT | Score coral */
-    /* operatorRT | Intake and index */
-    /* operatorRB | Score algae */
-    /* operatorLB | Zero elevator and intake, or reset robot mechs, including zero elevator */
-    /* operatorPD (POV down) | Eject from intake */
-    /* operatorPL (POV left) | Knock out low algae */
-    /* operatorPU (POV up) | Knock out high algae */
-    /* operatorPR (POV right) | _Grab_ ground algae */
-    /* operatorX  | L1 Position */
-    /* operatorY  | L2 Position */
-    /* operatorA  | L4 Position */
-    /* operatorB  | L3 Position */
-    
-    operatorLB.onTrue(new IfElseCommand(
-      () -> (elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed()),
-      new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem),
-      new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem)
-    ));
-
     operatorLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
     operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem));
 
-    // Algae commands
-    operatorPL.onTrue(new KnockOutLowAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorPU.onTrue(new KnockOutHighAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorPR.onTrue(new GrabFloorAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
-    operatorRB.onTrue(new ScoreAlgaeCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorRB.onTrue(new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem));
+    operatorLB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
-    // Level position commands
-    operatorX.onTrue(helicopterSubsystem.l4WaitPositionCommand());
-    operatorY.onTrue(helicopterSubsystem.waitPositionCommand());
-    operatorB.onTrue(helicopterSubsystem.grabPositionCommand());
-    operatorA.onTrue(elevatorSubsystem.l4PositionCommand());
-    // operatorA.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorB.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorX.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    // operatorY.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorX.onTrue(new L1PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
@@ -170,9 +117,6 @@ public class RobotContainer {
     driverLT.onTrue(drivetrainSubsystem.goToBranch(false));
     driverRT.onTrue(drivetrainSubsystem.goToBranch(true));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-    // FIXME: Remove this, it is just for convenience during auto testing
-    //driverB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    driverA.onTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
@@ -196,8 +140,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
     NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
   }
+
+  public void teleopInit() {
+    new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).schedule();
+  }
+
   public Command getAutonomousCommand() {
     // // An example command will be run in autonomous
     if(autoChooser != null){

@@ -25,10 +25,10 @@ public class EjectCommand extends DynamicCommand {
     protected Command getCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> intakeSubsystem.startIntake()),
-            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0.7)),
-            Commands.waitSeconds(0.6)//,
-            // Commands.runOnce(intakeSubsystem::stopIntake),
-            // Commands.runOnce(endEffectorSubsystem::stopEndEffector)
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-0.7)),
+            Commands.waitSeconds(0.6),
+            Commands.runOnce(intakeSubsystem::stopIntake),
+            Commands.runOnce(endEffectorSubsystem::stopEndEffector)
         );
     }
 }

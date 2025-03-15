@@ -63,7 +63,7 @@ public final class Constants {
   // Intake
     // Intake motor IDs
   public static final int INTAKE_MOTOR_ID = 51;
-  public static final int INTAKE_HINGE_MOTOR_ID = 12;
+  public static final int INTAKE_HINGE_MOTOR_ID = 13;
     // Intake and hinge sensor channels
   public static final int CORAL_INTAKE_SENSOR_CHANNEL = 0;
   public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 2;
@@ -124,7 +124,7 @@ public final class Constants {
   public static final double HELICOPTER_MAX_POSITION = 1.24;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
-  public static final double HELICOPTER_GRAB_POSITION = 1.088;
+  public static final double HELICOPTER_GRAB_POSITION = 1.100;
   public static final double HELICOPTER_WAIT_POSITION = 1.053;// new 1.062 old 0.80
   public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.8;
   public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.9;

@@ -234,7 +234,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command zeroElevatorCommand() { // Code uses this function
         // Activate with one press
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setElevatorDutyCycle(ELEVATOR_ZEROING_SPEED)), 
+            Commands.runOnce(() -> setElevatorDutyCycle(-0.15)), 
             Commands.waitUntil(() -> getLimitSwitchAtCurrentCheck()),
             Commands.runOnce(() -> { setElevatorDutyCycle(0); holdElevatorPosition(); })
         );

@@ -200,6 +200,10 @@ public class HelicopterSubsystem extends SubsystemBase {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
     }
     
+    public Command ejectCoralPositionCommand() {
+        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_EJECT_CORAL_POSITION));
+    }
+
     public Command whacklowAlgaePositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
     }
@@ -272,7 +276,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     public Command releaseCoralPositionCommand() {
         return this.runOnce(() -> {
             if (positionWaitingOn > 1) {
-                setHelicopterPosition(HELICOPTER_RELEASE_CORAL_POSITION);
+                setHelicopterPosition(0.95);
             }
         });
     }

@@ -51,9 +51,9 @@ public class ScoreToStowCommand extends DynamicCommand {
             new WaitCommand(0.1),
             endEffectorSubsystem.ejectCommand(),
             intakeSubsystem.stowPositionCommand(),
-            //ledSubsystem.flashRedCommand()),
+            //ledSubsystem.flashRedCommand(),
             elevatorSubsystem.stowPositionCommand(),
-            new WaitCommand(0.3),
+            new WaitCommand(0.1),
             helicopterSubsystem.stowPositionCommand()
         );
     }

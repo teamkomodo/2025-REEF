@@ -46,9 +46,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SoftLimitConfig softLimitConfig;
 
     // PID constants
-    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00002, 0.02, 0.0);//0.2, 0.00005, 0.03, 0.0
-    private final double elevatorMaxAccel = 3000;
-    private final double elevatorMaxVelocity = 3000;
+    private final PIDGains elevatorPIDGains = new PIDGains(0.2, 0.00001, 0.07, 0.0);//0.2, 0.00005, 0.03, 0.0
+    private final double elevatorMaxAccel = 2500;
+    private final double elevatorMaxVelocity = 7000;
     private final double elevatorAllowedClosedLoopError = 0.4;
 
     // Sensors

@@ -46,17 +46,17 @@ public class EjectCommand extends DynamicCommand {
             elevatorSubsystem.l3PositionCommand(),
             intakeSubsystem.intakePositionCommand(),
             new WaitCommand(0.25),
-            helicopterSubsystem.l1WaitPositionCommand(),
-            new WaitCommand(0.25),
+            helicopterSubsystem.ejectCoralPositionCommand(),
+            Commands.waitUntil(helicopterSubsystem::isSafeForElevator),
             elevatorSubsystem.l1PositionCommand(),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(-1.0)),
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(-0.8)),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1.0)),
             Commands.waitSeconds(0.3),
-            new ParallelCommandGroup(Commands.runOnce(intakeSubsystem::stopIntake),
+            Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             intakeSubsystem.stowPositionCommand(),
             elevatorSubsystem.stowPositionCommand(),
-            helicopterSubsystem.stowPositionCommand())
+            helicopterSubsystem.stowPositionCommand()
         );
     }
 }

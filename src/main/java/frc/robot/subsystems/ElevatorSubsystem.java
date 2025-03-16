@@ -169,10 +169,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         setElevatorSupposedPosition(elevatorEncoder.getPosition());
     }
 
-    public Command floorAlgaePositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_FLOOR_ALGAE_POSITION));
-    }
-
     public Command lowAlgaePositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_LOW_ALGAE_POSITION));
     }
@@ -204,10 +200,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command preStowPositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_STOW_POSITION));
     }
-    
-    public Command l1PositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L1_POSITION));
-    }
 
     public Command l2PositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L2_POSITION));
@@ -219,10 +211,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command l4PositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_L4_POSITION));
-    }
-
-    public Command prePickupPositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_PICKUP_POSITION));
     }
 
     public Command clearIndexerPositionCommand() {

@@ -48,7 +48,7 @@ public class EjectCommand extends DynamicCommand {
             new WaitCommand(0.25),
             helicopterSubsystem.ejectCoralPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::isSafeForElevator),
-            elevatorSubsystem.l1PositionCommand(),
+            elevatorSubsystem.l2PositionCommand(),
             Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(-0.8)),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1.0)),
             Commands.waitSeconds(0.3),

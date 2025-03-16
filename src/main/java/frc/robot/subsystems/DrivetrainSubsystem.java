@@ -58,21 +58,12 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
-// import com.pathplanner.lib.config.ModuleConfig;
-// import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-// import com.pathplanner.lib.util.FileVersionException;
-
 public class DrivetrainSubsystem implements Subsystem {
-    /*
-     * Robot Coordinate System
-     * See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html#robot-coordinate-system
-     * Forward is x+, Left is y+, counterclockwise is theta+
-     */
 
     // Limelight
     private static boolean useVision = false;
@@ -84,8 +75,6 @@ public class DrivetrainSubsystem implements Subsystem {
     public boolean speedMode = !false;
     private double brakeModeScale = 0;
     public boolean atReef = false;
-
-    public boolean relative = false;
 
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
@@ -113,9 +102,6 @@ public class DrivetrainSubsystem implements Subsystem {
         "rotation",
         Rotation2d.struct
     ).publish();
-
-    // private final StringPublisher alliancePublisher = drivetrainNT.getStringTopic(
-    //     "alliance").publish();
 
     // SysID
     private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
@@ -156,18 +142,8 @@ public class DrivetrainSubsystem implements Subsystem {
         rotationController);
 
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
-
-    //private final RobotConfig robotConfig     
-
-
     private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
     RobotConfig config;
-    // private DriveFeedforwards driveFeedforwards = new DriveFeedforwards(
-    //     null, 
-    //     null, 
-    //     null, 
-    //     null, 
-    //     null);
     private boolean slowMode = false;
     private double rotationOffsetRadians = 0;
 
@@ -502,6 +478,7 @@ public class DrivetrainSubsystem implements Subsystem {
      * @param rotAxis value from -1 to 1 representing the rotation axis of the joystick
      * @return a ChassisSpeeds object representing the speeds to be passed to the drivetrain
      */
+
     public ChassisSpeeds joystickAxesToChassisSpeeds(double xAxis, double yAxis, double rotAxis) {
 
         double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
@@ -518,19 +495,11 @@ public class DrivetrainSubsystem implements Subsystem {
         return new ChassisSpeeds(xVelocity, yVelocity, rotVelocity);
     }
 
-    public Command setFieldRelative(boolean robotFieldRelative) {
-        return Commands.runOnce(() -> relative = robotFieldRelative);
-    }
-
     // Commands
 
     public Command zeroGyroCommand() {
         return Commands.runOnce(this::zeroGyro, this);
     }
-
-    // public Command zeroAutoGyroCommand() {
-    //     return Commands.runOnce(this::zeroAutoGyro, this);
-    // }
 
     public Command enableSpeedModeCommand() {
         return Commands.runOnce(() -> {
@@ -547,8 +516,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void transferBrakeMode() {
         if (speedMode && brakeModeScale < 1) {
-            // Called every 0.01 seconds
-            // When brakeModeScale is at 1 robot is commanding full speed
             brakeModeScale = Math.min(1, brakeModeScale + 0.02);
         }
     }
@@ -566,7 +533,6 @@ public class DrivetrainSubsystem implements Subsystem {
             
             ChassisSpeeds speeds = joystickAxesToChassisSpeeds(x, y, r);
             drive(speeds, true);
-
         }, this);
     }
 
@@ -598,9 +564,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
     
     public Command followPathCommand(String pathName) throws IOException, ParseException{
-
         PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-
         return new FollowPathCommand(
             path, 
             this::getPose, 
@@ -613,7 +577,7 @@ public class DrivetrainSubsystem implements Subsystem {
         ); 
     }
 
-    // XXX: Start of limelight code.
+    // Limelight
     
     private void detectAprilTag(CommandXboxController controller){ // Rumble
         boolean tv = LimelightHelpers.getTV("limelight");
@@ -634,7 +598,6 @@ public class DrivetrainSubsystem implements Subsystem {
             return targetingForwardSpeed;
         }
         return 0;
-
     }
 
     double limelightX(){
@@ -653,8 +616,6 @@ public class DrivetrainSubsystem implements Subsystem {
         double zP = 0.4;
         double targetingZ = NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
         targetingZ *= ALIGN_TURN_CONSTANT;
-        
-        //System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]);
         if(Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
             return -targetingZ;
         }
@@ -665,21 +626,18 @@ public class DrivetrainSubsystem implements Subsystem {
     public double calculateAlignDistance(boolean right) {
         double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
             / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
-
         double branchOffset = limelightDistance
             / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
             + LIMELIGHT_ROBOT_X_OFFSET;
-
         if(right){
             branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
         }
         else {
             branchOffset -= APRILTAG_TO_BRANCH_X_DISTANCE;
         }
-
-        
         return branchOffset;
     }
+
     public double calculateAlignTime(boolean right) {
         double alignDriveTime = Math.pow((Math.abs(calculateAlignDistance(right)) / ROBOT_ALIGNMENT_SPEED * ALIGN_LINEAR_SPEED_FACTOR), ALIGN_EXPONENTIAL_SPEED_FACTOR);
         return alignDriveTime;
@@ -699,41 +657,15 @@ public class DrivetrainSubsystem implements Subsystem {
         }
     }
 
-
-
-
-
-    // public void alignToBranch(boolean right) {
-    //     if(LimelightHelpers.getTV("limelight")) {
-    //         double alignDriveTime = Math.abs(calculateAlignTime(right));
-    //         double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
-    //         timedDriveCommand(0, robotAlignmentSpeed, 0, ALIGNMENT_DRIVE, alignDriveTime);
-    //         //doTheThing(robotAlignmentSpeed, alignDriveTime);
-    //         System.out.println("DO SOMETHING");
-            
-    //     }
-    // }
-
-
-
     public Command goToBranch(boolean right){
         return Commands.runOnce(() -> {
             if(LimelightHelpers.getTV("limelight") && atReef) {
                 double alignDriveTime = Math.abs(calculateAlignTime(right));
                 double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
                 timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
-                //doTheThing(robotAlignmentSpeed, alignDriveTime);
-                System.out.println("DO SOMETHING");
             }      
         }, this);
     }
-
-    // public void doTheThing(double robotAlignmentSpeed, double alignDriveTime){
-    //     new SequentialCommandGroup(
-    //         Commands.runOnce(() -> {timedDriveCommand(0, robotAlignmentSpeed, 0, ALIGNMENT_DRIVE, alignDriveTime);}, this),
-    //         Commands.runOnce(() -> {timedDriveCommand(0.3, 0, 0, ALIGNMENT_DRIVE, 0.3);}, this)
-    //     ).schedule();
-    // }
 
     public void stopAlign () {
         Commands.run(() -> drive(0, 0, 0, ALIGNMENT_DRIVE), this).schedule();
@@ -757,26 +689,13 @@ public class DrivetrainSubsystem implements Subsystem {
         ).schedule();
     }
 
-    // public void visionControlledDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
-    //     new SequentialCommandGroup(
-    //         Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).until(aligned),
-    //         Commands.runOnce(() -> stopMotion())
-    //     ).schedule();
-    // }
-
-    // public Command parallelCommand(){        
-    //     return Commands.run(() -> {
-    //         drive(0, 0, limelightZ(), false);
-    //     }, this).until(() -> (Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) < 0.5));
-    // }
-
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
             if(!atReef)
                 drive(limelightX(), -limelightY(), limelightZ(),  false);
             else
                 stopMotion();
-        }, this); // .while(); 
+        }, this);
     }
 }
 

@@ -95,7 +95,6 @@ public final class Constants {
   public static final double ELEVATOR_WAIT_POSITION = 13.550; // NEW 12.550 old 14.0
   public static final double ELEVATOR_STOW_POSITION = 1.5;
 
-  public static final double ELEVATOR_FLOOR_ALGAE_POSITION = 0.5;
   public static final double ELEVATOR_LOW_ALGAE_POSITION = 16.896;
   public static final double ELEVATOR_HIGH_ALGAE_POSITION = 29;
   public static final double ELEVATOR_GRAB_POSITION = 8.108; // NEW 8.194 old 7.424
@@ -104,7 +103,6 @@ public final class Constants {
   public static final double ELEVATOR_PRE_PICKUP_POSITION = 12.5;
   
   public static final double ELEVATOR_SCORE_ALGAE_POSITION = 29;
-  public static final double ELEVATOR_L1_POSITION = 7.54;
   public static final double ELEVATOR_L2_POSITION = 10.1;
   public static final double ELEVATOR_L3_POSITION = 17.896;
   public static final double ELEVATOR_L4_POSITION = 29.3;
@@ -122,19 +120,16 @@ public final class Constants {
   public static final double HELICOPTER_OFFSET = 0.1171 + 0.16666666667; // - 0.16666666667 after changing encoder
   public static final double HELICOPTER_MIN_POSITION = 0.60;
   public static final double HELICOPTER_MAX_POSITION = 1.24;
+  public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
+  public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
   public static final double HELICOPTER_GRAB_POSITION = 1.105;
   public static final double HELICOPTER_WAIT_POSITION = 1.053;// new 1.062 old 0.80
-  public static final double HELICOPTER_LOW_ALGAE_POSITION = 0.8;
-  public static final double HELICOPTER_HIGH_ALGAE_POSITION = 0.9;
   public static final double HELICOPTER_EJECT_CORAL_POSITION = 0.73;
   
-  public static final double HELICOPTER_FLOOR_ALGAE_POSITION = 0.807;
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;
-  public static final double HELICOPTER_WAIT_FOR_L3_POSITION = 0.688;
-  public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
-  public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
+  public static final double HELICOPTER_WAIT_FOR_L2_L3_POSITION = 0.688;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.98;
   public static final double HELICOPTER_SCORE_ALGAE_POSITION = 0.6; // FIXME: TUNE ME
   public static final double HELICOPTER_L1_POSITION = 0.73;

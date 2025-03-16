@@ -83,7 +83,6 @@ public class HelicopterSubsystem extends SubsystemBase {
             helicopterController = helicopterMotor.getClosedLoopController();
     
             configMotors();
-            startPID();
         }
     
         public void teleopInit() {
@@ -107,26 +106,6 @@ public class HelicopterSubsystem extends SubsystemBase {
                 armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
             }
         }
-    
-        private void startPID() //XXX: Debug only. NOT FOR COMP!
-        {
-            helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
-            configMotors();
-            SmartDashboard.putNumber("P", heliP);
-            SmartDashboard.putNumber("I", heliI);
-            SmartDashboard.putNumber("D", heliD);
-            SmartDashboard.putNumber("CL", helicopterAllowedClosedLoopError);
-        }
-    
-        public void updatePID() {
-            heliP = SmartDashboard.getNumber("P", 0.1);
-            heliI = SmartDashboard.getNumber("I", 0);
-            heliD = SmartDashboard.getNumber("D", 0);
-            helicopterAllowedClosedLoopError = SmartDashboard.getNumber("CL", 0.4 / HELICOPTER_GEAR_RATIO);
-        helicopterMotorConfig.closedLoop.pidf(heliP, heliI, heliP, 0.0);
-        helicopterMotor
-            .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
 
     private void checkSensors() {
         // Empty!
@@ -191,51 +170,21 @@ public class HelicopterSubsystem extends SubsystemBase {
     public Command grabPositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_GRAB_POSITION));
     }
-
-    public Command lowAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
-    }
-
-    public Command highAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
-    }
     
     public Command ejectCoralPositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_EJECT_CORAL_POSITION));
-    }
-
-    public Command whacklowAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION));
-    }
-
-    public Command whackhighAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION));
-    }
-
-    public Command floorAlgaePositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(HELICOPTER_FLOOR_ALGAE_POSITION));
     }
 
     public Command scoreAlgaePositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_SCORE_ALGAE_POSITION));
     }
     
-    public Command removeAlgaePositionCommand() {
-        return Commands.runOnce(() -> {
-            if (positionWaitingOn == 3) {
-                setHelicopterPosition(HELICOPTER_LOW_ALGAE_POSITION);
-            } else if (positionWaitingOn == 4) {
-                setHelicopterPosition(HELICOPTER_HIGH_ALGAE_POSITION);
-            }
-        });
-    }
-
     public void waitForL4Position() {
         setHelicopterPosition(HELICOPTER_WAIT_FOR_L4_POSITION);
     }
 
     public void waitForL3Position() {
-        setHelicopterPosition(HELICOPTER_WAIT_FOR_L3_POSITION);
+        setHelicopterPosition(HELICOPTER_WAIT_FOR_L2_L3_POSITION);
     }
 
     public Command safeElevatorPositionCommand() {

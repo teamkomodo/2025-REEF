@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -66,11 +67,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class DrivetrainSubsystem implements Subsystem {
 
     // Limelight
-    private static boolean useVision = false;
+    // private static boolean useVision = false;
+    private static String ll = "left-limelight";
+    private static String rl = "right-limelight";
 
-    private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
-    private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
-    private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
+
+    private final NetworkTable leftLimelightNT = NetworkTableInstance.getDefault().getTable(ll);
+    private final NetworkTable rightLimelightNT = NetworkTableInstance.getDefault().getTable(rl);
+
+    // private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
+    // private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
     public boolean speedMode = !false;
     private double brakeModeScale = 0;
@@ -229,10 +235,10 @@ public class DrivetrainSubsystem implements Subsystem {
         //updates pose with rotation and swerve positions
         poseEstimator.update(getRotation(), getSwervePositions());
 
-        if(useVision){
-            visionPosePeriodic();
-            detectAprilTag(driverController);
-        }
+        // if(useVision){
+        //     visionPosePeriodic();
+        //     detectAprilTag(driverController);
+        // }
 
         updateTelemetry();
 
@@ -298,22 +304,22 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     // tracks position with vision
-    private void visionPosePeriodic(){
+    // private void visionPosePeriodic(){
 
-        // Return if the limelight doesn't see a target
-        if(validTargetSubscriber.get() != 1)
-            return;
+    //     // Return if the limelight doesn't see a target
+    //     if(validTargetSubscriber.get() != 1)
+    //         return;
         
-        double[] botPose = botPoseBlueSubscriber.get();
-        if(botPose.length < 7)
-            return;
+    //     double[] botPose = botPoseBlueSubscriber.get();
+    //     if(botPose.length < 7)
+    //         return;
         
-        // Convert double[] from NT to Pose2D
-        Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-        double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
+    //     // Convert double[] from NT to Pose2D
+    //     Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
+    //     double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
 
-        poseEstimator.addVisionMeasurement(visionPose, measurementTime);
-    }
+    //     poseEstimator.addVisionMeasurement(visionPose, measurementTime);
+    // }
 
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);
@@ -578,125 +584,160 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     // Limelight
-    
-    private void detectAprilTag(CommandXboxController controller){ // Rumble
-        boolean tv = LimelightHelpers.getTV("limelight");
-
-        if(tv){
-            controller.setRumble(RumbleType.kRightRumble, 1);
-        } else {
-            controller.setRumble(RumbleType.kRightRumble, 0);
-        }
-    }
-
-    double limelightY(){
-        double yP = .04;
-        double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * yP;
-        targetingForwardSpeed *= -3;
-        
-        if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.5){
-            return targetingForwardSpeed;
-        }
-        return 0;
-    }
-
-    double limelightX(){
-        double xP = 0.014;
-        double targetingForwardSpeed = LimelightHelpers.getTX("limelight") * xP;
-        targetingForwardSpeed *= 1;
-        targetingForwardSpeed *= -3.5;
-        
-        if(Math.abs(LimelightHelpers.getTX("limelight")) > 0.5){
-            return targetingForwardSpeed;
-        }
-        return 0;
-    }
-
-    double limelightZ(){
-        double zP = 0.4;
-        double targetingZ = NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
-        targetingZ *= ALIGN_TURN_CONSTANT;
-        if(Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
-            return -targetingZ;
-        }
-        return 0;
-        
-    }
-
-    public double calculateAlignDistance(boolean right) {
-        double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
-            / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
-        double branchOffset = limelightDistance
-            / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
-            + LIMELIGHT_ROBOT_X_OFFSET;
-        if(right){
-            branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
-        }
-        else {
-            branchOffset -= APRILTAG_TO_BRANCH_X_DISTANCE;
-        }
-        return branchOffset;
-    }
-
-    public double calculateAlignTime(boolean right) {
-        double alignDriveTime = Math.pow((Math.abs(calculateAlignDistance(right)) / ROBOT_ALIGNMENT_SPEED * ALIGN_LINEAR_SPEED_FACTOR), ALIGN_EXPONENTIAL_SPEED_FACTOR);
-        return alignDriveTime;
-    }
-
-    public double calculateAlignSpeedDirection(boolean right) {
-        if(right) {
-            if(calculateAlignDistance(true) < 0)
-                return ROBOT_ALIGNMENT_SPEED;
-            else
-                return -ROBOT_ALIGNMENT_SPEED;
-        } else {
-            if(calculateAlignDistance(false) < 0)
-                return ROBOT_ALIGNMENT_SPEED;
-            else
-                return -ROBOT_ALIGNMENT_SPEED;
-        }
-    }
-
-    public Command goToBranch(boolean right){
-        return Commands.runOnce(() -> {
-            if(LimelightHelpers.getTV("limelight") && atReef) {
-                double alignDriveTime = Math.abs(calculateAlignTime(right));
-                double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
-                timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
-            }      
-        }, this);
-    }
-
-    public void stopAlign () {
-        Commands.run(() -> drive(0, 0, 0, ALIGNMENT_DRIVE), this).schedule();
-    }
-
-    public Command limelightForwardCommand(){
-        return Commands.run(() -> { 
-           if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.01){
-                drive(limelightY(), 0, 0, false);
-  
-            } else {
-                timedDriveCommand(1, 0, 0, false,  0.2);
-            }
-        }, this);  
-    }
-
-    public void timedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double driveTime) {
-        new SequentialCommandGroup(
-            Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).withTimeout(driveTime),
-            Commands.runOnce(() -> stopMotion())
-        ).schedule();
-    }
-
-    public Command limelightAlignCommand(){
+    public Command limelightAlignCommand(boolean right){
         return Commands.run(() -> {
             if(!atReef)
-                drive(limelightX(), -limelightY(), limelightZ(),  false);
+                drive(limelightX(right), -limelightY(right), limelightZ(right),  false);
             else
                 stopMotion();
         }, this);
     }
+    
+    private void detectAprilTag(){
+        boolean tv_L = LimelightHelpers.getTV(ll);
+        boolean tv_R = LimelightHelpers.getTV(rl);
+
+        if(tv_L && tv_R)
+        {
+            //Vision on both left and right cameras
+        }
+        else if (tv_L)
+        {
+            //Vision only on left camera
+        }
+        else if(tv_R)
+        {
+            //Vision only on right
+        }
+    }
+
+    double limelightY(boolean right){
+        double yP = .04;
+        if(!right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTY(ll) * yP;
+            targetingForwardSpeed *= -3;
+            if(Math.abs(LimelightHelpers.getTY(ll)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        if(right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTY(rl) * yP;
+            targetingForwardSpeed *= -3;
+            if(Math.abs(LimelightHelpers.getTY(rl)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        return 0;        
+    }
+
+    double limelightX(boolean right){
+        double xP = 0.014;
+        if(!right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTX(ll) * xP;
+            targetingForwardSpeed *= 1;
+            targetingForwardSpeed *= -3.5;
+            if(Math.abs(LimelightHelpers.getTX(ll)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        if(right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTX(rl) * xP;
+            targetingForwardSpeed *= 1;
+            targetingForwardSpeed *= -3.5;
+            if(Math.abs(LimelightHelpers.getTX(rl)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        return 0;
+    }
+
+    double limelightZ(boolean right){
+        double zP = 0.4;
+        if(!right)
+        {
+            double targetingZ = NetworkTableInstance.getDefault().getTable(ll).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+            targetingZ *= ALIGN_TURN_CONSTANT;
+            if(Math.abs(NetworkTableInstance.getDefault().getTable(ll).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+                return -targetingZ;
+            }
+        }
+        if(right)
+        {
+            double targetingZ = NetworkTableInstance.getDefault().getTable(rl).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+            targetingZ *= ALIGN_TURN_CONSTANT;
+            if(Math.abs(NetworkTableInstance.getDefault().getTable(rl).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+                return -targetingZ;
+            }
+        }
+        return 0;
+    }
+
+    // public double calculateAlignDistance(boolean right) {
+    //     double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
+    //         / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
+    //     double branchOffset = limelightDistance
+    //         / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
+    //         + LIMELIGHT_ROBOT_X_OFFSET;
+    //     if(right){
+    //         branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
+    //     }
+    //     else {
+    //         branchOffset -= APRILTAG_TO_BRANCH_X_DISTANCE;
+    //     }
+    //     return branchOffset;
+    // }
+
+    // public double calculateAlignTime(boolean right) {
+    //     double alignDriveTime = Math.pow((Math.abs(calculateAlignDistance(right)) / ROBOT_ALIGNMENT_SPEED * ALIGN_LINEAR_SPEED_FACTOR), ALIGN_EXPONENTIAL_SPEED_FACTOR);
+    //     return alignDriveTime;
+    // }
+
+    // public double calculateAlignSpeedDirection(boolean right) {
+    //     if(right) {
+    //         if(calculateAlignDistance(true) < 0)
+    //             return ROBOT_ALIGNMENT_SPEED;
+    //         else
+    //             return -ROBOT_ALIGNMENT_SPEED;
+    //     } else {
+    //         if(calculateAlignDistance(false) < 0)
+    //             return ROBOT_ALIGNMENT_SPEED;
+    //         else
+    //             return -ROBOT_ALIGNMENT_SPEED;
+    //     }
+    // }
+
+    // public Command goToBranch(boolean right){
+    //     return Commands.runOnce(() -> {
+    //         if(LimelightHelpers.getTV("limelight") && atReef) {
+    //             double alignDriveTime = Math.abs(calculateAlignTime(right));
+    //             double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
+    //             timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
+    //         }      
+    //     }, this);
+    // }
+
+    // public Command limelightForwardCommand(boolean right){
+    //     return Commands.run(() -> { 
+    //        if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.01){
+    //             drive(limelightY(right), 0, 0, false);
+  
+    //         } else {
+    //             timedDriveCommand(1, 0, 0, false,  0.2);
+    //         }
+    //     }, this);  
+    // }
+
+    // public void timedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double driveTime) {
+    //     new SequentialCommandGroup(
+    //         Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).withTimeout(driveTime),
+    //         Commands.runOnce(() -> stopMotion())
+    //     ).schedule();
+    // }
+
 }
 
 

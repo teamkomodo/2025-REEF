@@ -120,7 +120,7 @@ public class RobotContainer {
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
-    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand(true)); //FIXME: Handle left and right camera input
     driverRT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     
     // deadband and curves are applied in command

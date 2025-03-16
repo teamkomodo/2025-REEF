@@ -14,26 +14,17 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Robot;
 import frc.robot.util.FFGains;
 import frc.robot.util.NeoSwerveModule;
 import frc.robot.util.PIDGains;
@@ -43,16 +34,10 @@ import frc.robot.util.Util;
 import static frc.robot.Constants.*;
 import frc.robot.LimelightHelpers;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.function.BiConsumer;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import org.json.simple.parser.ParseException;
-import java.io.File;
-import java.io.IOException;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -66,26 +51,24 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class DrivetrainSubsystem implements Subsystem {
 
-    // Limelight
-    // private static boolean useVision = false;
-    private static String ll = "left-limelight";
-    private static String rl = "right-limelight";
+    private static String leftLimelight = "left-limelight";
+    private static String rightLimelight = "right-limelight";
 
 
-    private final NetworkTable leftLimelightNT = NetworkTableInstance.getDefault().getTable(ll);
-    private final NetworkTable rightLimelightNT = NetworkTableInstance.getDefault().getTable(rl);
+    private final NetworkTable leftLimelightNT = NetworkTableInstance.getDefault().getTable(leftLimelight);
+    private final NetworkTable rightLimelightNT = NetworkTableInstance.getDefault().getTable(rightLimelight);
 
     // private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     // private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
-    public boolean speedMode = !false;
+    public boolean speedMode = true;
     private double brakeModeScale = 0;
-    public boolean atReef = false;
+
+    public boolean atRightBranch = false;
+    public boolean atLeftBranch = false;
 
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
-    
-    public final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);
 
     private final StructArrayPublisher<SwerveModuleState> measuredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
         "measuredSwerveStates",
@@ -235,23 +218,14 @@ public class DrivetrainSubsystem implements Subsystem {
         //updates pose with rotation and swerve positions
         poseEstimator.update(getRotation(), getSwervePositions());
 
-        // if(useVision){
-        //     visionPosePeriodic();
-        //     detectAprilTag(driverController);
-        // }
-
         updateTelemetry();
-
         transferBrakeMode();
+        updateReefDetection();
 
         frontLeft.periodic();
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
-
-        atReef = false;
-        if(LimelightHelpers.getTA("limelight") > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX("limelight")) < 1)
-            atReef = true;
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
@@ -303,24 +277,6 @@ public class DrivetrainSubsystem implements Subsystem {
         robotPosePublisher.set(getPose());
     }
 
-    // tracks position with vision
-    // private void visionPosePeriodic(){
-
-    //     // Return if the limelight doesn't see a target
-    //     if(validTargetSubscriber.get() != 1)
-    //         return;
-        
-    //     double[] botPose = botPoseBlueSubscriber.get();
-    //     if(botPose.length < 7)
-    //         return;
-        
-    //     // Convert double[] from NT to Pose2D
-    //     Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-    //     double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
-
-    //     poseEstimator.addVisionMeasurement(visionPose, measurementTime);
-    // }
-
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);
         SwerveModuleState[] moduleStates = 
@@ -344,36 +300,34 @@ public class DrivetrainSubsystem implements Subsystem {
         drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative);
     }
 
-    private long lastTime = 0;
+    // private void desaturateChassisSpeedsAcceleration(ChassisSpeeds speeds) {
+    //     long currentTime = RobotController.getFPGATime();
+    //     double dtSeconds = (currentTime - lastTime) / 1e6;
+    //     lastTime = currentTime;
 
-    private void desaturateChassisSpeedsAcceleration(ChassisSpeeds speeds) {
-        long currentTime = RobotController.getFPGATime();
-        double dtSeconds = (currentTime - lastTime) / 1e6;
-        lastTime = currentTime;
+    //     double accelX = (speeds.vxMetersPerSecond - lastCommandedChassisSpeeds.vxMetersPerSecond) / dtSeconds;
+    //     double accelY = (speeds.vyMetersPerSecond - lastCommandedChassisSpeeds.vyMetersPerSecond) / dtSeconds;
+    //     double linearAccelMag = Math.sqrt(accelX * accelX + accelY * accelY);
 
-        double accelX = (speeds.vxMetersPerSecond - lastCommandedChassisSpeeds.vxMetersPerSecond) / dtSeconds;
-        double accelY = (speeds.vyMetersPerSecond - lastCommandedChassisSpeeds.vyMetersPerSecond) / dtSeconds;
-        double linearAccelMag = Math.sqrt(accelX * accelX + accelY * accelY);
+    //     // No need to limit decceleration ie. return if acceleration is in the opposite direction as current travel
+    //     if(accelX * lastCommandedChassisSpeeds.vxMetersPerSecond < 0 && accelY * lastCommandedChassisSpeeds.vyMetersPerSecond < 0)
+    //         return;
 
-        // No need to limit decceleration ie. return if acceleration is in the opposite direction as current travel
-        if(accelX * lastCommandedChassisSpeeds.vxMetersPerSecond < 0 && accelY * lastCommandedChassisSpeeds.vyMetersPerSecond < 0)
-            return;
+    //     if(linearAccelMag > LINEAR_ACCEL_CONSTRAINT) {
+    //         accelX *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
+    //         accelY *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
 
-        if(linearAccelMag > LINEAR_ACCEL_CONSTRAINT) {
-            accelX *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
-            accelY *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
+    //         speeds.vxMetersPerSecond = lastCommandedChassisSpeeds.vxMetersPerSecond + (accelX * dtSeconds);
+    //         speeds.vyMetersPerSecond = lastCommandedChassisSpeeds.vyMetersPerSecond + (accelY * dtSeconds);
+    //     }
 
-            speeds.vxMetersPerSecond = lastCommandedChassisSpeeds.vxMetersPerSecond + (accelX * dtSeconds);
-            speeds.vyMetersPerSecond = lastCommandedChassisSpeeds.vyMetersPerSecond + (accelY * dtSeconds);
-        }
+    //     double angularAccel = (speeds.omegaRadiansPerSecond - lastCommandedChassisSpeeds.omegaRadiansPerSecond) / dtSeconds;
 
-        double angularAccel = (speeds.omegaRadiansPerSecond - lastCommandedChassisSpeeds.omegaRadiansPerSecond) / dtSeconds;
-
-        if(Math.abs(angularAccel) > ANGULAR_ACCEL_CONSTRAINT) {
-            angularAccel = Math.signum(angularAccel) * ANGULAR_ACCEL_CONSTRAINT;
-            speeds.omegaRadiansPerSecond = lastCommandedChassisSpeeds.omegaRadiansPerSecond + (angularAccel * dtSeconds);
-        }        
-    }
+    //     if(Math.abs(angularAccel) > ANGULAR_ACCEL_CONSTRAINT) {
+    //         angularAccel = Math.signum(angularAccel) * ANGULAR_ACCEL_CONSTRAINT;
+    //         speeds.omegaRadiansPerSecond = lastCommandedChassisSpeeds.omegaRadiansPerSecond + (angularAccel * dtSeconds);
+    //     }        
+    // }
 
     public void stopMotion() {
         drive(0, 0, 0, false);
@@ -586,7 +540,13 @@ public class DrivetrainSubsystem implements Subsystem {
     // Limelight
     public Command limelightAlignCommand(boolean right){
         return Commands.run(() -> {
-            if(!atReef)
+            boolean drive = false;
+            if(right && !atRightBranch)
+                drive = true;
+            else if(!right && !atLeftBranch)
+                drive = true;
+
+            if(drive)
                 drive(limelightX(right), -limelightY(right), limelightZ(right),  false);
             else
                 stopMotion();
@@ -594,8 +554,8 @@ public class DrivetrainSubsystem implements Subsystem {
     }
     
     private void detectAprilTag(){
-        boolean tv_L = LimelightHelpers.getTV(ll);
-        boolean tv_R = LimelightHelpers.getTV(rl);
+        boolean tv_L = LimelightHelpers.getTV(leftLimelight);
+        boolean tv_R = LimelightHelpers.getTV(rightLimelight);
 
         if(tv_L && tv_R)
         {
@@ -611,133 +571,87 @@ public class DrivetrainSubsystem implements Subsystem {
         }
     }
 
-    double limelightY(boolean right){
-        double yP = .04;
-        if(!right)
+    double limelightX(boolean right){
+        //Left limelight align to right branch and right limelight aligns to left branch
+        double xP = 0.014;
+        if(right)
         {
-            double targetingForwardSpeed = LimelightHelpers.getTY(ll) * yP;
-            targetingForwardSpeed *= -3;
-            if(Math.abs(LimelightHelpers.getTY(ll)) > 0.5){
+            double targetingForwardSpeed = LimelightHelpers.getTX(leftLimelight) * xP;
+            targetingForwardSpeed *= 1;
+            targetingForwardSpeed *= -3.5;
+            if(Math.abs(LimelightHelpers.getTX(leftLimelight)) > 0.5){
                 return targetingForwardSpeed;
             }
         }
+        if(!right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTX(rightLimelight) * xP;
+            targetingForwardSpeed *= 1;
+            targetingForwardSpeed *= -3.5;
+            if(Math.abs(LimelightHelpers.getTX(rightLimelight)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        return 0;
+    }
+
+    double limelightY(boolean right){
+        //Left limelight align to right branch and right limelight aligns to left branch
+        double yP = .04;
         if(right)
         {
-            double targetingForwardSpeed = LimelightHelpers.getTY(rl) * yP;
+            double targetingForwardSpeed = LimelightHelpers.getTY(leftLimelight) * yP;
             targetingForwardSpeed *= -3;
-            if(Math.abs(LimelightHelpers.getTY(rl)) > 0.5){
+            if(Math.abs(LimelightHelpers.getTY(leftLimelight)) > 0.5){
+                return targetingForwardSpeed;
+            }
+        }
+        if(!right)
+        {
+            double targetingForwardSpeed = LimelightHelpers.getTY(rightLimelight) * yP;
+            targetingForwardSpeed *= -3;
+            if(Math.abs(LimelightHelpers.getTY(rightLimelight)) > 0.5){
                 return targetingForwardSpeed;
             }
         }
         return 0;        
     }
 
-    double limelightX(boolean right){
-        double xP = 0.014;
-        if(!right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTX(ll) * xP;
-            targetingForwardSpeed *= 1;
-            targetingForwardSpeed *= -3.5;
-            if(Math.abs(LimelightHelpers.getTX(ll)) > 0.5){
-                return targetingForwardSpeed;
-            }
-        }
-        if(right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTX(rl) * xP;
-            targetingForwardSpeed *= 1;
-            targetingForwardSpeed *= -3.5;
-            if(Math.abs(LimelightHelpers.getTX(rl)) > 0.5){
-                return targetingForwardSpeed;
-            }
-        }
-        return 0;
-    }
-
     double limelightZ(boolean right){
+        //Left limelight align to right branch and right limelight aligns to left branch
         double zP = 0.4;
-        if(!right)
+        if(right)
         {
-            double targetingZ = NetworkTableInstance.getDefault().getTable(ll).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+            double targetingZ = NetworkTableInstance.getDefault().getTable(leftLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
             targetingZ *= ALIGN_TURN_CONSTANT;
-            if(Math.abs(NetworkTableInstance.getDefault().getTable(ll).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+            if(Math.abs(NetworkTableInstance.getDefault().getTable(leftLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
                 return -targetingZ;
             }
         }
-        if(right)
+        if(!right)
         {
-            double targetingZ = NetworkTableInstance.getDefault().getTable(rl).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+            double targetingZ = NetworkTableInstance.getDefault().getTable(rightLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
             targetingZ *= ALIGN_TURN_CONSTANT;
-            if(Math.abs(NetworkTableInstance.getDefault().getTable(rl).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+            if(Math.abs(NetworkTableInstance.getDefault().getTable(rightLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
                 return -targetingZ;
             }
         }
         return 0;
     }
 
-    // public double calculateAlignDistance(boolean right) {
-    //     double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
-    //         / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
-    //     double branchOffset = limelightDistance
-    //         / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
-    //         + LIMELIGHT_ROBOT_X_OFFSET;
-    //     if(right){
-    //         branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
-    //     }
-    //     else {
-    //         branchOffset -= APRILTAG_TO_BRANCH_X_DISTANCE;
-    //     }
-    //     return branchOffset;
-    // }
+    public void updateReefDetection() {
+        //Left limelight align to right branch and right limelight aligns to left branch
 
-    // public double calculateAlignTime(boolean right) {
-    //     double alignDriveTime = Math.pow((Math.abs(calculateAlignDistance(right)) / ROBOT_ALIGNMENT_SPEED * ALIGN_LINEAR_SPEED_FACTOR), ALIGN_EXPONENTIAL_SPEED_FACTOR);
-    //     return alignDriveTime;
-    // }
+        if(LimelightHelpers.getTA(leftLimelight) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(leftLimelight)) < LIMELIGHT_REEF_TX)
+            atRightBranch = true;
+        else
+            atRightBranch = false;
 
-    // public double calculateAlignSpeedDirection(boolean right) {
-    //     if(right) {
-    //         if(calculateAlignDistance(true) < 0)
-    //             return ROBOT_ALIGNMENT_SPEED;
-    //         else
-    //             return -ROBOT_ALIGNMENT_SPEED;
-    //     } else {
-    //         if(calculateAlignDistance(false) < 0)
-    //             return ROBOT_ALIGNMENT_SPEED;
-    //         else
-    //             return -ROBOT_ALIGNMENT_SPEED;
-    //     }
-    // }
-
-    // public Command goToBranch(boolean right){
-    //     return Commands.runOnce(() -> {
-    //         if(LimelightHelpers.getTV("limelight") && atReef) {
-    //             double alignDriveTime = Math.abs(calculateAlignTime(right));
-    //             double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
-    //             timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
-    //         }      
-    //     }, this);
-    // }
-
-    // public Command limelightForwardCommand(boolean right){
-    //     return Commands.run(() -> { 
-    //        if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.01){
-    //             drive(limelightY(right), 0, 0, false);
-  
-    //         } else {
-    //             timedDriveCommand(1, 0, 0, false,  0.2);
-    //         }
-    //     }, this);  
-    // }
-
-    // public void timedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double driveTime) {
-    //     new SequentialCommandGroup(
-    //         Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).withTimeout(driveTime),
-    //         Commands.runOnce(() -> stopMotion())
-    //     ).schedule();
-    // }
-
+        if(LimelightHelpers.getTA(rightLimelight) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(rightLimelight)) < LIMELIGHT_REEF_TX)
+            atRightBranch = true;
+        else
+            atRightBranch = false;
+    }
 }
 
 

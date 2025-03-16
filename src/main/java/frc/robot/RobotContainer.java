@@ -118,10 +118,11 @@ public class RobotContainer {
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
-    driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
-    driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
-    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand(true)); //FIXME: Handle left and right camera input
-    driverRT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    driverRT.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
+    driverRT.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+    driverLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand(true));
+    driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand(false));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(

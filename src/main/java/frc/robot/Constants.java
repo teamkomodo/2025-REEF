@@ -180,11 +180,8 @@ public final class Constants {
   public static final PIDConstants STEER_PID = new PIDConstants(1, 0, 0.0002);
 
   public static PPHolonomicDriveController HOLONOMIC_PATH_FOLLOWER_CONFIG = new PPHolonomicDriveController(
-      DRIVE_PID, // Translation Constants
-      STEER_PID // Steering Constants
-      // ,
-      // Math.sqrt(DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) / 2
-      );
+      DRIVE_PID,
+      STEER_PID);
   public static final int LED_CHANNEL = 0;
 
   // FRC Field
@@ -192,20 +189,10 @@ public final class Constants {
   public static final double FIELD_LENGTH = 16.54;
   public static final double APRILTAG_TO_BRANCH_X_DISTANCE = 0.1651; // horizontal distance from april tag to branch in meters
 
-  // Vision
-  public static final double LIMELIGHT_TO_APRILTAG_Y_DISTANCE = 0.6604; //UPDATE BEFORE SCRIMMAGE
-  public static final double LIMELIGHT_ROBOT_X_OFFSET = 0; //UPDATE BEFORE SCRIMMAGE
-  public static final double ROBOT_ALIGNMENT_SPEED = 1.0; 
-  public static final double ALIGN_LINEAR_SPEED_FACTOR = 1.1;
-  public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
   public static final double ALIGN_TURN_CONSTANT = 0.24;
+  public static final double LIMELIGHT_REEF_TA = 16.0;
+  public static final double LIMELIGHT_REEF_TX = 1;
 
-  public static final double APRILTAG_HEIGHT = 0.5715;
-  public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254; //UPDATE BEFORE SCRIMMAGE
-  public static final double LIMELIGHT_HEIGHT = 0.1778; //UPDATE BEFORE SCRIMMAGE
-  public static final double LIMELIGHT_ANGLE_OFFSET = 28.3; //UPDATE BEFORE SCRIMMAGE (degrees)
-  public static final double TY_ALIGN_THRESHOLD = -3; 
-  public static final double LIMELIGHT_REEF_TA = 16.0; //FIXME: TUNE ME
   public static final BooleanSupplier ON_RED_ALLIANCE = () -> {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {

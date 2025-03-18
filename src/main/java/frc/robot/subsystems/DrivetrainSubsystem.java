@@ -51,12 +51,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class DrivetrainSubsystem implements Subsystem {
 
-    private static String leftLimelight = "left-limelight";
-    private static String rightLimelight = "right-limelight";
 
-
-    private final NetworkTable leftLimelightNT = NetworkTableInstance.getDefault().getTable(leftLimelight);
-    private final NetworkTable rightLimelightNT = NetworkTableInstance.getDefault().getTable(rightLimelight);
+    private final NetworkTable leftLimelightNT = NetworkTableInstance.getDefault().getTable(LEFT_LIMELIGHT_ID);
+    private final NetworkTable rightLimelightNT = NetworkTableInstance.getDefault().getTable(RIGHT_LIMELIGHT_ID);
 
     // private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     // private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
@@ -538,24 +535,24 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     // Limelight
-    public Command limelightAlignCommand(boolean right){
+    public Command limelightAlignCommand(String limelightID){
         return Commands.run(() -> {
             boolean drive = false;
-            if(right && !atRightBranch)
+            if(limelightID.equals(RIGHT_LIMELIGHT_ID) && !atRightBranch)
                 drive = true;
-            else if(!right && !atLeftBranch)
+            else if(limelightID.equals(LEFT_LIMELIGHT_ID) && !atLeftBranch)
                 drive = true;
 
             if(drive)
-                drive(limelightX(right), -limelightY(right), limelightZ(right),  false);
+                drive(limelightX(limelightID), -limelightY(limelightID), limelightZ(limelightID),  false);
             else
                 stopMotion();
         }, this);
     }
     
     private void detectAprilTag(){
-        boolean tv_L = LimelightHelpers.getTV(leftLimelight);
-        boolean tv_R = LimelightHelpers.getTV(rightLimelight);
+        boolean tv_L = LimelightHelpers.getTV(LEFT_LIMELIGHT_ID);
+        boolean tv_R = LimelightHelpers.getTV(RIGHT_LIMELIGHT_ID);
 
         if(tv_L && tv_R)
         {
@@ -571,70 +568,36 @@ public class DrivetrainSubsystem implements Subsystem {
         }
     }
 
-    double limelightX(boolean right){
+    double limelightX(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
         double xP = 0.014;
-        if(right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTX(leftLimelight) * xP;
-            targetingForwardSpeed *= 1;
-            targetingForwardSpeed *= -3.5;
-            if(Math.abs(LimelightHelpers.getTX(leftLimelight)) > 0.5){
-                return targetingForwardSpeed;
-            }
-        }
-        if(!right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTX(rightLimelight) * xP;
-            targetingForwardSpeed *= 1;
-            targetingForwardSpeed *= -3.5;
-            if(Math.abs(LimelightHelpers.getTX(rightLimelight)) > 0.5){
-                return targetingForwardSpeed;
-            }
+        double targetingForwardSpeed = LimelightHelpers.getTX(limelightID) * xP;
+        targetingForwardSpeed *= 1;
+        targetingForwardSpeed *= -3.5;
+        if(Math.abs(LimelightHelpers.getTX(limelightID)) > 0.5){
+            return targetingForwardSpeed;
         }
         return 0;
     }
 
-    double limelightY(boolean right){
+    double limelightY(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
         double yP = .04;
-        if(right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTY(leftLimelight) * yP;
-            targetingForwardSpeed *= -3;
-            if(Math.abs(LimelightHelpers.getTY(leftLimelight)) > 0.5){
-                return targetingForwardSpeed;
-            }
-        }
-        if(!right)
-        {
-            double targetingForwardSpeed = LimelightHelpers.getTY(rightLimelight) * yP;
-            targetingForwardSpeed *= -3;
-            if(Math.abs(LimelightHelpers.getTY(rightLimelight)) > 0.5){
-                return targetingForwardSpeed;
-            }
+        double targetingForwardSpeed = LimelightHelpers.getTY(limelightID) * yP;
+        targetingForwardSpeed *= -3;
+        if(Math.abs(LimelightHelpers.getTY(limelightID)) > 0.5){
+            return targetingForwardSpeed;
         }
         return 0;        
     }
 
-    double limelightZ(boolean right){
+    double limelightZ(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
         double zP = 0.4;
-        if(right)
-        {
-            double targetingZ = NetworkTableInstance.getDefault().getTable(leftLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
-            targetingZ *= ALIGN_TURN_CONSTANT;
-            if(Math.abs(NetworkTableInstance.getDefault().getTable(leftLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
-                return -targetingZ;
-            }
-        }
-        if(!right)
-        {
-            double targetingZ = NetworkTableInstance.getDefault().getTable(rightLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
-            targetingZ *= ALIGN_TURN_CONSTANT;
-            if(Math.abs(NetworkTableInstance.getDefault().getTable(rightLimelight).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
-                return -targetingZ;
-            }
+        double targetingZ = NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+        targetingZ *= ALIGN_TURN_CONSTANT;
+        if(Math.abs(NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+            return -targetingZ;
         }
         return 0;
     }
@@ -642,12 +605,12 @@ public class DrivetrainSubsystem implements Subsystem {
     public void updateReefDetection() {
         //Left limelight align to right branch and right limelight aligns to left branch
 
-        if(LimelightHelpers.getTA(leftLimelight) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(leftLimelight)) < LIMELIGHT_REEF_TX)
+        if(LimelightHelpers.getTA(LEFT_LIMELIGHT_ID) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(LEFT_LIMELIGHT_ID)) < LIMELIGHT_REEF_TX)
             atRightBranch = true;
         else
             atRightBranch = false;
 
-        if(LimelightHelpers.getTA(rightLimelight) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(rightLimelight)) < LIMELIGHT_REEF_TX)
+        if(LimelightHelpers.getTA(RIGHT_LIMELIGHT_ID) > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX(RIGHT_LIMELIGHT_ID)) < LIMELIGHT_REEF_TX)
             atRightBranch = true;
         else
             atRightBranch = false;

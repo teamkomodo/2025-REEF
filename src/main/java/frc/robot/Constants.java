@@ -165,8 +165,6 @@ public final class Constants {
   public static final boolean ALIGNMENT_DRIVE = false;
   public static final int FRONT_LEFT_STEER_ENCODER_ID = 10;
 
-  public static final double LIMELIGHT_X_OFFSET = 0;
-
   public static final double MAX_MODULE_VELOCITY = 4.058; // physical maximum attainable speed of swerve modules
   public static final double MAX_MODULE_ACCEL = 21; // physical maximum attainable accel of swerve modules
 
@@ -187,11 +185,15 @@ public final class Constants {
   // FRC Field
   public static final double FIELD_WIDTH = 8.21; // approximation: Field Length is 26ft. 11 1/8 in wide
   public static final double FIELD_LENGTH = 16.54;
+  
+  //Limelight
+  public static final double LIMELIGHT_X_OFFSET = 0;
   public static final double APRILTAG_TO_BRANCH_X_DISTANCE = 0.1651; // horizontal distance from april tag to branch in meters
-
   public static final double ALIGN_TURN_CONSTANT = 0.24;
   public static final double LIMELIGHT_REEF_TA = 16.0;
   public static final double LIMELIGHT_REEF_TX = 1;
+  public static final String LEFT_LIMELIGHT_ID = "left-limelight";
+  public static final String RIGHT_LIMELIGHT_ID = "right-limelight";
 
   public static final BooleanSupplier ON_RED_ALLIANCE = () -> {
     Optional<Alliance> alliance = DriverStation.getAlliance();

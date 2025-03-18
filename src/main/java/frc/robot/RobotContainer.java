@@ -22,7 +22,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 
 import static frc.robot.Constants.DRIVER_XBOX_PORT;
+import static frc.robot.Constants.LEFT_LIMELIGHT_ID;
 import static frc.robot.Constants.OPERATOR_XBOX_PORT;
+import static frc.robot.Constants.RIGHT_LIMELIGHT_ID;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -121,8 +123,8 @@ public class RobotContainer {
     driverRT.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverRT.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
     driverLT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
-    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand(true));
-    driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand(false));
+    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand(LEFT_LIMELIGHT_ID));
+    driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand(RIGHT_LIMELIGHT_ID));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(

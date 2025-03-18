@@ -193,8 +193,8 @@ public final class Constants {
   public static final double LIMELIGHT_REEF_TX = 1;
 
   public static final double LIMELIGHT_OFFSET_THRESHOLD = 0.5;
-  public static final String LEFT_LIMELIGHT_ID = "left-limelight";
-  public static final String RIGHT_LIMELIGHT_ID = "right-limelight";
+  public static final String LEFT_LIMELIGHT_ID = "limelight-left";
+  public static final String RIGHT_LIMELIGHT_ID = "limelight-right";
 
   public static final BooleanSupplier ON_RED_ALLIANCE = () -> {
     Optional<Alliance> alliance = DriverStation.getAlliance();

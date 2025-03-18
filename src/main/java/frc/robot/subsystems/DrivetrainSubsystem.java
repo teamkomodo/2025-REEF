@@ -570,11 +570,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     double limelightX(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
-        double xP = 0.014;
+        double xP = 0.049;
         double targetingForwardSpeed = LimelightHelpers.getTX(limelightID) * xP;
-        targetingForwardSpeed *= 1;
-        targetingForwardSpeed *= -3.5;
-        if(Math.abs(LimelightHelpers.getTX(limelightID)) > 0.5){
+        targetingForwardSpeed *= -1;
+        if(Math.abs(LimelightHelpers.getTX(limelightID)) > LIMELIGHT_OFFSET_THRESHOLD){
             return targetingForwardSpeed;
         }
         return 0;
@@ -582,24 +581,24 @@ public class DrivetrainSubsystem implements Subsystem {
 
     double limelightY(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
-        double yP = .04;
+        double yP = .12;
         double targetingForwardSpeed = LimelightHelpers.getTY(limelightID) * yP;
-        targetingForwardSpeed *= -3;
-        if(Math.abs(LimelightHelpers.getTY(limelightID)) > 0.5){
+        targetingForwardSpeed *= -1;
+        if(Math.abs(LimelightHelpers.getTY(limelightID)) > LIMELIGHT_OFFSET_THRESHOLD){
             return targetingForwardSpeed;
         }
-        return 0;        
+        return 0;
     }
 
     double limelightZ(String limelightID){
         //Left limelight align to right branch and right limelight aligns to left branch
-        double zP = 0.4;
-        double targetingZ = NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
-        targetingZ *= ALIGN_TURN_CONSTANT;
-        if(Math.abs(NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
-            return -targetingZ;
-        }
-        return 0;
+        double zP = .096;
+        double targetingZ = NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] * zP;
+        // Line below is literally useless lol (unless we will implement a higher threshold)
+        // if(Math.abs(NetworkTableInstance.getDefault().getTable(limelightID).getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
+        return -targetingZ;
+        // }
+        // return 0;
     }
 
     public void updateReefDetection() {

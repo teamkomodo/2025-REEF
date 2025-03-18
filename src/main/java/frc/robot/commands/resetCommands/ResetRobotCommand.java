@@ -44,6 +44,7 @@ public class ResetRobotCommand extends DynamicCommand {
         return new SequentialCommandGroup(
           Commands.runOnce(intakeSubsystem::stopIntake),
           Commands.runOnce(endEffectorSubsystem::stopEndEffector),
+          intakeSubsystem.stowPositionCommand(),
           new SequentialCommandGroup(
             elevatorSubsystem.clearIndexerPositionCommand(),
             new WaitCommand(0.6)
@@ -51,7 +52,7 @@ public class ResetRobotCommand extends DynamicCommand {
           helicopterSubsystem.stowPositionCommand(),
           Commands.waitUntil(() -> helicopterSubsystem.atCommandedPosition()),
           intakeSubsystem.stowPositionCommand(),
-          elevatorSubsystem.zeroElevatorCommand(),
+          elevatorSubsystem.stowPositionCommand(),
           elevatorSubsystem.minPositionCommand()
         ).onlyIf(() -> elevatorSubsystem.getZeroed() && intakeSubsystem.getZeroed());
     }

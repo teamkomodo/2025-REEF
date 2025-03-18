@@ -50,14 +50,14 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final SparkAbsoluteEncoder helicopterAbsoluteEncoder;
 
     // PID Constants
-    public double heliP = 0.1;
-    public double heliI = 0.0;
-    public double heliD = 0.3;
+    public double heliP = 0.2;
+    public double heliI = 0.0000305;
+    public double heliD = 0.009;
 
     public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
-    private final double helicopterMaxAccel = 1500;
-    private final double helicopterMaxVelocity = 6000;
-    private double helicopterAllowedClosedLoopError = 0.15; // / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
+    private final double helicopterMaxAccel = 7500;
+    private final double helicopterMaxVelocity = 9000;
+    private double helicopterAllowedClosedLoopError = 0.5; // / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
     
         // Variables
         private double targetAngle = 0;
@@ -120,6 +120,7 @@ public class HelicopterSubsystem extends SubsystemBase {
             .pidf(helicopterPIDGains.p, helicopterPIDGains.i, helicopterPIDGains.d, helicopterPIDGains.FF)
             .maxMotion.maxAcceleration(helicopterMaxAccel)
             .maxVelocity(helicopterMaxVelocity)
+            .maxAcceleration(helicopterMaxAccel)
             .allowedClosedLoopError(helicopterAllowedClosedLoopError);
         
         

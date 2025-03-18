@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
-    private final PIDGains hingePIDGains = new PIDGains(1, 0.0e-15, 0.6);
+    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0.1);
     private final double hingeMaxAccel = 3000;
     private final double hingeMaxVelocity = 3000;
     private final double hingeAllowedClosedLoopError = 0.3;

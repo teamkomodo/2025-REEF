@@ -98,6 +98,7 @@ public class RobotContainer {
     Trigger driverX = driverController.x();
 
     Trigger operatorRT = operatorController.rightTrigger();
+    Trigger operatorLT = operatorController.leftTrigger();
     Trigger operatorPD = operatorController.povDown();
 
     Trigger operatorLB = operatorController.leftBumper();
@@ -113,10 +114,15 @@ public class RobotContainer {
     operatorRB.onTrue(new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem));
     operatorLB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
 
+    // operatorLT.onTrue(helicopterSubsystem.l4WaitPositionCommand());
+    // operatorRT.onTrue(helicopterSubsystem.grabPositionCommand());
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
 
+    //operatorY.onTrue(intakeSubsystem.intakePositionCommand());
+    //operatorA.onTrue(elevatorSubsystem.l2PositionCommand());
+    //operatorB.onTrue(elevatorSubsystem.l4PositionCommand());
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());

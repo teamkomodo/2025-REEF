@@ -56,8 +56,8 @@ public class IntakeToStowCommand extends DynamicCommand{
             Commands.runOnce(() -> intakeSubsystem.setHingePosition(INTAKE_HINGE_INTAKE_POSITION)),
             elevatorSubsystem.preStowPositionCommand(),
             Commands.runOnce(() -> {intakeSubsystem.setIntakeDutyCycle(0.9);}),
-            new WaitCommand(0.1),
-            elevatorSubsystem.clearIndexerPositionCommand(),
+            new WaitCommand(0.4),
+            //elevatorSubsystem.clearIndexerPositionCommand(),
             helicopterSubsystem.waitPositionCommand(),
             new WaitCommand(0.3),
             // Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get() || indexerSubsystem.getPieceInIndexer()),
@@ -65,11 +65,12 @@ public class IntakeToStowCommand extends DynamicCommand{
             // //ledSubsystem.flashGreenCommand()),
             Commands.waitUntil(() -> !indexerSubsystem.coralInIndexerSensor.get() || !indexerSubsystem.coralIndexedSensor.get()),
             intakeSubsystem.feedCoralPositionCommand(),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.4)),
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.3)),
             Commands.waitUntil(indexerSubsystem::getPieceIndexed),
             intakeSubsystem.intakePositionCommand(),
             Commands.runOnce(intakeSubsystem::stopIntake),
             Commands.runOnce(intakeSubsystem::setDoneIntaking),
+            new WaitCommand(0.1),
             new ParallelCommandGroup(
                 Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(1)),
                 helicopterSubsystem.grabPositionCommand()),
@@ -80,17 +81,11 @@ public class IntakeToStowCommand extends DynamicCommand{
             new ParallelCommandGroup(
                 elevatorSubsystem.preStowPositionCommand(),
                 endEffectorSubsystem.securePiece()),
-            new WaitCommand(0.1),
+            new WaitCommand(0.2),
             helicopterSubsystem.stowPositionCommand(),
             new WaitCommand(0.4),
-            new ParallelCommandGroup(
-                //ledSubsystem.flashBlueVioletCommand(),
-                endEffectorSubsystem.securePiece(),
-                new SequentialCommandGroup(
-                    new WaitCommand(0.2),
-                    elevatorSubsystem.stowPositionCommand(),
-                    endEffectorSubsystem.securePiece()),
-                intakeSubsystem.stowPositionCommand())
+            endEffectorSubsystem.securePiece(),
+            intakeSubsystem.stowPositionCommand()
         ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());
     }
 

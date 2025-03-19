@@ -77,7 +77,7 @@ public class DrivetrainSubsystem implements Subsystem {
      */
 
 
-     //private final LEDSubsystem ledSubsystem;
+     private final LEDSubsystem ledSubsystem;
 
     // Limelight
     private static boolean useVision = false;

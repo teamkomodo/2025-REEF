@@ -38,7 +38,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final BooleanPublisher atCommandedPositionPublisher = elevatorTable.getBooleanTopic("atCommandedPosition").publish();
     private final BooleanPublisher zeroedPublisher = elevatorTable.getBooleanTopic("zeroed").publish();
 
-    // Intake motors
+    // Elevator motor
     private final SparkMax elevatorMotor;
     private final SparkMaxConfig elevatorMotorConfig;
     private final RelativeEncoder elevatorEncoder;
@@ -62,21 +62,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double elevatorSupposedPosition = 0;
     
     public ElevatorSubsystem() {
-        // Assign intake motors
+        // Assign motor
         elevatorMotor = new SparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless); //FIXME: find motor id
         elevatorMotorConfig = new SparkMaxConfig();
         softLimitConfig = new SoftLimitConfig();
 
-        // Assign sensors
+        // Bind limit switch
         limitSwitch = new DigitalInput(ELEVATOR_ZERO_SWITCH_CHANNEL); //FIXME: find port number
 
-        // Assign intake encoder and controller
+        // Assign encoder and PID controller
         elevatorEncoder = elevatorMotor.getEncoder();
         elevatorEncoder.setPosition(0);
         elevatorController = elevatorMotor.getClosedLoopController();
 
         configMotors();
-        holdElevatorPosition();
+        holdElevatorPosition(); // FREEZE!
     }
 
     public void teleopInit() {
@@ -106,10 +106,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         zeroedPublisher.set(getZeroed());
     }
 
-    public double getElevatorVelocity() {
-        return elevatorEncoder.getVelocity();
-    }
-
+    // Enable the soft limits after zeroing
     private void setSoftLimits() {
         softLimitConfig
             .forwardSoftLimitEnabled(true)
@@ -118,8 +115,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    // Configure the elevator motor with a soft limit
     private void configMotors() {
-        // Intake motors
         elevatorMotorConfig
             .inverted(true)
             .smartCurrentLimit(80);
@@ -141,6 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         
     }
 
+    // Update the zeroed status of the elevator based on the limit switch
     public void checkLimitSwitch() {
         limitSwitchAtCurrentCheck = getLimitSwitchAtCurrentCheck();
         if (limitSwitchAtCurrentCheck && !limitSwitchAtLastCheck) {
@@ -154,6 +152,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         limitSwitchAtLastCheck = limitSwitchAtCurrentCheck;
     }
 
+    // Basically command the elevator position within limits
     public void setElevatorSupposedPosition(double position) {
         if (!zeroed) return;
         // Constain the position to the elevator limits
@@ -169,6 +168,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         setElevatorSupposedPosition(elevatorEncoder.getPosition());
     }
 
+    // A lot of position commands
     public Command lowAlgaePositionCommand() {
         return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_LOW_ALGAE_POSITION));
     }
@@ -214,13 +214,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command clearIndexerPositionCommand() {
-        return this.runOnce(() -> {
-            setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION);
-        });
+        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_CLEAR_INTAKE_POSITION));
     }
 
-    public Command zeroElevatorCommand() { // Code uses this function
-        // Activate with one press
+    // Zero the elevator. Only returns once the elevator is zeroed.
+    public Command zeroElevatorCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setElevatorDutyCycle(-0.15)), 
             Commands.waitUntil(() -> getLimitSwitchAtCurrentCheck()),
@@ -228,18 +226,22 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
+    // Test if the elevator is where we told it to go.
     public boolean atCommandedPosition() {
         return Math.abs(elevatorEncoder.getPosition() - elevatorSupposedPosition) < elevatorAllowedClosedLoopError;
     }
 
+    // Can be useful to know if we're at least at or higher than the position, so we won't hit anything.
     public boolean aboveCommandedPosition() {
         return elevatorEncoder.getPosition() >= elevatorSupposedPosition - elevatorAllowedClosedLoopError;
     }
 
+    // Return whether the limit switch thinks we're zeroed
     public boolean getLimitSwitchAtCurrentCheck() {
         return !limitSwitch.get();
     }
 
+    // Getter
     public boolean getZeroed() {
         return zeroed;
     }

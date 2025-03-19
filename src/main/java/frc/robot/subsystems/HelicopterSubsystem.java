@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -16,7 +15,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,9 +31,6 @@ public class HelicopterSubsystem extends SubsystemBase {
     private final BooleanPublisher atCommandedPositionPublisher = helicopterTable.getBooleanTopic("atCommandedPosition").publish();
     private final BooleanPublisher safeForElevatorPublisher = helicopterTable.getBooleanTopic("armPositionSafeForElevator").publish();
     private final IntegerPublisher positionWaitingOnPublisher = helicopterTable.getIntegerTopic("positionWaitingOnPublisher").publish();
-
-    // Are we using the absolute encoder? The false option is only for early testing. Might be useful later.
-    private final boolean useAbsoluteEncoder = true;
 
     // Motors
     private final SparkMax helicopterMotor;
@@ -57,64 +52,60 @@ public class HelicopterSubsystem extends SubsystemBase {
     public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
     private final double helicopterMaxAccel = 1500;
     private final double helicopterMaxVelocity = 6000;
-    private double helicopterAllowedClosedLoopError = 0.15; // / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
+    private final double helicopterAllowedClosedLoopError = 0.15; // This is in arm motor rotations, not arm rotations
     
-        // Variables
-        private double targetAngle = 0;
-        private int positionWaitingOn = 0;
-    
-    
-        public HelicopterSubsystem() { // CONSTRUCTION
-            helicopterMotor = new SparkMax(HELICOPTER_MOTOR_ID, SparkMax.MotorType.kBrushless);
-            helicopterMotorConfig = new SparkMaxConfig();
-            softLimitConfig = new SoftLimitConfig();
-    
-            helicopterMotorEncoder = helicopterMotor.getEncoder();
-            helicopterMotorEncoder.setPosition(0);
-    
-            // Sensor
-            if (useAbsoluteEncoder) {
-                helicopterAbsoluteEncoder = helicopterMotor.getAbsoluteEncoder();
-            } else {
-                helicopterAbsoluteEncoder = null;
-            }
-    
-            // PID controller
-            helicopterController = helicopterMotor.getClosedLoopController();
-    
-            configMotors();
-        }
-    
-        public void teleopInit() {
-            setHelicopterPosition(HELICOPTER_STOW_POSITION);
-        }
-    
-        @Override
-        public void periodic() {
-            checkSensors();
-            updateTelemetry();
-            //updatePID();
-        }
-    
-        private void updateTelemetry() {
-            armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-            armTargetAnglePublisher.set(targetAngle);
-            atCommandedPositionPublisher.set(atCommandedPosition());
-            positionWaitingOnPublisher.set(positionWaitingOn);
-            safeForElevatorPublisher.set(isSafeForElevator());
-            if (useAbsoluteEncoder) {
-                armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
-            }
-        }
+    // Variables
+    private double targetAngle = 0;
+    private int positionWaitingOn = 0;
+
+    public HelicopterSubsystem() { // CONSTRUCTION
+        // Motor
+        helicopterMotor = new SparkMax(HELICOPTER_MOTOR_ID, SparkMax.MotorType.kBrushless);
+        helicopterMotorConfig = new SparkMaxConfig();
+        softLimitConfig = new SoftLimitConfig();
+
+        // Encoder
+        helicopterMotorEncoder = helicopterMotor.getEncoder();
+        helicopterMotorEncoder.setPosition(0);
+
+        // Absolute encoder
+        helicopterAbsoluteEncoder = helicopterMotor.getAbsoluteEncoder();
+
+        // PID controller
+        helicopterController = helicopterMotor.getClosedLoopController();
+
+        configMotors();
+    }
+
+    public void teleopInit() {
+        setHelicopterPosition(HELICOPTER_STOW_POSITION);
+    }
+
+    @Override
+    public void periodic() {
+        checkSensors();
+        updateTelemetry();
+        //updatePID();
+    }
+
+    private void updateTelemetry() {
+        armAnglePublisher.set(helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+        armTargetAnglePublisher.set(targetAngle);
+        atCommandedPositionPublisher.set(atCommandedPosition());
+        positionWaitingOnPublisher.set(positionWaitingOn);
+        safeForElevatorPublisher.set(isSafeForElevator());
+        armAbsoluteEncoderPublisher.set(getAbsoluteEncoderPosition());
+    }
 
     private void checkSensors() {
         // Empty!
     }
 
     private void configMotors() {
+        // Fill out the config
         helicopterMotorConfig
             .inverted(false)
-            .smartCurrentLimit(50); //FIXME: set current limit
+            .smartCurrentLimit(50);
 
         helicopterMotorConfig.closedLoop
             .pidf(helicopterPIDGains.p, helicopterPIDGains.i, helicopterPIDGains.d, helicopterPIDGains.FF)
@@ -122,43 +113,36 @@ public class HelicopterSubsystem extends SubsystemBase {
             .maxVelocity(helicopterMaxVelocity)
             .allowedClosedLoopError(helicopterAllowedClosedLoopError);
         
-        
+        // Fill out the soft limit config
         softLimitConfig
             .forwardSoftLimit(HELICOPTER_MAX_POSITION * HELICOPTER_GEAR_RATIO)
             .reverseSoftLimit(HELICOPTER_MIN_POSITION * HELICOPTER_GEAR_RATIO)
             .forwardSoftLimitEnabled(true)
             .reverseSoftLimitEnabled(true);
 
+        // Apply the configs
         helicopterMotorConfig.apply(softLimitConfig);
         helicopterMotor
             .configure(helicopterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+        // Tell the motor relative encoder where it is 
         helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
     }
 
     public void setHelicopterPosition(double position) {
-        targetAngle = position;
-        positionWaitingOn = 0;
-        // if (useAbsoluteEncoder) {
-            // double helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
-            // + helicopterOffsetDifference * HELICOPTER_GEAR_RATIO);
-        // }
-        setMotorPosition(targetAngle * HELICOPTER_GEAR_RATIO);
+        targetAngle = position; // Save the last commanded position
+        positionWaitingOn = 0; // We are not currently aligning to a branch (but if we are this will be overridden later)
+        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO); // Reset the relative encoder
+        helicopterController.setReference(
+            targetAngle * HELICOPTER_GEAR_RATIO, 
+            ControlType.kMAXMotionPositionControl); // COMMAND THE MOTOR!!!
     }
 
     public void holdMotorPosition() {
-        setHelicopterPosition(getAbsoluteEncoderPosition());
+        setHelicopterPosition(getAbsoluteEncoderPosition()); // Freeze!
     }
 
-    public void setMotorPosition(double position) {
-        helicopterController.setReference(position, ControlType.kMAXMotionPositionControl);
-    }
-
-    public void setMotorDutyCycle(double dutyCycle) {
-        helicopterController.setReference(dutyCycle, ControlType.kDutyCycle);
-    }
-
+    // HIGHLY REPETITIVE POSITION COMMANDS
     public Command stowPositionCommand() {
         return this.runOnce(() -> setHelicopterPosition(HELICOPTER_STOW_POSITION));
     }
@@ -183,58 +167,58 @@ public class HelicopterSubsystem extends SubsystemBase {
         setHelicopterPosition(HELICOPTER_WAIT_FOR_L4_POSITION);
     }
 
-    public void waitForL3Position() {
-        setHelicopterPosition(HELICOPTER_WAIT_FOR_L2_L3_POSITION);
+    public void waitForL1L2L3Position() {
+        setHelicopterPosition(HELICOPTER_WAIT_FOR_L2_L3_POSITION); // Setting the position sets positionWaitingOn to 0 (none)
     }
 
+    // Position commands start
     public Command safeElevatorPositionCommand() {
-        return this.runOnce(() -> setHelicopterPosition(
-            HELICOPTER_MIN_SAFE_POSITION / 2 + 
-            HELICOPTER_MAX_SAFE_POSITION / 2
-        ));
+        return Commands.runOnce(() -> setHelicopterPosition(HELICOPTER_SAFE_ELEVATOR_POSITION));
     }
 
+    // Level position commands, these override the current level waiting for to keep track of that information.
     public Command l1WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForL3Position();
+            waitForL1L2L3Position(); // positionWaiting on gets set to zero
             positionWaitingOn = 1;
         });
     }
 
     public Command l2WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForL3Position();
+            waitForL1L2L3Position(); // positionWaiting on gets set to zero
             positionWaitingOn = 2;
         });
     }
 
     public Command l3WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForL3Position();
+            waitForL1L2L3Position(); // positionWaiting on gets set to zero
             positionWaitingOn = 3;
         });
     }
 
     public Command l4WaitPositionCommand() {
         return this.runOnce(() -> {
-            waitForL4Position();
+            waitForL4Position(); // positionWaiting on gets set to zero
             positionWaitingOn = 4;
         });
     }
 
     public Command releaseCoralPositionCommand() {
         return this.runOnce(() -> {
-            if (positionWaitingOn > 1) {
+            if (positionWaitingOn > 1) { // Lets not do this if we're at L1 and would hit the reef
                 setHelicopterPosition(0.95);
             }
         });
     }
-
+    
+    // This uses the remembered waiting position to know how far to go down to score
     public Command scoreCommand() {
         return this.runOnce(() -> {
             if (positionWaitingOn == 1) {
                 setHelicopterPosition(HELICOPTER_L1_POSITION);
-            } else if (positionWaitingOn == 2 || positionWaitingOn == 3) {
+            } else if (positionWaitingOn == 2 || positionWaitingOn == 3) { // L2 and L3 positions are the same
                 setHelicopterPosition(HELICOPTER_L2_L3_POSITION);
             } else if (positionWaitingOn == 4) {
                 setHelicopterPosition(HELICOPTER_L4_POSITION);
@@ -242,22 +226,23 @@ public class HelicopterSubsystem extends SubsystemBase {
         });
     }
 
+    // Return the absolute encoder position after adding the offset
+    // You should not access the absolute encoder without using this!
     private double getAbsoluteEncoderPosition() {
         return helicopterAbsoluteEncoder.getPosition() + HELICOPTER_OFFSET;
     }
 
-    // public boolean atCommandedPosition() {
-    //     return Math.abs(getAbsoluteEncoderPosition() - targetAngle) < helicopterAllowedClosedLoopError * 3; // FIXME
-    // }
-
+    // Returns a boolean indicating if the motor is at the commanded position
     public boolean atCommandedPosition() {
-        return Math.abs(helicopterMotorEncoder.getPosition() - targetAngle * HELICOPTER_GEAR_RATIO) < helicopterAllowedClosedLoopError; // FIXME
+        return Math.abs(helicopterMotorEncoder.getPosition() - targetAngle * HELICOPTER_GEAR_RATIO) < helicopterAllowedClosedLoopError;
     }
 
+    // Returns a boolean indicating if the motor is at a position where the arm will not be damaged if the elevator moves
     public boolean isSafeForElevator() {
         return getAbsoluteEncoderPosition() <= HELICOPTER_MAX_SAFE_POSITION && getAbsoluteEncoderPosition() >= HELICOPTER_MIN_SAFE_POSITION;
     }
 
+    // Getter
     public int getPositionWaitingOn() {
         return positionWaitingOn;
     }

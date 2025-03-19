@@ -44,6 +44,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     private boolean algaeLoaded = false;
     private double filteredCurrent = 0;
     private double currentFilterConstant = 0.1;
+    private int currentScoreLevel = 0;
 
     public EndEffectorSubsystem() { // CONSTRUCTION
         endEffectorMotor = new SparkMax(ENDEFFECTOR_MOTOR_ID, SparkMax.MotorType.kBrushless);
@@ -61,7 +62,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
 
     public void teleopInit() {
-        setEndEffectorDutyCycle(0);
+        setEndEffectorDutyCycle(0); // Stop and freeze the end effector
         holdEndEffector();
     }
 
@@ -84,10 +85,12 @@ public class EndEffectorSubsystem extends SubsystemBase {
         algaeLoadedPublisher.set(algaeLoaded);
     }
 
+    // Update the variable with the sensor value
     private void checkSensors() {
         coralLoaded = getCoralDetection(coralLoadedSensor);
     }
 
+    // CONFIGURE THE MOTOR!!
     private void configMotors() {
         endEffectorMotorConfig
             .inverted(false)
@@ -101,6 +104,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     }
 
+    // Setters
     public void setEndEffectorDutyCycle(double dutyCycle) {
         endEffectorController.setReference(dutyCycle, ControlType.kDutyCycle);
     }
@@ -118,27 +122,26 @@ public class EndEffectorSubsystem extends SubsystemBase {
         setEndEffectorPosition(endEffectorEncoder.getPosition());
     }
 
-    public Command startEndEffectorIntakingCommand() {
-        return Commands.runOnce(() -> setEndEffectorDutyCycle(1));
-    }
-    
     public void stopEndEffector() {
         setEndEffectorDutyCycle(0);
     }
 
+    // Read the sensor
     public boolean getCoralDetection(DigitalInput beamBreak) {
         return !beamBreak.get(); // This is correct!
     }
     
+    // Getter
     public boolean getCoralLoaded() {
         return coralLoaded;
     }
 
-    int currentScoreLevel = 0;
+    // Tell it where we're scoring so we know how fast to eject
     public void setLevel(int level) {
         currentScoreLevel = level;
     }
 
+    // Grab a coral from the indexer, don't return until we got it!
     public Command intakeCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
@@ -151,19 +154,19 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
+    // Start spinning to get the algae out! You better stop it later!!!
     public Command dealgaeifyCommand() {
-        return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.9))
-        );
+        return Commands.runOnce(() -> setEndEffectorDutyCycle(-0.9));
     }
 
+    // Score the coral, has the option for a different eject speed for L1 scoring
     public Command ejectCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> {
                 if (currentScoreLevel == 1) {
-                    setEndEffectorDutyCycle(-0.2);
+                    setEndEffectorDutyCycle(-0.2); // Level 1 score speed
                 } else {
-                    setEndEffectorDutyCycle(-0.2);
+                    setEndEffectorDutyCycle(-0.2); // For everything else!
                 }
             }),
             Commands.waitSeconds(0.3),
@@ -172,6 +175,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
+    // Get a coral more firmly settled in the end effector
     public Command securePiece() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
@@ -180,6 +184,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
         );
     }
 
+    // Shoot algae out, also will shoot coral out, probably will shoot anything out
     public Command scoreAlgaeCommand() {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(-1)),

@@ -43,13 +43,13 @@ public class EjectCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(-0.8)),
             elevatorSubsystem.l3PositionCommand(),
             intakeSubsystem.intakePositionCommand(),
             new WaitCommand(0.25),
             helicopterSubsystem.ejectCoralPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::isSafeForElevator),
             elevatorSubsystem.l2PositionCommand(),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(-0.8)),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(-1.0)),
             Commands.waitSeconds(0.3),
             Commands.runOnce(intakeSubsystem::stopIntake),

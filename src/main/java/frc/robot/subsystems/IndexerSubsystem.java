@@ -51,6 +51,7 @@ public class IndexerSubsystem extends SubsystemBase {
         checkSensors();
     }
 
+    // Complex thing to handle internal state
     public void checkSensors() {
         // Set the coral sensed variables
         coralInIndexerAtCurrentCheck = getCoralDetection(coralInIndexerSensor);
@@ -78,6 +79,7 @@ public class IndexerSubsystem extends SubsystemBase {
         }
     }
 
+    // Let's tell everyone what we know!
     public void updateTelemetry() {
         // Coral status publishing
         pieceIndexedPublisher.set(getPieceIndexed());
@@ -87,10 +89,12 @@ public class IndexerSubsystem extends SubsystemBase {
         pieceInIndexerSensorPublisher.set(getCoralDetection(coralInIndexerSensor));
     }
 
+    // How to read your sensor
     public boolean getCoralDetection(DigitalInput beamBreak) {
         return !beamBreak.get();
     }
 
+    // Getters
     public boolean getPieceIndexed() {
         return coralIndexed;
     }

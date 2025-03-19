@@ -63,7 +63,7 @@ public final class Constants {
   // Intake
     // Intake motor IDs
   public static final int INTAKE_MOTOR_ID = 51;
-  public static final int INTAKE_HINGE_MOTOR_ID = 12;
+  public static final int INTAKE_HINGE_MOTOR_ID = 13;
     // Intake and hinge sensor channels
   public static final int CORAL_INTAKE_SENSOR_CHANNEL = 0;
   public static final int CORAL_INTAKE_SENSOR_2_CHANNEL = 2;

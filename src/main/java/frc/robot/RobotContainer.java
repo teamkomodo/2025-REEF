@@ -10,7 +10,7 @@ import frc.robot.commands.coralCommands.ScoreToStowCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
-//import frc.robot.commands.coralCommands.AlignToBranchCommand;
+import frc.robot.commands.coralCommands.AlignToBranchCommand;
 import frc.robot.commands.resetCommands.ResetRobotCommand;
 import frc.robot.commands.resetCommands.ZeroMechCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -126,8 +126,10 @@ public class RobotContainer {
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
     driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+    driverRT.whileTrue(drivetrainSubsystem.goToBranch(true));
+    driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
     driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-    driverRT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    //driverRT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(

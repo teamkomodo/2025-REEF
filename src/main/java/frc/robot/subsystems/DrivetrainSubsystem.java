@@ -68,7 +68,7 @@ public class DrivetrainSubsystem implements Subsystem {
     // Limelight
     private static boolean useVision = false;
 
-    private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
+    private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight-komodo");
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
@@ -154,7 +154,7 @@ public class DrivetrainSubsystem implements Subsystem {
         
     
         //only tracks specific apriltags depending on alliance
-        LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{11,10,9,8,7,6, 22,21,20,19,18,17});
+        LimelightHelpers.SetFiducialIDFiltersOverride("limelight-komodo", new int[]{11,10,9,8,7,6, 22,21,20,19,18,17});
         // Drive FFGain updated AM 03/07
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
@@ -244,7 +244,7 @@ public class DrivetrainSubsystem implements Subsystem {
         backRight.periodic();
 
         atReef = false;
-        if(LimelightHelpers.getTA("limelight") > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX("limelight")) < 1)
+        if(LimelightHelpers.getTA("limelight-komodo") > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX("limelight-komodo")) < 1)
             atReef = true;
     }
 
@@ -580,7 +580,7 @@ public class DrivetrainSubsystem implements Subsystem {
     // Limelight
     
     private void detectAprilTag(CommandXboxController controller){ // Rumble
-        boolean tv = LimelightHelpers.getTV("limelight");
+        boolean tv = LimelightHelpers.getTV("limelight-komodo");
 
         if(tv){
             controller.setRumble(RumbleType.kRightRumble, 1);
@@ -591,10 +591,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     double limelightY(){
         double yP = .04;
-        double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * yP;
+        double targetingForwardSpeed = LimelightHelpers.getTY("limelight-komodo") * yP;
         targetingForwardSpeed *= -3;
         
-        if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.5){
+        if(Math.abs(LimelightHelpers.getTY("limelight-komodo")) > 0.5){
             return targetingForwardSpeed;
         }
         return 0;
@@ -602,11 +602,11 @@ public class DrivetrainSubsystem implements Subsystem {
 
     double limelightX(){
         double xP = 0.014;
-        double targetingForwardSpeed = LimelightHelpers.getTX("limelight") * xP;
+        double targetingForwardSpeed = LimelightHelpers.getTX("limelight-komodo") * xP;
         targetingForwardSpeed *= 1;
         targetingForwardSpeed *= -3.5;
         
-        if(Math.abs(LimelightHelpers.getTX("limelight")) > 0.5){
+        if(Math.abs(LimelightHelpers.getTX("limelight-komodo")) > 0.5){
             return targetingForwardSpeed;
         }
         return 0;
@@ -625,9 +625,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public double calculateAlignDistance(boolean right) {
         double limelightDistance = (APRILTAG_HEIGHT - LIMELIGHT_HEIGHT)
-            / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight")));
+            / Math.tan(Math.toRadians(LIMELIGHT_ANGLE_OFFSET + LimelightHelpers.getTY("limelight-komodo")));
         double branchOffset = limelightDistance
-            / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight")))
+            / Math.tan(Math.toRadians(90 - LimelightHelpers.getTX("limelight-komodo")))
             + LIMELIGHT_ROBOT_X_OFFSET;
         if(right){
             branchOffset += APRILTAG_TO_BRANCH_X_DISTANCE;
@@ -659,7 +659,8 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command goToBranch(boolean right){
         return Commands.runOnce(() -> {
-            if(LimelightHelpers.getTV("limelight") && atReef) {
+            if(LimelightHelpers.getTV("limelight-komodo")) {
+                System.out.println("do");
                 double alignDriveTime = Math.abs(calculateAlignTime(right));
                 double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
                 timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
@@ -673,7 +674,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command limelightForwardCommand(){
         return Commands.run(() -> { 
-           if(Math.abs(LimelightHelpers.getTY("limelight")) > 0.01){
+           if(Math.abs(LimelightHelpers.getTY("limelight-komodo")) > 0.01){
                 drive(limelightY(), 0, 0, false);
   
             } else {
@@ -691,12 +692,16 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
-            if(!atReef)
-                drive(limelightX(), -limelightY(), limelightZ(),  false);
-            else
-                stopMotion();
+            // if(!atReef)
+                 drive(limelightX(), -limelightY(), limelightZ(),  false);
+            // else
+            //     stopMotion();
         }, this);
     }
+
+    
+
+   
 }
 
 

@@ -76,7 +76,7 @@ public final class Constants {
     // Intake hinge positions
   public static final double INTAKE_HINGE_MIN_POSITION = 0;
   public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
-  public static final double INTAKE_HINGE_STOW_POSITION = 1.5;
+  public static final double INTAKE_HINGE_STOW_POSITION = 0;
   public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 6.5;// new 9.381 // This is for when there is a coral in the intake and we want to help feed it through
   public static final double INTAKE_HINGE_SAFE_ELEVATOR_POSITION  = 3;
   public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
@@ -198,7 +198,7 @@ public final class Constants {
   public static final double ROBOT_ALIGNMENT_SPEED = 1.0; 
   public static final double ALIGN_LINEAR_SPEED_FACTOR = 1.1;
   public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
-  public static final double ALIGN_TURN_CONSTANT = 0.24;
+  public static final double ALIGN_TURN_CONSTANT = 0.18;
 
   public static final double APRILTAG_HEIGHT = 0.5715;
   public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254; //UPDATE BEFORE SCRIMMAGE

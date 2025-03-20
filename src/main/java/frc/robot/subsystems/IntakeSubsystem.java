@@ -48,7 +48,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax intakeMotor;
     private final SparkMaxConfig intakeMotorConfig;
 
-    private final RelativeEncoder intakeEncoder;
+    public final RelativeEncoder intakeEncoder;
     private final SparkClosedLoopController intakeController;
 
     // Hinge motors

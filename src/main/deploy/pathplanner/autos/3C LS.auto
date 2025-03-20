@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "2C Station A"
+                  "pathName": "3C LS A"
                 }
               },
               {
@@ -21,6 +21,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LeftAlign"
           }
         },
         {
@@ -36,29 +42,28 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "2C Station B"
+                  "pathName": "3C LS B"
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "L4"
-                      }
-                    }
-                  ]
+                  "name": "IntakeL4"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LeftAlign"
           }
         },
         {

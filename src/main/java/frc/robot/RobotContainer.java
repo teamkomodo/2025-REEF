@@ -5,11 +5,14 @@
 package frc.robot;
 
 import frc.robot.commands.coralCommands.EjectCommand;
+import frc.robot.commands.coralCommands.IntakeToL4;
 import frc.robot.commands.coralCommands.IntakeToStowCommand;
 import frc.robot.commands.coralCommands.ScoreToStowCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
 import frc.robot.commands.reefPositionCommands.L4PositionCommand;
+import frc.robot.commands.AlgaePickup;
+//import frc.robot.commands.IntakeToL4;
 import frc.robot.commands.coralCommands.AlignToBranchCommand;
 import frc.robot.commands.resetCommands.ResetRobotCommand;
 import frc.robot.commands.resetCommands.ZeroMechCommand;
@@ -107,6 +110,7 @@ public class RobotContainer {
 
     Trigger operatorB = operatorController.b();
     Trigger operatorY = operatorController.y();
+    Trigger operatorX = operatorController.x();
 
     operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem, ledSubsystem, helicopterSubsystem, elevatorSubsystem));
@@ -114,22 +118,19 @@ public class RobotContainer {
     operatorRB.onTrue(new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem));
     operatorLB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
 
-    // operatorLT.onTrue(helicopterSubsystem.l4WaitPositionCommand());
-    // operatorRT.onTrue(helicopterSubsystem.grabPositionCommand());
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    operatorX.onTrue(new AlgaePickup(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
 
-    //operatorY.onTrue(intakeSubsystem.intakePositionCommand());
-    //operatorA.onTrue(elevatorSubsystem.l2PositionCommand());
-    //operatorB.onTrue(elevatorSubsystem.l4PositionCommand());
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
-    driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
-    driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+    //driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
+    //driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+
     driverRT.whileTrue(drivetrainSubsystem.goToBranch(true));
-    driverLT.whileTrue(new AlignToBranchCommand(drivetrainSubsystem, endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, true, ledSubsystem));
-    driverRB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-    //driverRT.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    driverLT.whileTrue(drivetrainSubsystem.goToBranch(false));
+    driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+    driverRB.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
@@ -149,6 +150,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
     NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    NamedCommands.registerCommand("ReefAlign", null);
+    NamedCommands.registerCommand("LeftAlign", drivetrainSubsystem.limelightAutoLeftAlignCommand(false));
+    NamedCommands.registerCommand("RightAlign", drivetrainSubsystem.limelightAutoRightAlignCommand(true));
+    NamedCommands.registerCommand("IntakeL4", new IntakeToL4(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
   }
 
   public void teleopInit

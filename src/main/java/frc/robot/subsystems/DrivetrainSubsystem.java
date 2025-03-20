@@ -49,6 +49,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import javax.lang.model.util.ElementScanner14;
+
 import org.json.simple.parser.ParseException;
 import java.io.File;
 import java.io.IOException;
@@ -154,7 +156,7 @@ public class DrivetrainSubsystem implements Subsystem {
         
     
         //only tracks specific apriltags depending on alliance
-        LimelightHelpers.SetFiducialIDFiltersOverride("limelight-komodo", new int[]{11,10,9,8,7,6, 22,21,20,19,18,17});
+        //LimelightHelpers.SetFiducialIDFiltersOverride("limelight-komodo", new int[]{11,10,9,8,7,6, 22,21,20,19,18,17});
         // Drive FFGain updated AM 03/07
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
@@ -228,6 +230,7 @@ public class DrivetrainSubsystem implements Subsystem {
         // does not need to use adjusted rotation, odometry handles it.
         //updates pose with rotation and swerve positions
         poseEstimator.update(getRotation(), getSwervePositions());
+        double d = limelightZ();
 
         if(useVision){
             visionPosePeriodic();
@@ -244,7 +247,7 @@ public class DrivetrainSubsystem implements Subsystem {
         backRight.periodic();
 
         atReef = false;
-        if(LimelightHelpers.getTA("limelight-komodo") > LIMELIGHT_REEF_TA && Math.abs(LimelightHelpers.getTX("limelight-komodo")) < 1)
+        if(LimelightHelpers.getTA("limelight-komodo") > 15.5)
             atReef = true;
     }
 
@@ -441,9 +444,9 @@ public class DrivetrainSubsystem implements Subsystem {
         return currentChassisSpeeds;
     }
 
-    public BiConsumer getChassisOutput(ChassisSpeeds chassisSpeed, DriveFeedforwards feedforwards){
-        return null; //Needs to return a biconsumer of chassisspeeds and feedforward
-    }
+    // public BiConsumer getChassisOutput(ChassisSpeeds chassisSpeed, DriveFeedforwards feedforwards){
+    //     return null; //Needs to return a biconsumer of chassisspeeds and feedforward
+    // }
 
     // Setters
     public void setModuleStates(SwerveModuleState[] moduleStates) {
@@ -563,19 +566,19 @@ public class DrivetrainSubsystem implements Subsystem {
         );
     }
     
-    public Command followPathCommand(String pathName) throws IOException, ParseException{
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-        return new FollowPathCommand(
-            path, 
-            this::getPose, 
-            this::getChassisSpeeds, 
-            null, //needs to be replaced with actual biconsumer
-            HOLONOMIC_PATH_FOLLOWER_CONFIG, 
-            config, 
-            ON_RED_ALLIANCE,
-            this
-        ); 
-    }
+    // public Command followPathCommand(String pathName) throws IOException, ParseException{
+    //     PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+    //     return new FollowPathCommand(
+    //         path, 
+    //         this::getPose, 
+    //         this::getChassisSpeeds, 
+    //         null, //needs to be replaced with actual biconsumer
+    //         HOLONOMIC_PATH_FOLLOWER_CONFIG, 
+    //         config, 
+    //         ON_RED_ALLIANCE,
+    //         this
+    //     ); 
+    // }
 
     // Limelight
     
@@ -614,13 +617,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     double limelightZ(){
         double zP = 0.4;
-        double targetingZ = NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
+        double targetingZ = NetworkTableInstance.getDefault().getTable("limelight-komodo").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
         targetingZ *= ALIGN_TURN_CONSTANT;
-        if(Math.abs(NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5]) > 0.0){
-            return -targetingZ;
-        }
-        return 0;
-        
+        return -targetingZ;
     }
 
     public double calculateAlignDistance(boolean right) {
@@ -660,12 +659,21 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command goToBranch(boolean right){
         return Commands.runOnce(() -> {
             if(LimelightHelpers.getTV("limelight-komodo")) {
-                System.out.println("do");
                 double alignDriveTime = Math.abs(calculateAlignTime(right));
                 double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
                 timedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime);
             }      
         }, this);
+    }
+
+    public Command autoGoToBranch(boolean right){
+        return new SequentialCommandGroup(Commands.runOnce(() -> {
+            if(LimelightHelpers.getTV("limelight-komodo")) {
+                double alignDriveTime = Math.abs(calculateAlignTime(right));
+                double robotAlignmentSpeed = calculateAlignSpeedDirection(right);
+                autoTimedDriveCommand(robotAlignmentSpeed, 0, 0, ALIGNMENT_DRIVE, alignDriveTime*2.5);
+            }      
+        }, this).withTimeout(0.5));
     }
 
     public void stopAlign () {
@@ -690,18 +698,48 @@ public class DrivetrainSubsystem implements Subsystem {
         ).schedule();
     }
 
+    public Command autoTimedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double time) {
+        return new SequentialCommandGroup(
+            Commands.run(() -> drive(xSpeed, ySpeed, angularVelocity, fieldRelative), this).withTimeout(time),
+            Commands.runOnce(() -> stopMotion())
+        );
+    }
+
+    public Command autoVisionDriveCommand(boolean right) {
+        return new SequentialCommandGroup(
+            Commands.run(() -> {
+                drive(limelightX(), -limelightY(), limelightZ(), false);
+            }, this).until(() -> atReef),
+            Commands.runOnce(() -> stopMotion())
+        );
+    }
+
     public Command limelightAlignCommand(){
         return Commands.run(() -> {
-            // if(!atReef)
+            if(!atReef)
                  drive(limelightX(), -limelightY(), limelightZ(),  false);
-            // else
-            //     stopMotion();
+            else
+                stopMotion();
         }, this);
     }
 
-    
+    public Command limelightAutoLeftAlignCommand(boolean right){
+        return new SequentialCommandGroup(
+            autoVisionDriveCommand(true),
+            Commands.run(() -> drive(0.85, -0.12, 0, false), this).withTimeout(0.34),
+            Commands.runOnce(() -> stopMotion(), this),
+            Commands.runOnce(() -> System.out.println("done"))
+        );
+    }
 
-   
+    public Command limelightAutoRightAlignCommand(boolean right){
+        return new SequentialCommandGroup(
+            autoVisionDriveCommand(true),
+            Commands.run(() -> drive(-0.75, -0.12, 0, false), this).withTimeout(0.32),
+            Commands.runOnce(() -> stopMotion(), this),
+            Commands.runOnce(() -> System.out.println("done"))
+        );
+    }
 }
 
 

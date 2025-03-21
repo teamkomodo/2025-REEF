@@ -159,13 +159,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command ejectCommand() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> {
-                if (currentScoreLevel == 1) {
-                    setEndEffectorDutyCycle(-0.2);
-                } else {
-                    setEndEffectorDutyCycle(-0.2);
-                }
-            }),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(-0.27)),
             Commands.waitSeconds(0.3),
             Commands.runOnce(() -> stopEndEffector()),
             Commands.runOnce(() -> { coralLoaded = false; algaeLoaded = false; })
@@ -174,7 +168,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public Command securePiece() {
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> setEndEffectorDutyCycle(1)),
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0.2)),
             new WaitCommand(0.2),
             Commands.runOnce(() -> setEndEffectorDutyCycle(0))
         );

@@ -42,19 +42,27 @@ public class ScoreToStowCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-            intakeSubsystem.stowPositionCommand(),
-            new WaitCommand(0.2),
-            helicopterSubsystem.scoreCommand(),
-            intakeSubsystem.clearArmPositionCommand(),
             new WaitCommand(0.2),
             helicopterSubsystem.releaseCoralPositionCommand(),
-            new WaitCommand(0),
+            //helicopterSubsystem.scoreCommand(),
+            new WaitCommand(0.2),
             endEffectorSubsystem.ejectCommand(),
-            intakeSubsystem.stowPositionCommand(),
-            //ledSubsystem.flashRedCommand(),
-            elevatorSubsystem.stowPositionCommand(),
-            new WaitCommand(0.5),
-            helicopterSubsystem.stowPositionCommand()
-        );
+            new WaitCommand(0.1),
+            intakeSubsystem.intakePositionCommand(),
+            Commands.runOnce(() -> {
+                if(helicopterSubsystem.getPositionWaitingOn() > 2)
+                    elevatorSubsystem.waitPositionCommand();
+                else
+                    elevatorSubsystem.stowPositionCommand();
+            }),
+            new WaitCommand(0.45),
+            Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)),
+            Commands.runOnce(() -> {
+                if(helicopterSubsystem.getPositionWaitingOn() > 2)
+                    helicopterSubsystem.waitPositionCommand();
+                else
+                    helicopterSubsystem.stowPositionCommand();
+            })
+            );
     }
 }

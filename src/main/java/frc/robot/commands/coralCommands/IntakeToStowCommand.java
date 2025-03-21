@@ -60,12 +60,13 @@ public class IntakeToStowCommand extends DynamicCommand{
             //elevatorSubsystem.clearIndexerPositionCommand(),
             helicopterSubsystem.waitPositionCommand(),
             new WaitCommand(0.3),
+            Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)),
             // Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get() || indexerSubsystem.getPieceInIndexer()),
-            // //new ParallelCommandGroup(elevatorSubsystem.waitPositionCommand(),
+            elevatorSubsystem.waitPositionCommand(),
             // //ledSubsystem.flashGreenCommand()),
             Commands.waitUntil(() -> !indexerSubsystem.coralInIndexerSensor.get() || !indexerSubsystem.coralIndexedSensor.get()),
             intakeSubsystem.feedCoralPositionCommand(),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.3)),
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.45)),
             Commands.waitUntil(indexerSubsystem::getPieceIndexed),
             intakeSubsystem.intakePositionCommand(),
             Commands.runOnce(intakeSubsystem::stopIntake),
@@ -74,7 +75,6 @@ public class IntakeToStowCommand extends DynamicCommand{
             new ParallelCommandGroup(
                 Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(1)),
                 helicopterSubsystem.grabPositionCommand()),
-            new WaitCommand(0.1),
             elevatorSubsystem.grabPositionCommand(),
             Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
@@ -85,7 +85,7 @@ public class IntakeToStowCommand extends DynamicCommand{
             helicopterSubsystem.stowPositionCommand(),
             new WaitCommand(0.4),
             endEffectorSubsystem.securePiece(),
-            intakeSubsystem.stowPositionCommand()
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0))
         ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());
     }
 

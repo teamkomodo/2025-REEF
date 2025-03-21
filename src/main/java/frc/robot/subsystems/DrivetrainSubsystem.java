@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 import frc.robot.util.FFGains;
@@ -246,9 +247,14 @@ public class DrivetrainSubsystem implements Subsystem {
         backLeft.periodic();
         backRight.periodic();
 
-        atReef = false;
-        if(LimelightHelpers.getTA("limelight-komodo") > 15.5)
+        // if(LimelightHelpers.getTV("limelight-komodo") && LimelightHelpers.getTY("limelight-komodo") < 0.5)
+        //     atReef = true;
+
+        if(limelightY() < 1.8 && limelightZ() < 1){
             atReef = true;
+        } else {
+            atReef = false;
+        }
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds, DriveFeedforwards driveFeedforwards) {
@@ -604,10 +610,11 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     double limelightX(){
-        double xP = 0.014;
+        double xP = 0.01;
         double targetingForwardSpeed = LimelightHelpers.getTX("limelight-komodo") * xP;
         targetingForwardSpeed *= 1;
         targetingForwardSpeed *= -3.5;
+        //targetingForwardSpeed *= -1.5;
         
         if(Math.abs(LimelightHelpers.getTX("limelight-komodo")) > 0.5){
             return targetingForwardSpeed;
@@ -619,7 +626,11 @@ public class DrivetrainSubsystem implements Subsystem {
         double zP = 0.4;
         double targetingZ = NetworkTableInstance.getDefault().getTable("limelight-komodo").getEntry("targetpose_robotspace").getDoubleArray(new double[6])[5] *zP;
         targetingZ *= ALIGN_TURN_CONSTANT;
-        return -targetingZ;
+        if(Math.abs(LimelightHelpers.getTX("limelight-komodo")) > 0.25){
+            return -targetingZ;
+        }
+        return 0;
+       
     }
 
     public double calculateAlignDistance(boolean right) {
@@ -726,7 +737,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command limelightAutoLeftAlignCommand(boolean right){
         return new SequentialCommandGroup(
             autoVisionDriveCommand(true),
-            Commands.run(() -> drive(0.85, -0.12, 0, false), this).withTimeout(0.34),
+            Commands.run(() -> drive(0.7, -0.3, -0.07, false), this).withTimeout(0.6),
             Commands.runOnce(() -> stopMotion(), this),
             Commands.runOnce(() -> System.out.println("done"))
         );
@@ -735,7 +746,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command limelightAutoRightAlignCommand(boolean right){
         return new SequentialCommandGroup(
             autoVisionDriveCommand(true),
-            Commands.run(() -> drive(-0.75, -0.12, 0, false), this).withTimeout(0.32),
+            Commands.run(() -> drive(-0.7, 0, 0, false), this).withTimeout(0.27),
             Commands.runOnce(() -> stopMotion(), this),
             Commands.runOnce(() -> System.out.println("done"))
         );

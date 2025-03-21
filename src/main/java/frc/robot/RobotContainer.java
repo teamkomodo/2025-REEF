@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.commands.coralCommands.EjectCommand;
 import frc.robot.commands.coralCommands.IntakeToL4;
 import frc.robot.commands.coralCommands.IntakeToStowCommand;
+import frc.robot.commands.coralCommands.Score;
 import frc.robot.commands.coralCommands.ScoreToStowCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;
@@ -110,6 +111,7 @@ public class RobotContainer {
 
     Trigger operatorB = operatorController.b();
     Trigger operatorY = operatorController.y();
+    Trigger operatorRS = operatorController.rightStick();
     Trigger operatorX = operatorController.x();
 
     operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
@@ -121,7 +123,7 @@ public class RobotContainer {
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorX.onTrue(new AlgaePickup(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    operatorRS.onTrue(intakeSubsystem.stowPositionCommand());
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
     //driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
@@ -130,6 +132,8 @@ public class RobotContainer {
     driverRT.whileTrue(drivetrainSubsystem.goToBranch(true));
     driverLT.whileTrue(drivetrainSubsystem.goToBranch(false));
     driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
+   // driverLB.whileTrue(drivetrainSubsystem.autoVisionDriveCommand(false));
+    //driverLT.whileTrue(drivetrainSubsystem.limelightAlignCommand());
     driverRB.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     
     // deadband and curves are applied in command
@@ -137,7 +141,7 @@ public class RobotContainer {
       drivetrainSubsystem.joystickDriveCommand(
         () -> ( driverController.getLeftY() ), // -Y on left joystick is +X for robot
         () -> ( driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        () -> ( driverController.getRightX() ) // -X on right joystick is +Z for robot
+        () -> ( driverController.getRightX()/1.4 ) // -X on right joystick is +Z for robot
       )
     );
   }
@@ -145,7 +149,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    NamedCommands.registerCommand("Score", new Score(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());

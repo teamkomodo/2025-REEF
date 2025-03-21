@@ -44,7 +44,6 @@ public class ZeroMechCommand extends DynamicCommand {
             helicopterSubsystem.stowPositionCommand(),
             Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0)),
             intakeSubsystem.zeroHingeCommand(),
-            Commands.waitSeconds(0.5),
             elevatorSubsystem.zeroElevatorCommand(),
             ledSubsystem.flashHotPinkCommand()
         ).onlyIf(() -> !elevatorSubsystem.getZeroed() || !intakeSubsystem.getZeroed());

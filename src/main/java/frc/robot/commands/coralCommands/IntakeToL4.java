@@ -52,13 +52,12 @@ public class IntakeToL4 extends DynamicCommand{
     protected Command getCommand() {
         // TODO Auto-generated method stub
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> {intakeSubsystem.setIntakeDutyCycle(0.9);}),
             Commands.runOnce(() -> intakeSubsystem.setHingePosition(INTAKE_HINGE_INTAKE_POSITION)),
             elevatorSubsystem.preStowPositionCommand(),
-            Commands.runOnce(() -> {intakeSubsystem.setIntakeDutyCycle(0.9);}),
             new WaitCommand(0.4),
             //elevatorSubsystem.clearIndexerPositionCommand(),
             helicopterSubsystem.waitPositionCommand(),
-            new WaitCommand(0.6),
             // Commands.waitUntil(() -> !intakeSubsystem.coralIntakedSensor2.get() || indexerSubsystem.getPieceInIndexer()),
             // //new ParallelCommandGroup(elevatorSubsystem.waitPositionCommand(),
             // //ledSubsystem.flashGreenCommand()),
@@ -83,8 +82,7 @@ public class IntakeToL4 extends DynamicCommand{
             new WaitCommand(0.2),
             helicopterSubsystem.l4WaitPositionCommand(),
             new WaitCommand(0.4),
-            endEffectorSubsystem.securePiece(),
-            intakeSubsystem.stowPositionCommand()
+            endEffectorSubsystem.securePiece()
         );
     }
 }

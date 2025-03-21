@@ -27,6 +27,7 @@ public class L3PositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0)),
             helicopterSubsystem.stowPositionCommand(),
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.l3PositionCommand(),
@@ -34,8 +35,9 @@ public class L3PositionCommand extends DynamicCommand {
                 Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
                 helicopterSubsystem.l3WaitPositionCommand(),
                 Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
-            ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 3)),
-            Commands.waitUntil(elevatorSubsystem::atCommandedPosition)
+            ),
+            Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
+            Commands.runOnce(() -> {helicopterSubsystem.positionWaitingOn = 3;})
         ).onlyIf(() -> (elevatorSubsystem.getZeroed() && endEffectorSubsystem.getCoralLoaded()));
     }
 }     

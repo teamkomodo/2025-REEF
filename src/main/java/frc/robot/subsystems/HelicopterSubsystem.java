@@ -61,7 +61,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     
         // Variables
         private double targetAngle = 0;
-        private int positionWaitingOn = 0;
+        public int positionWaitingOn = 0;
     
     
         public HelicopterSubsystem() { // CONSTRUCTION
@@ -225,8 +225,8 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     public Command releaseCoralPositionCommand() {
         return this.runOnce(() -> {
-            if (positionWaitingOn > 1) {
-                setHelicopterPosition(0.95);
+            if (positionWaitingOn > 0) {
+                setHelicopterPosition(0.85);
             }
         });
     }

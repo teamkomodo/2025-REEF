@@ -77,7 +77,7 @@ public final class Constants {
   public static final double INTAKE_HINGE_MIN_POSITION = 0;
   public static final double INTAKE_HINGE_MAX_POSITION = 13.547;
   public static final double INTAKE_HINGE_STOW_POSITION = 0;
-  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 6.5;// new 9.381 // This is for when there is a coral in the intake and we want to help feed it through
+  public static final double INTAKE_HINGE_FEED_CORAL_POSITION = 8.5;// new 9.381 // This is for when there is a coral in the intake and we want to help feed it through
   public static final double INTAKE_HINGE_SAFE_ELEVATOR_POSITION  = 3;
   public static final double INTAKE_HINGE_START_POSITION = 0; // 0 is all the way up
   public static final double INTAKE_HINGE_CLEAR_ARM_POSITION = 7.0;
@@ -92,21 +92,21 @@ public final class Constants {
     // Elevator positions
   public static final double ELEVATOR_MIN_POSITION = 0; // Min position is the limit switch position
   public static final double ELEVATOR_MAX_POSITION = 29.75;
-  public static final double ELEVATOR_WAIT_POSITION = 13.550; // NEW 12.550 old 14.0
+  public static final double ELEVATOR_WAIT_POSITION = 15; // NEW 12.550 old 14.0
   public static final double ELEVATOR_STOW_POSITION = 1.5;
 
   public static final double ELEVATOR_LOW_ALGAE_POSITION = 16.896;
   public static final double ELEVATOR_HIGH_ALGAE_POSITION = 29;
-  public static final double ELEVATOR_GRAB_POSITION = 8.108; // NEW 8.194 old 7.424
+  public static final double ELEVATOR_GRAB_POSITION = 8.1; // NEW 8.194 old 7.424
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 16.0;//NEW 13.820 old 12.477
-  public static final double ELEVATOR_PRE_STOW_POSITION = 15;
-  public static final double ELEVATOR_PRE_PICKUP_POSITION = 12.5;
+  public static final double ELEVATOR_PRE_STOW_POSITION = 18;
+  public static final double ELEVATOR_PRE_PICKUP_POSITION = 12.1;
   
   public static final double ELEVATOR_SCORE_ALGAE_POSITION = 29;
-  public static final double ELEVATOR_L2_POSITION = 10.1;
-  public static final double ELEVATOR_L3_POSITION = 17.896;
+  public static final double ELEVATOR_L2_POSITION = 8;
+  public static final double ELEVATOR_L3_POSITION = 14.4;//18.996; //23
   public static final double ELEVATOR_L4_POSITION = 29.3;
-
+  
   // Indexer
     // Indexer sensor channels
   public static final int INDEXER_END_SENSOR_CHANNEL = 3;
@@ -124,16 +124,16 @@ public final class Constants {
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.6;
-  public static final double HELICOPTER_GRAB_POSITION = 1.075;
-  public static final double HELICOPTER_WAIT_POSITION = 1.053;// new 1.062 old 0.80
+  public static final double HELICOPTER_GRAB_POSITION = 1.0935;
+  public static final double HELICOPTER_WAIT_POSITION = 1.05;// new 1.062 old 0.80
   public static final double HELICOPTER_EJECT_CORAL_POSITION = 0.73;
   
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;
-  public static final double HELICOPTER_WAIT_FOR_L2_L3_POSITION = 0.688;
-  public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.98;
+  public static final double HELICOPTER_WAIT_FOR_L2_L3_POSITION = 0.653;//0.710;//0.785; // //;
+  public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.788;
   public static final double HELICOPTER_SCORE_ALGAE_POSITION = 0.6; // FIXME: TUNE ME
   public static final double HELICOPTER_L1_POSITION = 0.73;
-  public static final double HELICOPTER_L2_L3_POSITION = 0.738;
+  public static final double HELICOPTER_L2_L3_POSITION = 0.738; //0.785;
   public static final double HELICOPTER_L4_POSITION = 0.76;
 
   // End Effector

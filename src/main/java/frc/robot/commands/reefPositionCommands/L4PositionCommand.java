@@ -28,12 +28,14 @@ public class L4PositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0)),
             helicopterSubsystem.stowPositionCommand(),
             new WaitCommand(0.1),
             // Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.l4PositionCommand(),
             new WaitCommand(0.3),
-            helicopterSubsystem.l4WaitPositionCommand()
+            helicopterSubsystem.l4WaitPositionCommand(),
+            Commands.runOnce(() -> {helicopterSubsystem.positionWaitingOn = 4;})
             // new SequentialCommandGroup(
             //     Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
             //     helicopterSubsystem.l4WaitPositionCommand(),

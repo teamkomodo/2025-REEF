@@ -51,6 +51,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
+  public boolean reseting = false;
 
   //Inputs Devices
   private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
@@ -114,34 +115,37 @@ public class RobotContainer {
     Trigger operatorRS = operatorController.rightStick();
     Trigger operatorX = operatorController.x();
 
-    operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem, ledSubsystem, helicopterSubsystem, elevatorSubsystem));
+    operatorRT.onTrue(new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem).onlyIf(() -> !reseting));
+    operatorPD.onTrue(new EjectCommand(intakeSubsystem, endEffectorSubsystem, ledSubsystem, helicopterSubsystem, elevatorSubsystem).onlyIf(() -> !reseting));
 
-    operatorRB.onTrue(new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem));
-    operatorLB.onTrue(new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    operatorRB.onTrue(new SequentialCommandGroup(
+      Commands.runOnce(() -> reseting = true),
+      new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem),
+      Commands.runOnce(() -> reseting = false)));
+      operatorLB.onTrue(new SequentialCommandGroup(
+        Commands.runOnce(() -> reseting = true),
+        new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem),
+        Commands.runOnce(() -> reseting = false)));
 
-    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    operatorRS.onTrue(intakeSubsystem.stowPositionCommand());
+    operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
+    operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
+    operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
+    operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
+    operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
+    operatorRS.onTrue(intakeSubsystem.stowPositionCommand().onlyIf(() -> !reseting));
 
     driverX.onTrue(drivetrainSubsystem.zeroGyroCommand());
-    //driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
-    //driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
-
-    driverRT.whileTrue(drivetrainSubsystem.goToBranch(true));
-    driverLT.whileTrue(drivetrainSubsystem.goToBranch(false));
-    driverLB.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-   // driverLB.whileTrue(drivetrainSubsystem.autoVisionDriveCommand(false));
-    //driverLT.whileTrue(drivetrainSubsystem.limelightAlignCommand());
-    driverRB.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    driverLB.onTrue(drivetrainSubsystem.disableSpeedModeCommand());
+    driverLB.onFalse(drivetrainSubsystem.enableSpeedModeCommand());
+    
+    driverRB.onTrue(new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem).onlyIf(() -> !reseting));
     
     // deadband and curves are applied in command
     drivetrainSubsystem.setDefaultCommand(
       drivetrainSubsystem.joystickDriveCommand(
         () -> ( driverController.getLeftY() ), // -Y on left joystick is +X for robot
         () -> ( driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        () -> ( driverController.getRightX()/1.4 ) // -X on right joystick is +Z for robot
+        () -> ( driverController.getRightX()/1.6 ) // -X on right joystick is +Z for robot
       )
     );
   }
@@ -149,7 +153,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
-    NamedCommands.registerCommand("Score", new Score(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
     NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
     NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());

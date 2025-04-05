@@ -225,8 +225,10 @@ public class HelicopterSubsystem extends SubsystemBase {
 
     public Command releaseCoralPositionCommand() {
         return this.runOnce(() -> {
-            if (positionWaitingOn > 0) {
-                setHelicopterPosition(0.85);
+            if (positionWaitingOn > 2) {
+                setHelicopterPosition(0.78);
+            } else {
+                setHelicopterPosition(0.743);
             }
         });
     }

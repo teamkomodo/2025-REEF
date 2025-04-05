@@ -12,7 +12,7 @@ import frc.robot.subsystems.HelicopterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 
-public class ScoreToStowCommand extends DynamicCommand {
+public class L2ToStowCommand extends DynamicCommand {
 
     private final EndEffectorSubsystem endEffectorSubsystem;
     private final HelicopterSubsystem helicopterSubsystem;
@@ -20,7 +20,7 @@ public class ScoreToStowCommand extends DynamicCommand {
     private final IntakeSubsystem intakeSubsystem;
     private final LEDSubsystem ledSubsystem;
 
-    public ScoreToStowCommand(
+    public L2ToStowCommand(
         EndEffectorSubsystem endEffectorSubsystem, 
         HelicopterSubsystem helicopterSubsystem, 
         ElevatorSubsystem elevatorSubsystem,
@@ -49,12 +49,8 @@ public class ScoreToStowCommand extends DynamicCommand {
             endEffectorSubsystem.ejectCommand(),
             new WaitCommand(0.1),
             intakeSubsystem.intakePositionCommand(),
-            elevatorSubsystem.l3PositionCommand(),
-            new WaitCommand(0.3),
-            elevatorSubsystem.waitPositionCommand(),
             new WaitCommand(0.45),
-            Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)),
-            helicopterSubsystem.waitPositionCommand()
+            Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0))
             );
     }
 }

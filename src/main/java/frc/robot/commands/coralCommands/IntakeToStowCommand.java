@@ -66,7 +66,7 @@ public class IntakeToStowCommand extends DynamicCommand{
             // //ledSubsystem.flashGreenCommand()),
             Commands.waitUntil(() -> !indexerSubsystem.coralInIndexerSensor.get() || !indexerSubsystem.coralIndexedSensor.get()),
             intakeSubsystem.feedCoralPositionCommand(),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.45)),
+            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0.3)),
             Commands.waitUntil(indexerSubsystem::getPieceIndexed),
             intakeSubsystem.intakePositionCommand(),
             Commands.runOnce(intakeSubsystem::stopIntake),
@@ -84,6 +84,7 @@ public class IntakeToStowCommand extends DynamicCommand{
             new WaitCommand(0.2),
             helicopterSubsystem.stowPositionCommand(),
             new WaitCommand(0.4),
+            Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)),
             endEffectorSubsystem.securePiece(),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0))
         ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());

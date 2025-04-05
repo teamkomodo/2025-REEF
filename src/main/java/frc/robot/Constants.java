@@ -104,7 +104,7 @@ public final class Constants {
   
   public static final double ELEVATOR_SCORE_ALGAE_POSITION = 29;
   public static final double ELEVATOR_L2_POSITION = 8;
-  public static final double ELEVATOR_L3_POSITION = 14.4;//18.996; //23
+  public static final double ELEVATOR_L3_POSITION = 15.8;//18.996; //23
   public static final double ELEVATOR_L4_POSITION = 29.3;
   
   // Indexer

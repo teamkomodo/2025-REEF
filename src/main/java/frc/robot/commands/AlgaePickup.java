@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.ELEVATOR_L3_POSITION;
 import static frc.robot.Constants.INTAKE_HINGE_FEED_CORAL_POSITION;
 import static frc.robot.Constants.INTAKE_HINGE_INTAKE_POSITION;
 
@@ -53,12 +54,12 @@ public class AlgaePickup extends DynamicCommand{
     protected Command getCommand() {
         // TODO Auto-generated method stub
         return new SequentialCommandGroup(
-            Commands.runOnce(() -> elevatorSubsystem.setElevatorSupposedPosition(3)),
+            Commands.runOnce(() -> elevatorSubsystem.setElevatorSupposedPosition(ELEVATOR_L3_POSITION)),
+            new WaitCommand(0.5),
             Commands.runOnce(() -> helicopterSubsystem.setMotorPosition(0.88)),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(1)),
             Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
-            Commands.runOnce(() -> intakeSubsystem.setIntakeDutyCycle(0)),
-            intakeSubsystem.stowPositionCommand()
+            Commands.runOnce(() -> endEffectorSubsystem.holdEndEffector())
         );
     }
 }

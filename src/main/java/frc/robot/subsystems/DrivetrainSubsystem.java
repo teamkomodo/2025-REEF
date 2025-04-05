@@ -613,7 +613,7 @@ public class DrivetrainSubsystem implements Subsystem {
         double xP = 0.01;
         double targetingForwardSpeed = LimelightHelpers.getTX("limelight-komodo") * xP;
         targetingForwardSpeed *= 1;
-        targetingForwardSpeed *= -3.5;
+        targetingForwardSpeed *= -3.5 * 0.6;
         //targetingForwardSpeed *= -1.5;
         
         if(Math.abs(LimelightHelpers.getTX("limelight-komodo")) > 0.5){
@@ -719,6 +719,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command autoVisionDriveCommand(boolean right) {
         return new SequentialCommandGroup(
             Commands.run(() -> {
+                atReef = false;
                 drive(limelightX(), -limelightY(), limelightZ(), false);
             }, this).until(() -> atReef),
             Commands.runOnce(() -> stopMotion())
@@ -736,8 +737,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command limelightAutoLeftAlignCommand(boolean right){
         return new SequentialCommandGroup(
+            Commands.runOnce(() -> atReef = false),
             autoVisionDriveCommand(true),
-            Commands.run(() -> drive(0.7, -0.3, -0.07, false), this).withTimeout(0.6),
+            Commands.run(() -> drive(0.46667, -0.3, -0.07, false), this).withTimeout(0.9),
             Commands.runOnce(() -> stopMotion(), this),
             Commands.runOnce(() -> System.out.println("done"))
         );

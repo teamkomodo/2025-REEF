@@ -40,8 +40,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     public final DigitalInput coralLoadedSensor;
 
-    private boolean coralLoaded = false;
+    public boolean coralLoaded = false;
     private boolean algaeLoaded = false;
+    public boolean updateSensor = true;
     private double filteredCurrent = 0;
     private double currentFilterConstant = 0.1;
 
@@ -85,7 +86,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
 
     private void checkSensors() {
-        coralLoaded = getCoralDetection(coralLoadedSensor);
+        if(updateSensor)
+            coralLoaded = getCoralDetection(coralLoadedSensor);
+        else   
+            coralLoaded = true;
     }
 
     private void configMotors() {
@@ -170,7 +174,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setEndEffectorDutyCycle(0.2)),
             new WaitCommand(0.2),
-            Commands.runOnce(() -> setEndEffectorDutyCycle(0))
+            Commands.runOnce(() -> setEndEffectorDutyCycle(0)),
+            Commands.runOnce(() -> holdEndEffector())
         );
     }
 

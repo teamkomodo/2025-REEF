@@ -753,6 +753,20 @@ public class DrivetrainSubsystem implements Subsystem {
             Commands.runOnce(() -> System.out.println("done"))
         );
     }
+
+    //TODO: Test this function to make sure it works
+    public Command LimelightBranchAlignCommand(boolean right){
+        return Commands.run(() -> {
+            double xDistance;
+            if(right == true){
+                xDistance = limelightX() - LIMELIGHT_OFFSET;
+
+            } else{
+                xDistance = limelightX() + LIMELIGHT_OFFSET;
+            }
+            drive(xDistance, limelightY(), limelightZ(), false);
+        }, this);
+    }
 }
 
 

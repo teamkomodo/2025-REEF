@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.commands.coralCommands.EjectCommand;
 import frc.robot.commands.coralCommands.IntakeToL4;
 import frc.robot.commands.coralCommands.IntakeToStowCommand;
-import frc.robot.commands.coralCommands.Score;
+//import frc.robot.commands.coralCommands.Score;
 import frc.robot.commands.coralCommands.ScoreToStowCommand;
 import frc.robot.commands.reefPositionCommands.L2PositionCommand;
 import frc.robot.commands.reefPositionCommands.L3PositionCommand;

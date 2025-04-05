@@ -200,6 +200,8 @@ public final class Constants {
   public static final double ALIGN_EXPONENTIAL_SPEED_FACTOR = 0.9;
   public static final double ALIGN_TURN_CONSTANT = 0.18;
 
+
+  public static final double LIMELIGHT_OFFSET = 05;
   public static final double APRILTAG_HEIGHT = 0.5715;
   public static final double LIMELIGHT_ROBOT_Y_OFFSET = -0.0254; //UPDATE BEFORE SCRIMMAGE
   public static final double LIMELIGHT_HEIGHT = 0.1778; //UPDATE BEFORE SCRIMMAGE

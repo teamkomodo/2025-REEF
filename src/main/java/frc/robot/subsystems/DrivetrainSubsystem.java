@@ -700,7 +700,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 timedDriveCommand(1, 0, 0, false,  0.2);
             }
         }, this);  
-    }
+    } 
 
     public void timedDriveCommand(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, double driveTime) {
         new SequentialCommandGroup(

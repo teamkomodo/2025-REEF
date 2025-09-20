@@ -166,7 +166,7 @@ public class RobotContainer {
 
   public void teleopInit
   () {
-    new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem).schedule();
+    //new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem).schedule();
   }
 
   public Command getAutonomousCommand() {

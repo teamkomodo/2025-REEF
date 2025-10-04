@@ -79,6 +79,7 @@ public class RobotContainer {
 
     /*           Driver | Control
      *        Joysticks | Drive
+     * 
      *         X Button | Zero Gyro
      *      Left Bumper | Slow Mode
      *     Right Bumper | Reef Align
@@ -92,7 +93,8 @@ public class RobotContainer {
      *         B Button | L3 Position
      *         Y Button | L2 Position
      *     Left Trigger | Score
-     *         POV Down | Eject
+     *         P
+     * OV Down | Eject
      */
 
     Trigger driverLT = driverController.leftTrigger();

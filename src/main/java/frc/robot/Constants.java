@@ -114,7 +114,7 @@ public final class Constants {
 
   // Helicopter
     // Motor IDs
-  public static final int HELICOPTER_MOTOR_ID = 41;
+  public static final int HELICOPTER_MOTOR_ID = 25;
     // Gear ratio and offset
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
   public static final double HELICOPTER_OFFSET = 0.1171 + 0.16666666667; // - 0.16666666667 after changing encoder
@@ -123,7 +123,7 @@ public final class Constants {
   public static final double HELICOPTER_MIN_SAFE_POSITION = 0.53;
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
     // Helicopter positions
-  public static final double HELICOPTER_STOW_POSITION = 0.6;
+  public static final double HELICOPTER_STOW_POSITION = 0;
   public static final double HELICOPTER_GRAB_POSITION = 1.0935;
   public static final double HELICOPTER_WAIT_POSITION = 1.05;// new 1.062 old 0.80
   public static final double HELICOPTER_EJECT_CORAL_POSITION = 0.73;

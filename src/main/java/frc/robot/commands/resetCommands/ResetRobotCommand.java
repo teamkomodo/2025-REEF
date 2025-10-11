@@ -42,7 +42,7 @@ public class ResetRobotCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
-          Commands.print("reset"),
+          Commands.print("RESET"),
           Commands.runOnce(intakeSubsystem::stopIntake),
           Commands.runOnce(endEffectorSubsystem::stopEndEffector),
           new SequentialCommandGroup(
@@ -56,6 +56,6 @@ public class ResetRobotCommand extends DynamicCommand {
           Commands.print("STOWING ELEVATOR"),
           elevatorSubsystem.stowPositionCommand(),
           new WaitCommand(0.4)
-        ) .onlyIf(() -> elevatorSubsystem.getZeroed()  && intakeSubsystem.getZeroed());
+        )/* .onlyIf(() -> elevatorSubsystem.getZeroed()  && intakeSubsystem.getZeroed())*/;
     }
 }

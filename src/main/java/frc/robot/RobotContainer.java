@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.commands.coralCommands.EjectCommand;
+import frc.robot.commands.coralCommands.FinishIntakeCommand;
 import frc.robot.commands.coralCommands.IntakeToL4;
 import frc.robot.commands.coralCommands.IntakeToStowCommand;
 import frc.robot.commands.coralCommands.Score;
@@ -131,7 +132,7 @@ public class RobotContainer {
         Commands.runOnce(() -> reseting = false)));
 
    // operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
-   operatorX.onTrue(elevatorSubsystem.preStowPositionCommand());
+   operatorX.whileTrue(new FinishIntakeCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     //operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));

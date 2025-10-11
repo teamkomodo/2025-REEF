@@ -90,6 +90,8 @@ public class IntakeToStowCommand extends DynamicCommand{
             Commands.print("ELEVATOR GRABBING"),
             elevatorSubsystem.grabPositionCommand(),
             Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
+            Commands.print("GOT A CORAL"),
+            Commands.waitSeconds(1),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             Commands.print("ELEVATOR GOING TO PRESTOW"),
             new ParallelCommandGroup(

@@ -89,6 +89,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         updateTelemetry();
         checkSensors();
         checkLimitSwitch();
+      //  System.out.println("Elevator magnetic switch: " + limitSwitch.get());
     }
 
     public void checkSensors() {
@@ -155,7 +156,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setElevatorSupposedPosition(double position) {
-        if (!zeroed) return;
+        //if (!zeroed) return;
         // Constain the position to the elevator limits
         elevatorSupposedPosition = Math.min(Math.max(position, ELEVATOR_MIN_POSITION), ELEVATOR_MAX_POSITION);
         elevatorController.setReference(position, ControlType.kMAXMotionPositionControl);
@@ -198,7 +199,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command preStowPositionCommand() {
-        return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_STOW_POSITION));
+       // return this.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_STOW_POSITION));
+        return new SequentialCommandGroup(
+            Commands.print("GOING TO PRESTOW ELEVATOER"),
+            Commands.runOnce(() -> setElevatorSupposedPosition(ELEVATOR_PRE_STOW_POSITION))
+        );
     }
 
     public Command l2PositionCommand() {
@@ -223,7 +228,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         // Activate with one press
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setElevatorDutyCycle(-0.15)), 
-            Commands.waitUntil(() -> getLimitSwitchAtCurrentCheck()),
+            //Commands.waitUntil(() -> getLimitSwitchAtCurrentCheck()),
+            Commands.waitSeconds(3),
+            Commands.print("RUNNING ELEVATOR"),
             Commands.runOnce(() -> { setElevatorDutyCycle(0); holdElevatorPosition(); })
         );
     }

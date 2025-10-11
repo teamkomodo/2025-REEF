@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // PID constants
     private final PIDGains intakePIDGains = new PIDGains(1, 0, 0);
-    private final PIDGains hingePIDGains = new PIDGains(1, 0, 0.1);
+    private final PIDGains hingePIDGains = new PIDGains(0.1, 0, 0.1);
     private final double hingeMaxAccel = 3000;
     private final double hingeMaxVelocity = 3000;
     private final double hingeAllowedClosedLoopError = 0.3;
@@ -300,7 +300,9 @@ public class IntakeSubsystem extends SubsystemBase {
         // Activate with one press
         return new SequentialCommandGroup(
             Commands.runOnce(() -> setHingeDutyCycle(-0.2)),
-            Commands.waitUntil(() -> (zeroed)),
+            //Commands.waitUntil(() -> (zeroed)),
+            Commands.waitSeconds(1),
+            Commands.print("ZERO'D HINGE"),
             Commands.runOnce(() -> setHingeDutyCycle(0)),
             Commands.runOnce(() -> holdHingePosition())
         );

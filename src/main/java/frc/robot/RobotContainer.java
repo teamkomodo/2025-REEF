@@ -93,7 +93,7 @@ public class RobotContainer {
      *         B Button | L3 Position
      *         Y Button | L2 Position
      *     Left Trigger | Score
-     *         P
+     *         
      * OV Down | Eject
      */
 
@@ -124,13 +124,15 @@ public class RobotContainer {
       Commands.runOnce(() -> reseting = true),
       new ZeroMechCommand(elevatorSubsystem, intakeSubsystem, helicopterSubsystem, ledSubsystem),
       Commands.runOnce(() -> reseting = false)));
+
       operatorLB.onTrue(new SequentialCommandGroup(
         Commands.runOnce(() -> reseting = true),
         new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem),
         Commands.runOnce(() -> reseting = false)));
 
-    operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
-    operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
+   // operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
+   operatorX.onTrue(elevatorSubsystem.preStowPositionCommand());
+    //operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
     operatorY.onTrue(new L2PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));

@@ -38,14 +38,19 @@ public class ZeroMechCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         return new SequentialCommandGroup(
+            Commands.print("ZERO COMMAND RUNNING"),
             Commands.runOnce(helicopterSubsystem::holdMotorPosition),
             Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0.5)),
-            new WaitCommand(0.3),
+            new WaitCommand(1),
+            Commands.print("STOWING HELICOPTER"),
             helicopterSubsystem.stowPositionCommand(),
-            Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0)),
+            //Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0)),
+            Commands.print("ZERO INTAKE"),
             intakeSubsystem.zeroHingeCommand(),
-            elevatorSubsystem.zeroElevatorCommand(),
-            ledSubsystem.flashHotPinkCommand()
-        ).onlyIf(() -> !elevatorSubsystem.getZeroed() || !intakeSubsystem.getZeroed());
+            Commands.waitSeconds(0.3),
+            Commands.print("DOWN ELEVATOR"),
+            elevatorSubsystem.zeroElevatorCommand()
+            //ledSubsystem.flashHotPinkCommand()
+        )/* .onlyIf(() -> !elevatorSubsystem.getZeroed() || !intakeSubsystem.getZeroed())*/;
     }
 }

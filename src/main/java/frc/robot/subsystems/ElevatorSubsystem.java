@@ -89,7 +89,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         updateTelemetry();
         checkSensors();
         checkLimitSwitch();
-      //  System.out.println("Elevator magnetic switch: " + limitSwitch.get());
+       // System.out.println("Elevator magnetic switch: " + limitSwitch.get());
     }
 
     public void checkSensors() {

@@ -86,7 +86,7 @@ public final class Constants {
   // Elevator
     // Motor ID
   public static final int ELEVATOR_MOTOR_ID = 40;
-  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 6;
+  public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 5;
     // Zeroing speed
   public static final double ELEVATOR_ZEROING_SPEED = -0.1;
     // Elevator positions
@@ -124,8 +124,8 @@ public final class Constants {
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.788;
-  public static final double HELICOPTER_GRAB_POSITION = 1.0935;
-  public static final double HELICOPTER_WAIT_POSITION = 1;// new 1.062 old 0.80
+  public static final double HELICOPTER_GRAB_POSITION = 0.305;
+  public static final double HELICOPTER_WAIT_POSITION = 0.305;// new 1.062 old 0.80
   public static final double HELICOPTER_EJECT_CORAL_POSITION = 0.73;
   
   public static final double HELICOPTER_WAIT_FOR_L4_POSITION = 0.65;

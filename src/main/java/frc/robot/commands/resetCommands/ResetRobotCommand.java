@@ -56,6 +56,6 @@ public class ResetRobotCommand extends DynamicCommand {
           Commands.print("STOWING ELEVATOR"),
           elevatorSubsystem.stowPositionCommand(),
           new WaitCommand(0.4)
-        )/* .onlyIf(() -> elevatorSubsystem.getZeroed()  && intakeSubsystem.getZeroed())*/;
+        ).onlyIf(() -> elevatorSubsystem.getZeroed())  /*&& intakeSubsystem.getZeroed())*/;
     }
 }

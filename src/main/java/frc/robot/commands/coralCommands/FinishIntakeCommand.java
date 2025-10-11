@@ -51,11 +51,15 @@ public class FinishIntakeCommand extends DynamicCommand{
         // TODO Auto-generated method stub
         return new SequentialCommandGroup(
             Commands.print("ELEVATOR GRABBING"),
+            Commands.runOnce(() -> intakeSubsystem.stopIntake(), intakeSubsystem),
+            intakeSubsystem.intakePositionCommand(),
             elevatorSubsystem.grabPositionCommand(),
-            //Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
-            Commands.waitSeconds(1.5),
+            helicopterSubsystem.grabPositionCommand(),
+            endEffectorSubsystem.intakeCommand(),
+            Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
+           // Commands.waitSeconds(0.5),
             Commands.print("GOT A CORAL"),
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(0.5),
             Commands.runOnce(endEffectorSubsystem::stopEndEffector),
             Commands.print("ELEVATOR GOING TO PRESTOW"),
             new ParallelCommandGroup(
@@ -68,7 +72,9 @@ public class FinishIntakeCommand extends DynamicCommand{
             Commands.runOnce(() -> intakeSubsystem.setHingeDutyCycle(0)),
             Commands.print("SECURING PIECE"),
             endEffectorSubsystem.securePiece(),
-            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0))
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0)),
+            //Commands.waitUntil(() -> endEffectorSubsystem.getCoralLoaded()),
+            Commands.print("FINISHED")
         ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());
     }
 }

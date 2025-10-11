@@ -133,6 +133,7 @@ public class RobotContainer {
 
    // operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
    operatorX.whileTrue(new FinishIntakeCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+   //operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0.5)));
     //operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
     operatorB.onTrue(new L3PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));

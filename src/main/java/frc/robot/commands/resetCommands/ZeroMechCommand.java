@@ -40,8 +40,8 @@ public class ZeroMechCommand extends DynamicCommand {
         return new SequentialCommandGroup(
             Commands.print("ZERO COMMAND RUNNING"),
             Commands.runOnce(helicopterSubsystem::holdMotorPosition),
-            Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0.5)),
-            new WaitCommand(1),
+            Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0.3)),
+            new WaitCommand(2),
             Commands.print("STOWING HELICOPTER"),
             helicopterSubsystem.stowPositionCommand(),
             //Commands.runOnce(() -> elevatorSubsystem.setElevatorDutyCycle(0)),
@@ -51,6 +51,6 @@ public class ZeroMechCommand extends DynamicCommand {
             Commands.print("DOWN ELEVATOR"),
             elevatorSubsystem.zeroElevatorCommand()
             //ledSubsystem.flashHotPinkCommand()
-        )/* .onlyIf(() -> !elevatorSubsystem.getZeroed() || !intakeSubsystem.getZeroed())*/;
+        ).onlyIf(() -> !elevatorSubsystem.getZeroed()); /*|| !intakeSubsystem.getZeroed())*/
     }
 }

@@ -38,6 +38,6 @@ public class L2PositionCommand extends DynamicCommand {
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 2)),
             Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
             Commands.runOnce(() -> {helicopterSubsystem.positionWaitingOn = 2;})
-        ).onlyIf(() -> (elevatorSubsystem.getZeroed()));
+        )/* .onlyIf(() -> (elevatorSubsystem.getZeroed()))*/;
     }
 }

@@ -97,7 +97,7 @@ public final class Constants {
 
   public static final double ELEVATOR_LOW_ALGAE_POSITION = 16.896;
   public static final double ELEVATOR_HIGH_ALGAE_POSITION = 29;
-  public static final double ELEVATOR_GRAB_POSITION = 8.263; // NEW 8.194 old 7.424
+  public static final double ELEVATOR_GRAB_POSITION = 8.287; // NEW 8.194 old 7.424
   public static final double ELEVATOR_CLEAR_INTAKE_POSITION = 16.0;//NEW 13.820 old 12.477
   public static final double ELEVATOR_PRE_STOW_POSITION = 18;
   public static final double ELEVATOR_PRE_PICKUP_POSITION = 12.1;
@@ -117,14 +117,14 @@ public final class Constants {
   public static final int HELICOPTER_MOTOR_ID = 25;
     // Gear ratio and offset
   public static final double HELICOPTER_GEAR_RATIO = 47.25;
-  public static final double HELICOPTER_OFFSET = 0; // - 0.16666666667 after changing encoder
+  public static final double HELICOPTER_OFFSET = -0.153; // - 0.16666666667 after changing encoder
   public static final double HELICOPTER_MIN_POSITION = 0;
   public static final double HELICOPTER_MAX_POSITION = 1.24;
   public static final double HELICOPTER_MIN_SAFE_POSITION = 0f;
   public static final double HELICOPTER_MAX_SAFE_POSITION = 0.821;
     // Helicopter positions
   public static final double HELICOPTER_STOW_POSITION = 0.788;
-  public static final double HELICOPTER_GRAB_POSITION = 0.305;
+  public static final double HELICOPTER_GRAB_POSITION = 0.316;//0.302;
   public static final double HELICOPTER_WAIT_POSITION = 0.305;// new 1.062 old 0.80
   public static final double HELICOPTER_EJECT_CORAL_POSITION = 0.73;
   
@@ -132,9 +132,9 @@ public final class Constants {
   public static final double HELICOPTER_WAIT_FOR_L2_L3_POSITION = 0.653;//0.710;//0.785; // //;
   public static final double HELICOPTER_RELEASE_CORAL_POSITION = 0.788;
   public static final double HELICOPTER_SCORE_ALGAE_POSITION = 0.6; // FIXME: TUNE ME
-  public static final double HELICOPTER_L1_POSITION = 0.73;
-  public static final double HELICOPTER_L2_L3_POSITION = 0.738; //0.785;
-  public static final double HELICOPTER_L4_POSITION = 0.76;
+  public static final double HELICOPTER_L1_POSITION = 0.95;
+  public static final double HELICOPTER_L2_L3_POSITION = 0.958; //0.785;
+  public static final double HELICOPTER_L4_POSITION = 0.95;
 
   // End Effector
   public static final int ENDEFFECTOR_MOTOR_ID = 10;

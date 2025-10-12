@@ -55,8 +55,8 @@ public class HelicopterSubsystem extends SubsystemBase {
     public double heliD = 0.009;
 
     public PIDGains helicopterPIDGains = new PIDGains(heliP, heliI, heliD, 0.0); //0.1, 0.0000001  , 0.05, 0.0
-    private final double helicopterMaxAccel = 7500;
-    private final double helicopterMaxVelocity = 9000;
+    private final double helicopterMaxAccel = 3750; //7500
+    private final double helicopterMaxVelocity = 4500; //9000
     private double helicopterAllowedClosedLoopError = 0.5; // / HELICOPTER_GEAR_RATIO; // = +/- 1/2 inch of arm movement if this = 0.4 / HELICOPTER_GEAR_RATIO
     
         // Variables
@@ -140,11 +140,11 @@ public class HelicopterSubsystem extends SubsystemBase {
     public void setHelicopterPosition(double position) {
         targetAngle = position;
         positionWaitingOn = 0;
-        // if (useAbsoluteEncoder) {
-            // double helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
-        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO);
-            // + helicopterOffsetDifference * HELICOPTER_GEAR_RATIO);
-        // }
+        /*  if (useAbsoluteEncoder) {
+             double helicopterOffsetDifference = getAbsoluteEncoderPosition() - (helicopterMotorEncoder.getPosition() / HELICOPTER_GEAR_RATIO);
+        helicopterMotorEncoder.setPosition(getAbsoluteEncoderPosition() * HELICOPTER_GEAR_RATIO
+             + helicopterOffsetDifference * HELICOPTER_GEAR_RATIO);
+         }*/
         setMotorPosition(targetAngle * HELICOPTER_GEAR_RATIO);
     }
 
@@ -224,13 +224,7 @@ public class HelicopterSubsystem extends SubsystemBase {
     }
 
     public Command releaseCoralPositionCommand() {
-        return this.runOnce(() -> {
-            if (positionWaitingOn > 2) {
-                setHelicopterPosition(0.78);
-            } else {
-                setHelicopterPosition(0.743);
-            }
-        });
+        return this.runOnce(() -> setHelicopterPosition(0.943));
     }
 
     public Command scoreCommand() {

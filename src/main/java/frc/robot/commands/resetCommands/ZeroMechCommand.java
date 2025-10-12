@@ -51,6 +51,6 @@ public class ZeroMechCommand extends DynamicCommand {
             Commands.print("DOWN ELEVATOR"),
             elevatorSubsystem.zeroElevatorCommand()
             //ledSubsystem.flashHotPinkCommand()
-        ).onlyIf(() -> !elevatorSubsystem.getZeroed()); /*|| !intakeSubsystem.getZeroed())*/
+        )/* .onlyIf(() -> !elevatorSubsystem.getZeroed()); /*|| !intakeSubsystem.getZeroed())*/;
     }
 }

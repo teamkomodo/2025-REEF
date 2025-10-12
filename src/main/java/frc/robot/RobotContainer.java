@@ -132,7 +132,7 @@ public class RobotContainer {
         Commands.runOnce(() -> reseting = false)));
 
    // operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = false));
-   operatorX.whileTrue(new FinishIntakeCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+   operatorX.onTrue(new FinishIntakeCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
    //operatorX.onTrue(Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0.5)));
     //operatorX.onFalse(Commands.runOnce(() -> endEffectorSubsystem.updateSensor = true));
     operatorA.onTrue(new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem).onlyIf(() -> !reseting));
@@ -157,17 +157,19 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
     NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
     NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
-    NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
-    NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
-    NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
-    NamedCommands.registerCommand("ReefAlign", null);
-    NamedCommands.registerCommand("LeftAlign", drivetrainSubsystem.limelightAutoLeftAlignCommand(false));
-    NamedCommands.registerCommand("RightAlign", drivetrainSubsystem.limelightAutoRightAlignCommand(true));
-    NamedCommands.registerCommand("IntakeL4", new IntakeToL4(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    // NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    // NamedCommands.registerCommand("L4", new L4PositionCommand(elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem));
+    // NamedCommands.registerCommand("Score", new ScoreToStowCommand(endEffectorSubsystem, helicopterSubsystem, elevatorSubsystem, intakeSubsystem, ledSubsystem));
+    // NamedCommands.registerCommand("Zero", drivetrainSubsystem.zeroGyroCommand());
+    // NamedCommands.registerCommand("Reset", new ResetRobotCommand(intakeSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    // NamedCommands.registerCommand("StowArm", helicopterSubsystem.stowPositionCommand());
+    // NamedCommands.registerCommand("Intake", new IntakeToStowCommand(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
+    // NamedCommands.registerCommand("ReefAlign", null);
+    // NamedCommands.registerCommand("LeftAlign", drivetrainSubsystem.limelightAutoLeftAlignCommand(false));
+    // NamedCommands.registerCommand("RightAlign", drivetrainSubsystem.limelightAutoRightAlignCommand(true));
+    // NamedCommands.registerCommand("IntakeL4", new IntakeToL4(intakeSubsystem, indexerSubsystem, elevatorSubsystem, helicopterSubsystem, endEffectorSubsystem, ledSubsystem));
   }
 
   public void teleopInit

@@ -56,16 +56,16 @@ public class FinishIntakeCommand extends DynamicCommand{
             elevatorSubsystem.grabPositionCommand(),
             helicopterSubsystem.grabPositionCommand(),
             endEffectorSubsystem.intakeCommand(),
-            Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
-           // Commands.waitSeconds(0.5),
+            //Commands.waitUntil(() -> !endEffectorSubsystem.coralLoadedSensor.get()),
+            Commands.waitSeconds(1),
             Commands.print("GOT A CORAL"),
-            Commands.waitSeconds(0.5),
-            Commands.runOnce(endEffectorSubsystem::stopEndEffector),
+            endEffectorSubsystem.securePiece(),
+            Commands.runOnce(() -> { endEffectorSubsystem.coralLoaded = true; }),
             Commands.print("ELEVATOR GOING TO PRESTOW"),
             new ParallelCommandGroup(
                 elevatorSubsystem.preStowPositionCommand(),
                 endEffectorSubsystem.securePiece()),
-            new WaitCommand(0.2),
+            new WaitCommand(0.5),
             Commands.print("HELICOPTER STOWING"),
             helicopterSubsystem.stowPositionCommand(),
             new WaitCommand(0.4),
@@ -73,8 +73,12 @@ public class FinishIntakeCommand extends DynamicCommand{
             Commands.print("SECURING PIECE"),
             endEffectorSubsystem.securePiece(),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0)),
+            elevatorSubsystem.stowPositionCommand(),
+            Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0.1), endEffectorSubsystem),
+            intakeSubsystem.stowPositionCommand(),
             //Commands.waitUntil(() -> endEffectorSubsystem.getCoralLoaded()),
             Commands.print("FINISHED")
+            
         ).onlyIf(() -> !endEffectorSubsystem.getCoralLoaded());
     }
 }

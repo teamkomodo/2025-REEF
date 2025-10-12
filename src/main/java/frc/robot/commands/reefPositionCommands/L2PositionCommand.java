@@ -32,9 +32,9 @@ public class L2PositionCommand extends DynamicCommand {
             Commands.waitUntil(helicopterSubsystem::atCommandedPosition),
             elevatorSubsystem.l2PositionCommand(),
             new SequentialCommandGroup(
-                Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition),
-                helicopterSubsystem.l2WaitPositionCommand(),
-                Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
+                Commands.waitUntil(elevatorSubsystem::aboveCommandedPosition)
+                //helicopterSubsystem.l2WaitPositionCommand(),
+                //Commands.waitUntil(helicopterSubsystem::atCommandedPosition)
             ).onlyIf(() -> (helicopterSubsystem.getPositionWaitingOn() != 2)),
             Commands.waitUntil(elevatorSubsystem::atCommandedPosition),
             Commands.runOnce(() -> {helicopterSubsystem.positionWaitingOn = 2;})

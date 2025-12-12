@@ -75,7 +75,7 @@ public class FinishIntakeCommand extends DynamicCommand{
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0)),
             elevatorSubsystem.stowPositionCommand(),
             Commands.runOnce(() -> endEffectorSubsystem.setEndEffectorDutyCycle(0.1), endEffectorSubsystem),
-            intakeSubsystem.stowPositionCommand(),
+           // intakeSubsystem.stowPositionCommand(),
             //Commands.waitUntil(() -> endEffectorSubsystem.getCoralLoaded()),
             Commands.print("FINISHED")
             
